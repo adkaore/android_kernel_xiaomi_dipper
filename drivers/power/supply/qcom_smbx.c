@@ -19,9 +19,12 @@
 #include <linux/pm_wakeirq.h>
 #include <linux/of.h>
 #include <linux/power_supply.h>
+#include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
+
+#include "qcom_smbx_limits.h"
 
 /* clang-format off */
 #define BATTERY_CHARGER_STATUS_1			0x06
@@ -375,6 +378,7 @@ struct smb_init_register {
  * @base:		Base address for smb registers
  * @regmap:		Register map
  * @batt_info:		Battery data from DT
+ * @input_current_limit_max_ua: Immutable board ceiling for USB input programming
  * @status_change_work: Worker to handle plug/unplug events
  * @cable_irq:		USB plugin IRQ
  * @wakeup_enabled:	If the cable IRQ will cause a wakeup
@@ -388,6 +392,7 @@ struct smb_chip {
 	unsigned int base;
 	struct regmap *regmap;
 	struct power_supply_battery_info *batt_info;
+	unsigned int input_current_limit_max_ua;
 
 	struct delayed_work status_change_work;
 	int cable_irq;
@@ -529,16 +534,13 @@ static inline int smb_get_current_limit(struct smb_chip *chip,
 	return rc;
 }
 
-static int smb_set_current_limit(struct smb_chip *chip, unsigned int val)
+static int smb_set_current_limit(struct smb_chip *chip, int val)
 {
-	unsigned char val_raw;
+	int val_raw;
 
-	if (val > 4800000) {
-		dev_err(chip->dev,
-			"Can't set current limit higher than 4800000uA");
-		return -EINVAL;
-	}
-	val_raw = val / CURRENT_SCALE_FACTOR;
+	val_raw = smb2_input_current_code(val, chip->input_current_limit_max_ua);
+	if (val_raw < 0)
+		return val_raw;
 
 	return regmap_write(chip->regmap, chip->base + USBIN_CURRENT_LIMIT_CFG,
 			    val_raw);
@@ -948,6 +950,16 @@ static int smb_probe(struct platform_device *pdev)
 
 	chip->dev = &pdev->dev;
 	chip->name = pdev->name;
+	chip->input_current_limit_max_ua = SMB2_ICL_REGISTER_MAX_UA;
+	if (device_property_present(chip->dev, "input-current-limit-microamp")) {
+		rc = device_property_read_u32(chip->dev, "input-current-limit-microamp",
+					      &chip->input_current_limit_max_ua);
+		if (rc)
+			return dev_err_probe(chip->dev, rc, "Invalid input current ceiling\n");
+		if (smb2_input_current_code(0, chip->input_current_limit_max_ua) < 0)
+			return dev_err_probe(chip->dev, -EINVAL,
+					     "Input current ceiling out of range or step\n");
+	}
 
 	chip->regmap = dev_get_regmap(pdev->dev.parent, NULL);
 	if (!chip->regmap)
