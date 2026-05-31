@@ -913,25 +913,32 @@ static int imx363_power_on(struct device *dev)
 	struct imx363 *imx363 = to_imx363(sd);
 	int ret;
 
+	/*
+	 * Sony EXTCLK must be stable before reset deassertion. Start
+	 * MCLK first, then bring up supplies, then deassert reset.
+	 */
+	ret = clk_prepare_enable(imx363->clk);
+	if (ret) {
+		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+
+	fsleep(1000);
+
 	ret = regulator_bulk_enable(IMX363_NUM_SUPPLIES,
 				    imx363->supplies);
 	if (ret) {
 		dev_err(dev, "%s: failed to enable regulators\n",
 			__func__);
+		clk_disable_unprepare(imx363->clk);
 		return ret;
 	}
 
-	usleep_range(400, 600);
+	fsleep(10000);
 
 	gpiod_set_value_cansleep(imx363->reset_gpio, 1);
 
-	ret = clk_prepare_enable(imx363->clk);
-	if (ret) {
-		dev_err(dev, "failed to enable clock\n");
-		regulator_bulk_disable(IMX363_NUM_SUPPLIES, imx363->supplies);
-	}
-
-	usleep_range(1000, 1200);
+	fsleep(20000);
 
 	return 0;
 }
