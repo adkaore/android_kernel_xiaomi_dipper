@@ -11,7 +11,7 @@ struct pmic_typec {
 	struct tcpm_port	*tcpm_port;
 	struct tcpc_dev		tcpc;
 	struct pmic_typec_pdphy	*pmic_typec_pdphy;
-	struct pmic_typec_port	*pmic_typec_port;
+	void			*port_priv;
 
 	int (*pdphy_start)(struct pmic_typec *tcpm,
 			   struct tcpm_port *tcpm_port);

@@ -324,7 +324,7 @@ static int qcom_pmic_typec_port_vbus_toggle(struct pmic_typec_port *pmic_typec_p
 static int qcom_pmic_typec_port_get_vbus(struct tcpc_dev *tcpc)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	int ret;
 
 	mutex_lock(&pmic_typec_port->vbus_lock);
@@ -337,7 +337,7 @@ static int qcom_pmic_typec_port_get_vbus(struct tcpc_dev *tcpc)
 static int qcom_pmic_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on, bool sink)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	int ret = 0;
 
 	mutex_lock(&pmic_typec_port->vbus_lock);
@@ -363,7 +363,7 @@ static int qcom_pmic_typec_port_get_cc(struct tcpc_dev *tcpc,
 				       enum typec_cc_status *cc2)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	struct device *dev = pmic_typec_port->dev;
 	unsigned int misc, val;
 	bool attached;
@@ -459,7 +459,7 @@ static int qcom_pmic_typec_port_set_cc(struct tcpc_dev *tcpc,
 				       enum typec_cc_status cc)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	struct device *dev = pmic_typec_port->dev;
 	unsigned int mode, currsrc;
 	unsigned int misc;
@@ -533,7 +533,7 @@ static int qcom_pmic_typec_port_set_polarity(struct tcpc_dev *tcpc,
 static int qcom_pmic_typec_port_set_vconn(struct tcpc_dev *tcpc, bool on)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	struct device *dev = pmic_typec_port->dev;
 	unsigned int orientation, misc, mask, value;
 	unsigned long flags;
@@ -574,7 +574,7 @@ static int qcom_pmic_typec_port_start_toggling(struct tcpc_dev *tcpc,
 					       enum typec_cc_status cc)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	struct device *dev = pmic_typec_port->dev;
 	unsigned int misc;
 	u8 mode = 0;
@@ -638,7 +638,7 @@ done:
 static int qcom_pmic_typec_port_start(struct pmic_typec *tcpm,
 				      struct tcpm_port *tcpm_port)
 {
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	int i;
 	int mask;
 	int ret;
@@ -688,7 +688,7 @@ done:
 
 static void qcom_pmic_typec_port_stop(struct pmic_typec *tcpm)
 {
-	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct pmic_typec_port *pmic_typec_port = tcpm->port_priv;
 	int i;
 
 	for (i = 0; i < pmic_typec_port->nr_irqs; i++)
@@ -754,7 +754,7 @@ int qcom_pmic_typec_port_probe(struct platform_device *pdev,
 			return ret;
 	}
 
-	tcpm->pmic_typec_port = pmic_typec_port;
+	tcpm->port_priv = pmic_typec_port;
 
 	tcpm->tcpc.get_vbus = qcom_pmic_typec_port_get_vbus;
 	tcpm->tcpc.set_vbus = qcom_pmic_typec_port_set_vbus;
@@ -771,6 +771,7 @@ int qcom_pmic_typec_port_probe(struct platform_device *pdev,
 }
 
 const struct pmic_typec_port_resources pm8150b_port_res = {
+	.probe = qcom_pmic_typec_port_probe,
 	.irq_params = {
 		{
 			.irq_name = "vpd-detect",
