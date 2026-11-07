@@ -1,0 +1,35 @@
+{
+  "captured": "2026-11-07",
+  "sources": [
+    {
+      "name": "google",
+      "url": "https://android.googlesource.com/kernel/common",
+      "branch": "android17-6.18",
+      "commit": "b97c15a2719d5904a1473d805c24887e2fb4c673"
+    },
+    {
+      "name": "legacy",
+      "url": "https://github.com/crdroidandroid/android_kernel_xiaomi_sdm845.git",
+      "branch": "15.0",
+      "commit": "0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6"
+    },
+    {
+      "name": "android_device_xiaomi_dipper",
+      "url": "https://github.com/crdroidandroid/android_device_xiaomi_dipper.git",
+      "branch": "15.0",
+      "commit": "c3aaa8264afe8e9feebde82536bfb43c90c67c56"
+    },
+    {
+      "name": "android_device_xiaomi_sdm845-common",
+      "url": "https://github.com/crdroidandroid/android_device_xiaomi_sdm845-common.git",
+      "branch": "15.0",
+      "commit": "3f83acb51e8aa061581262bb963ef1d2134b4d38"
+    },
+    {
+      "name": "dipper-mainline-port",
+      "url": "https://github.com/taygoth/dipper-mainline-port.git",
+      "branch": "master",
+      "commit": "e6d1be1464e25a2bad68aa81641c0b7438edea78"
+    }
+  ]
+}
