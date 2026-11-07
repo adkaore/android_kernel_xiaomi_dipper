@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-07",
+  "type": "non-hermetic Kbuild diagnostic; not Kleaf release certification",
+  "kernel_revision": "b97c15a2719d5904a1473d805c24887e2fb4c673",
+  "build_source_commit": "c2928d861968bd096aec1f3cd125e2777c464573",
+  "kernel_source_modified": false,
+  "modules": 110,
+  "image_sha256": "a671cb2b6fe0f9da3e6a08f5a8d6fd0af3233b91b8abfe6c83885af0a9eedf13",
+  "config_sha256": "26c5201920b64504ae7350953d223ddc627ed2a03acd27e277abac8fbfd1477a",
+  "log_sha256": "c192bb0d13b4df883b29208c89f95dcc1a24bae15c5e93474163c61a1d17b486",
+  "hardware_tested": false
+}

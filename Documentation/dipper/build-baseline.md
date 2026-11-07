@@ -40,3 +40,21 @@ sync the complete manifest into the remaining 50 GiB of Windows disk space.
 
 Next milestone: provision the exact ACK tools and establish a full baseline
 kernel build, then start individually reviewed device patches.
+
+## Full diagnostic build result
+
+Full Kbuild `Image modules` completed successfully on 2026-11-07:
+110 modules, including Rust Binder; RUST, CFI and DEBUG_INFO_BTF remained enabled.
+No kernel source change was made. Host libdw-dev was required for gendwarfksyms.
+Google compiler archives and bindgen revisions/hashes are recorded in
+`toolchains.json` and `bindgen.json`. Result hashes: `gki-baseline-result.json`.
+
+Reproduction after provisioning those exact tools:
+
+    TOOLCHAINS_DIR=/home/adkaore/android/toolchains tools/dipper/build-gki-diagnostic.sh /home/adkaore/android/out/gki-baseline
+
+This build uses host tools and direct Kbuild; it does not establish hermetic
+Kleaf reproducibility, ABI certification, Android bootability or Mi 8 support.
+The earlier next-milestone paragraph is superseded for the diagnostic build;
+Kleaf release integration remains separate work. The official compiler binaries
+were executed and the kernel's rustavailable check passed.

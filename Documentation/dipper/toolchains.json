@@ -1,0 +1,20 @@
+[
+  {
+    "name": "clang",
+    "repository": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86",
+    "commit": "4a7d0a5e443c27d8f68fbd46abfab464e1355a69",
+    "subdir": "clang-r596125",
+    "archive": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/4a7d0a5e443c27d8f68fbd46abfab464e1355a69/clang-r596125.tar.gz",
+    "archive_sha256": "946413e465a4d0c7eda503fc53802146d8cca9eca930093967de2614821d1699",
+    "version": "Android (15682573, +pgo, +bolt, +lto, +mlgo, based on r596125) clang version 22.0.2 (https://android.googlesource.com/toolchain/llvm-project de03d430485c884861198b25459851f429cbdbad)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /home/adkaore/android/toolchains/clang-r596125/bin"
+  },
+  {
+    "name": "rust",
+    "repository": "https://android.googlesource.com/platform/prebuilts/rust-toolchain/linux-x86",
+    "commit": "a04f70c5179f23eff11c58cb480acee4afb1334b",
+    "subdir": "1.91.1.p3",
+    "archive": "https://android.googlesource.com/platform/prebuilts/rust-toolchain/linux-x86/+archive/a04f70c5179f23eff11c58cb480acee4afb1334b/1.91.1.p3.tar.gz",
+    "archive_sha256": "837706291b7897bda3d3fe5e00eb1c2b1432f30377cb24c23576367c24d42e54",
+    "version": "rustc 1.91.1-dev (ed61e7d7e 2025-11-07) (Android Rust Toolchain version 15551131-linux-x86)"
+  }
+]

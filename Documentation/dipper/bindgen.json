@@ -1,0 +1,6 @@
+{
+  "repository": "https://android.googlesource.com/platform/prebuilts/clang-tools",
+  "commit": "4155cb466dcd9b53c6f873829c53aa6f905449dd",
+  "path": "linux-x86/bin/bindgen",
+  "sha256": "066435d1670d6680a4363ad4e3a12e7d6b9dc866fa956b24069e5d2cd08d0258"
+}
