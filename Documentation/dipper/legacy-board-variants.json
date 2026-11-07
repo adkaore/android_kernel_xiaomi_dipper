@@ -1,0 +1,183 @@
+{
+  "source": "legacy/15.0",
+  "note": "Source inventory only; IDs inherited from included files are not expanded. No variant selected without hardware evidence.",
+  "variants": [
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new MP v2.1",
+      "board_id": "55 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-mp-pinctrl.dtsi",
+        "dipper-mp.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new MP v2",
+      "board_id": "55 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-mp-pinctrl.dtsi",
+        "dipper-mp.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2",
+      "board_id": "50 0",
+      "includes": [
+        "sdm845-sde-display.dtsi",
+        "dipper-p0.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p0-pinctrl.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2.1",
+      "board_id": "50 0",
+      "includes": [
+        "sdm845-sde-display.dtsi",
+        "dipper-p0-pinctrl.dtsi",
+        "dipper-p0.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2.1",
+      "board_id": "50 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p0-pinctrl.dtsi",
+        "dipper-p0.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2",
+      "board_id": "50 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p0-pinctrl.dtsi",
+        "dipper-p0.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper P0",
+      "board_id": "30 0",
+      "includes": [
+        "sdm845.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p0-pinctrl.dtsi",
+        "dipper-p0.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2 cn",
+      "board_id": "51 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p1-pinctrl.dtsi",
+        "dipper-p1.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2 gb",
+      "board_id": "52 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p1-pinctrl-gb.dtsi",
+        "dipper-p1-gb.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2.1 cn",
+      "board_id": "51 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p1-pinctrl.dtsi",
+        "dipper-p1.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2.1 gb",
+      "board_id": "52 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p1-pinctrl-gb.dtsi",
+        "dipper-p1-gb.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1.1 v2.1",
+      "board_id": "53 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p1.1-pinctrl.dtsi",
+        "dipper-p1.1.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P1.1 v2",
+      "board_id": "53 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p1.1-pinctrl.dtsi",
+        "dipper-p1.1.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P2 v2.1",
+      "board_id": "54 0",
+      "includes": [
+        "sdm845-v2.1.dtsi",
+        "sdm845-sde-display.dtsi",
+        "dipper-p2-pinctrl.dtsi",
+        "dipper-p2.dtsi",
+        "dipper-audio-overlay.dtsi"
+      ]
+    },
+    {
+      "path": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+      "model": "Xiaomi Technologies, Inc. Dipper new P2 v2",
+      "board_id": "54 0",
+      "includes": [
+        "sdm845-v2.dtsi",
+        "sdm845-sde-display.dtsi",
+        "sdm845-audio-overlay.dtsi",
+        "dipper-p2-pinctrl.dtsi",
+        "dipper-p2.dtsi"
+      ]
+    }
+  ]
+}
