@@ -59,6 +59,7 @@ static void ss_notch_fhd_ea8074_reset(struct ss_notch_fhd_ea8074 *ctx)
 static int ss_notch_fhd_ea8074_on(struct ss_notch_fhd_ea8074 *ctx)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
+	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	struct device *dev = &dsi->dev;
 	int ret;
 
@@ -77,29 +78,32 @@ static int ss_notch_fhd_ea8074_on(struct ss_notch_fhd_ea8074 *ctx)
 		return ret;
 	}
 
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
-	mipi_dsi_dcs_write_seq(dsi, 0xef, 0xf0, 0x31, 0x00, 0x33, 0x31, 0x14, 0x35);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x01);
-	mipi_dsi_dcs_write_seq(dsi, 0xbb, 0x03);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x4f);
-	mipi_dsi_dcs_write_seq(dsi, 0xcb, 0x00);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x6b);
-	mipi_dsi_dcs_write_seq(dsi, 0xcb, 0x00);
-	mipi_dsi_dcs_write_seq(dsi, 0xf7, 0x03);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x05);
-	mipi_dsi_dcs_write_seq(dsi, 0xb1, 0x10);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x02);
-	mipi_dsi_dcs_write_seq(dsi, 0xd5, 0x02, 0x17, 0x54, 0x14);
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0x5a, 0x5a);
-	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0x5a, 0x5a);
-	mipi_dsi_dcs_write_seq(dsi, 0xd2, 0x9f, 0xf0);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x0e);
-	mipi_dsi_dcs_write_seq(dsi, 0xd2, 0x70);
-	mipi_dsi_dcs_write_seq(dsi, 0xb0, 0x04);
-	mipi_dsi_dcs_write_seq(dsi, 0xd2, 0x20);
-	mipi_dsi_dcs_write_seq(dsi, 0xf0, 0xa5, 0xa5);
-	mipi_dsi_dcs_write_seq(dsi, 0xfc, 0xa5, 0xa5);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0x5a, 0x5a);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xef, 0xf0, 0x31, 0x00, 0x33, 0x31, 0x14, 0x35);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x01);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xbb, 0x03);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x4f);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xcb, 0x00);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x6b);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xcb, 0x00);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf7, 0x03);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x05);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb1, 0x10);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x02);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd5, 0x02, 0x17, 0x54, 0x14);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0xa5, 0xa5);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0x5a, 0x5a);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xfc, 0x5a, 0x5a);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd2, 0x9f, 0xf0);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x0e);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd2, 0x70);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x04);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd2, 0x20);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0xa5, 0xa5);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xfc, 0xa5, 0xa5);
+
+	if (dsi_ctx.accum_err)
+		return dsi_ctx.accum_err;
 
 	ret = mipi_dsi_dcs_set_tear_on(dsi, MIPI_DSI_DCS_TEAR_MODE_VBLANK);
 	if (ret < 0) {
@@ -107,23 +111,27 @@ static int ss_notch_fhd_ea8074_on(struct ss_notch_fhd_ea8074 *ctx)
 		return ret;
 	}
 
-	ret = mipi_dsi_dcs_set_display_brightness_large(dsi, 0x03ff);
+	ret = mipi_dsi_dcs_set_display_brightness_large(dsi, 0);
 	if (ret < 0) {
 		dev_err(dev, "Failed to set display brightness: %d\n", ret);
 		return ret;
 	}
 
-	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20);
-	mipi_dsi_dcs_write_seq(dsi, MIPI_DCS_WRITE_POWER_SAVE, 0x00);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x20);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_WRITE_POWER_SAVE, 0x00);
+	if (dsi_ctx.accum_err)
+		return dsi_ctx.accum_err;
 	msleep(110);
 
-	ret = mipi_dsi_dcs_set_display_on(dsi);
-	if (ret < 0) {
-		dev_err(dev, "Failed to set display on: %d\n", ret);
-		return ret;
-	}
-
 	return 0;
+}
+
+static int ss_notch_fhd_ea8074_enable(struct drm_panel *panel)
+{
+	struct ss_notch_fhd_ea8074 *ctx = to_ss_notch_fhd_ea8074(panel);
+
+	ctx->dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+	return mipi_dsi_dcs_set_display_on(ctx->dsi);
 }
 
 static int ss_notch_fhd_ea8074_disable(struct drm_panel *panel)
@@ -140,13 +148,6 @@ static int ss_notch_fhd_ea8074_disable(struct drm_panel *panel)
 		return ret;
 	}
 	usleep_range(17000, 18000);
-
-	ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
-	if (ret < 0) {
-		dev_err(dev, "Failed to enter sleep mode: %d\n", ret);
-		return ret;
-	}
-	msleep(120);
 
 	return 0;
 }
@@ -178,6 +179,12 @@ static int ss_notch_fhd_ea8074_unprepare(struct drm_panel *panel)
 {
 	struct ss_notch_fhd_ea8074 *ctx = to_ss_notch_fhd_ea8074(panel);
 	int ret;
+
+	ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
+	if (ret < 0)
+		dev_err(panel->dev, "Failed to enter sleep mode: %d\n", ret);
+	msleep(120);
 
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
 
@@ -223,6 +230,7 @@ static int ss_notch_fhd_ea8074_get_modes(struct drm_panel *panel,
 
 static const struct drm_panel_funcs ss_notch_fhd_ea8074_panel_funcs = {
 	.prepare = ss_notch_fhd_ea8074_prepare,
+	.enable = ss_notch_fhd_ea8074_enable,
 	.disable = ss_notch_fhd_ea8074_disable,
 	.unprepare = ss_notch_fhd_ea8074_unprepare,
 	.get_modes = ss_notch_fhd_ea8074_get_modes,
