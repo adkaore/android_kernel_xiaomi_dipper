@@ -47,3 +47,21 @@ Do not silently treat a working compiler as proof of those features.
 
 Build outputs remain outside Git. The baseline output directory was reused for
 a focused module compile; rebuild baseline with its script before comparing it.
+
+## 2026-11-08 hardening
+
+The old DT explicitly requests LP mode for both on and off commands. The
+candidate incorrectly changed the off path to HS; all DCS paths now retain LP.
+The missing seven manufacturer power-off commands were restored byte-for-byte
+from the pinned old DT, including the delay before sleep. Initialization bytes
+are checked against the same source by tools/dipper/tests/test_panel.py.
+
+The panel now uses reference-counted devm_drm_panel_alloc, initially asserted
+reset, regulator bulk init_load_uA and mutex-protected power/backlight state.
+Brightness writes while unpowered are cached by the backlight core without DSI
+transfers. Failed regulator shutdown is no longer reported as success; powered
+state is retained for retry. Remove/shutdown request panel power-off before DSI
+detachment. No regulator load is advertised as a battery optimization: the
+regulator core already excludes disabled consumers from aggregate current load.
+
+These are source-regression and compiler checks, not a mock hardware test.

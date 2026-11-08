@@ -10,6 +10,7 @@
 #include <linux/delay.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 
@@ -38,6 +39,10 @@ struct ss_notch_fhd_ea8074 {
 	struct regulator_bulk_data supplies[ARRAY_SIZE(regulator_names)];
 
 	struct gpio_desc *reset_gpio;
+	/* Serialize DCS/backlight access with power transitions. */
+	struct mutex lock;
+	bool powered;
+	bool initialized;
 };
 
 static inline
@@ -62,8 +67,6 @@ static int ss_notch_fhd_ea8074_on(struct ss_notch_fhd_ea8074 *ctx)
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	struct device *dev = &dsi->dev;
 	int ret;
-
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
 	if (ret < 0) {
@@ -130,7 +133,10 @@ static int ss_notch_fhd_ea8074_enable(struct drm_panel *panel)
 {
 	struct ss_notch_fhd_ea8074 *ctx = to_ss_notch_fhd_ea8074(panel);
 
-	ctx->dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+	guard(mutex)(&ctx->lock);
+	if (!ctx->initialized)
+		return -EPERM;
+
 	return mipi_dsi_dcs_set_display_on(ctx->dsi);
 }
 
@@ -140,7 +146,9 @@ static int ss_notch_fhd_ea8074_disable(struct drm_panel *panel)
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
-	ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	guard(mutex)(&ctx->lock);
+	if (!ctx->initialized)
+		return 0;
 
 	ret = mipi_dsi_dcs_set_display_off(ctx->dsi);
 	if (ret < 0) {
@@ -158,9 +166,16 @@ static int ss_notch_fhd_ea8074_prepare(struct drm_panel *panel)
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
-	if (ret < 0)
-		return ret;
+	guard(mutex)(&ctx->lock);
+	if (ctx->initialized)
+		return 0;
+
+	if (!ctx->powered) {
+		ret = regulator_bulk_enable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
+		if (ret < 0)
+			return ret;
+		ctx->powered = true;
+	}
 
 	ss_notch_fhd_ea8074_reset(ctx);
 
@@ -168,31 +183,58 @@ static int ss_notch_fhd_ea8074_prepare(struct drm_panel *panel)
 	if (ret < 0) {
 		dev_err(dev, "Failed to initialize panel: %d\n", ret);
 		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-		regulator_bulk_disable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
+		if (!regulator_bulk_disable(ARRAY_SIZE(ctx->supplies), ctx->supplies))
+			ctx->powered = false;
+		else
+			dev_err(dev, "Failed to unwind panel supplies\n");
 		return ret;
 	}
 
+	ctx->initialized = true;
 	return 0;
 }
 
 static int ss_notch_fhd_ea8074_unprepare(struct drm_panel *panel)
 {
 	struct ss_notch_fhd_ea8074 *ctx = to_ss_notch_fhd_ea8074(panel);
+	struct mipi_dsi_multi_context dsi_ctx = { .dsi = ctx->dsi };
 	int ret;
 
-	ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
-	ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
-	if (ret < 0)
-		dev_err(panel->dev, "Failed to enter sleep mode: %d\n", ret);
-	msleep(120);
+	guard(mutex)(&ctx->lock);
+	if (!ctx->powered)
+		return 0;
+
+	if (ctx->initialized) {
+		/* Preserve the vendor power-off sequence before entering sleep. */
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0x5a, 0x5a);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x49);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xcb, 0xff);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x4f);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xcb, 0xc8);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf7, 0x03);
+		mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xf0, 0xa5, 0xa5);
+		if (dsi_ctx.accum_err)
+			dev_err(panel->dev, "Power-off commands failed: %d\n",
+				dsi_ctx.accum_err);
+		usleep_range(17000, 18000);
+
+		/* Still try sleep and supply shutdown after a transfer failure. */
+		ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
+		if (ret < 0)
+			dev_err(panel->dev, "Failed to enter sleep mode: %d\n", ret);
+		msleep(120);
+	}
+	ctx->initialized = false;
 
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
 
 	ret = regulator_bulk_disable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
 	if (ret)
 		dev_err(panel->dev, "Failed to disable regulators: %d\n", ret);
+	else
+		ctx->powered = false;
 
-	return 0;
+	return ret;
 }
 
 static const struct drm_display_mode ss_notch_fhd_ea8074_mode = {
@@ -238,10 +280,14 @@ static const struct drm_panel_funcs ss_notch_fhd_ea8074_panel_funcs = {
 
 static int ss_notch_fhd_ea8074_bl_update_status(struct backlight_device *bl)
 {
-	struct mipi_dsi_device *dsi = bl_get_data(bl);
+	struct ss_notch_fhd_ea8074 *ctx = bl_get_data(bl);
 	u16 brightness = backlight_get_brightness(bl);
 
-	return mipi_dsi_dcs_set_display_brightness_large(dsi, brightness);
+	guard(mutex)(&ctx->lock);
+	if (!ctx->initialized)
+		return 0;
+
+	return mipi_dsi_dcs_set_display_brightness_large(ctx->dsi, brightness);
 }
 
 static const struct backlight_ops ss_notch_fhd_ea8074_bl_ops = {
@@ -249,16 +295,16 @@ static const struct backlight_ops ss_notch_fhd_ea8074_bl_ops = {
 };
 
 static struct backlight_device *
-ss_notch_fhd_ea8074_create_backlight(struct mipi_dsi_device *dsi)
+ss_notch_fhd_ea8074_create_backlight(struct ss_notch_fhd_ea8074 *ctx)
 {
-	struct device *dev = &dsi->dev;
+	struct device *dev = &ctx->dsi->dev;
 	const struct backlight_properties props = {
 		.type = BACKLIGHT_RAW,
 		.brightness = 1023,
 		.max_brightness = 1023,
 	};
 
-	return devm_backlight_device_register(dev, dev_name(dev), dev, dsi,
+	return devm_backlight_device_register(dev, dev_name(dev), dev, ctx,
 					      &ss_notch_fhd_ea8074_bl_ops, &props);
 }
 
@@ -268,27 +314,25 @@ static int ss_notch_fhd_ea8074_probe(struct mipi_dsi_device *dsi)
 	struct ss_notch_fhd_ea8074 *ctx;
 	int i, ret;
 
-	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
-	if (!ctx)
-		return -ENOMEM;
+	ctx = devm_drm_panel_alloc(dev, struct ss_notch_fhd_ea8074, panel,
+				   &ss_notch_fhd_ea8074_panel_funcs,
+				   DRM_MODE_CONNECTOR_DSI);
+	if (IS_ERR(ctx))
+		return PTR_ERR(ctx);
 
-	for (i = 0; i < ARRAY_SIZE(ctx->supplies); i++)
+	mutex_init(&ctx->lock);
+
+	for (i = 0; i < ARRAY_SIZE(ctx->supplies); i++) {
 		ctx->supplies[i].supply = regulator_names[i];
+		ctx->supplies[i].init_load_uA = regulator_enable_loads[i];
+	}
 
 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(ctx->supplies),
 				      ctx->supplies);
 	if (ret < 0)
 		return dev_err_probe(dev, ret, "Failed to get regulators\n");
 
-	for (i = 0; i < ARRAY_SIZE(ctx->supplies); i++) {
-		ret = regulator_set_load(ctx->supplies[i].consumer,
-					 regulator_enable_loads[i]);
-		if (ret)
-			return dev_err_probe(dev, ret,
-					     "Failed to set regulator load\n");
-	}
-
-	ctx->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
+	ctx->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
 	if (IS_ERR(ctx->reset_gpio))
 		return dev_err_probe(dev, PTR_ERR(ctx->reset_gpio),
 				     "Failed to get reset-gpios\n");
@@ -298,13 +342,11 @@ static int ss_notch_fhd_ea8074_probe(struct mipi_dsi_device *dsi)
 
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS;
+	dsi->mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
-	drm_panel_init(&ctx->panel, dev, &ss_notch_fhd_ea8074_panel_funcs,
-		       DRM_MODE_CONNECTOR_DSI);
 	ctx->panel.prepare_prev_first = true;
 
-	ctx->panel.backlight = ss_notch_fhd_ea8074_create_backlight(dsi);
+	ctx->panel.backlight = ss_notch_fhd_ea8074_create_backlight(ctx);
 	if (IS_ERR(ctx->panel.backlight))
 		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
 				     "Failed to create backlight\n");
@@ -326,11 +368,21 @@ static void ss_notch_fhd_ea8074_remove(struct mipi_dsi_device *dsi)
 	struct ss_notch_fhd_ea8074 *ctx = mipi_dsi_get_drvdata(dsi);
 	int ret;
 
+	drm_panel_remove(&ctx->panel);
+	ss_notch_fhd_ea8074_disable(&ctx->panel);
+	ss_notch_fhd_ea8074_unprepare(&ctx->panel);
+
 	ret = mipi_dsi_detach(dsi);
 	if (ret < 0)
 		dev_err(&dsi->dev, "Failed to detach from DSI host: %d\n", ret);
+}
 
-	drm_panel_remove(&ctx->panel);
+static void ss_notch_fhd_ea8074_shutdown(struct mipi_dsi_device *dsi)
+{
+	struct ss_notch_fhd_ea8074 *ctx = mipi_dsi_get_drvdata(dsi);
+
+	ss_notch_fhd_ea8074_disable(&ctx->panel);
+	ss_notch_fhd_ea8074_unprepare(&ctx->panel);
 }
 
 static const struct of_device_id ss_notch_fhd_ea8074_of_match[] = {
@@ -342,6 +394,7 @@ MODULE_DEVICE_TABLE(of, ss_notch_fhd_ea8074_of_match);
 static struct mipi_dsi_driver ss_notch_fhd_ea8074_driver = {
 	.probe = ss_notch_fhd_ea8074_probe,
 	.remove = ss_notch_fhd_ea8074_remove,
+	.shutdown = ss_notch_fhd_ea8074_shutdown,
 	.driver = {
 		.name = "panel-samsung-ea8074",
 		.of_match_table = ss_notch_fhd_ea8074_of_match,
