@@ -51,3 +51,12 @@ physical operation, modem compatibility, charging safety or suspend current.
 
 The charger uses the reference board's 4.4V design maximum. Hardware battery
 variant, board revision and recovery must be checked before any deployment.
+
+## Resident-touch candidate
+
+A new `st,stmfts-ftm5` node describes the legacy GPIO31 IRQ, GPIO32 reset, I2C
+address 0x49, GPIO23 I/O regulator and L28 analog regulator. It remains disabled:
+the owner's actual board/controller has not been identified, and resident
+firmware behavior needs a controlled crDroid test before enabling it. The new
+runtime-only driver is compile-selected by core.config, not the old downstream
+firmware-updating driver. No always-on vote is introduced for either touch rail.

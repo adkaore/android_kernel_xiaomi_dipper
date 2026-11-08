@@ -5,7 +5,7 @@
  * Copyright (c) 2026 Max Furman <taygoth@gmail.com>
  *
  * This source is compile-tested only. It is not a tested boot image.
- * Camera, touch, audio, fuel gauge and Type-C role/PD support need separate
+ * Camera, audio, fuel gauge and Type-C role/PD support need separate
  * drivers/integration; do not enable placeholder nodes for them here.
  */
 
@@ -15,6 +15,7 @@
 #include <dt-bindings/firmware/qcom,scm.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/phy/phy-qcom-qusb2.h>
 #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
@@ -63,6 +64,16 @@
 			wakeup-source;
 			debounce-interval = <15>;
 		};
+	};
+
+	touch_vdd: touch-vdd-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "touch-vdd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&tlmm 23 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <4000>;
 	};
 
 	reserved-memory {
@@ -274,6 +285,12 @@
 		vreg_l25a_3p3: ldo25 {
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3312000>;
+			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+
+		touch_avdd: ldo28 {
+			regulator-min-microvolt = <2856000>;
+			regulator-max-microvolt = <3008000>;
 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
 		};
 
@@ -548,4 +565,43 @@
 &venus {
 	firmware-name = "qcom/sdm845/dipper/venus.mbn";
 	status = "okay";
+};
+
+&i2c14 {
+	clock-frequency = <400000>;
+	status = "okay";
+
+	touchscreen@49 {
+		compatible = "st,stmfts-ftm5";
+		reg = <0x49>;
+		interrupts-extended = <&tlmm 31 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
+		vdd-supply = <&touch_vdd>;
+		avdd-supply = <&touch_avdd>;
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2248>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&touch_default>;
+		/* Confirm the actual board and resident firmware before testing. */
+		status = "disabled";
+	};
+};
+
+&tlmm {
+	touch_default: touch-default-state {
+		irq-pins {
+			pins = "gpio31";
+			function = "gpio";
+			bias-pull-up;
+			drive-strength = <2>;
+		};
+
+		reset-pins {
+			pins = "gpio32";
+			function = "gpio";
+			output-low;
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
 };

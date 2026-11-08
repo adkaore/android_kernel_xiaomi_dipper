@@ -91,6 +91,16 @@ class BoardTests(unittest.TestCase):
         self.assertEqual(self.prop(path, 'dr_mode').as_str(), 'peripheral')
         self.assertFalse(self.tree.hasprop(self.nodes[path], 'usb-role-switch'))
 
+    def test_touch_candidate_stays_gated(self):
+        path = self.matching('st,stmfts-ftm5')[0][0]
+        self.assertEqual(self.prop(path, 'status').as_str(), 'disabled')
+        self.assertEqual(self.prop(path, 'touchscreen-size-x').as_uint32(), 1080)
+        self.assertEqual(self.prop(path, 'touchscreen-size-y').as_uint32(), 2248)
+        self.assertEqual(self.prop(path, 'reset-gpios').as_uint32_list()[1:], [32, 1])
+        for supply in ['vdd-supply', 'avdd-supply']:
+            regulator = self.tree.node_offset_by_phandle(self.prop(path, supply).as_uint32())
+            self.assertFalse(self.tree.hasprop(regulator, 'regulator-always-on'))
+
     def test_no_fabricated_pd_identity_or_ramoops(self):
         for node in self.nodes.values():
             for prop in ['sink-vdos', 'sink-vdos-v1', 'source-pdos']:
