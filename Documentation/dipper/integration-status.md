@@ -64,8 +64,10 @@ Use pinned, per-subsystem comparisons, not a wholesale replacement of Linux core
 - Wi-Fi: ath10k plus correct board/calibration data and Android Wi-Fi HAL handling;
   the old qca_cld3 /dev/wlan control path is not the same interface.
 - Firmware: image names, format, access and exact versions must match the
-  remoteproc/GPU/BT/video stack. No proprietary blobs or per-device identifiers
-  are committed. Existing firmware is not magically updated by a new kernel.
+  remoteproc/GPU/BT/video stack. No proprietary blobs or identifiers from the owner's device
+  are committed. The initial public reference-DT import contained its author's
+  example MAC; the adaptation removed it from the active tree without rewriting
+  the preserved import history. Existing firmware is not magically updated by a new kernel.
 - Boot/init: early module packaging/loading, boot-header/DTB selection, fstab,
   encryption and SELinux/VINTF need device-tree and Android build integration.
 
@@ -79,3 +81,17 @@ inventory. It is not run by any build/verification script and has not been run
 against the owner's phone. It does not request root, reboot, write partitions or
 extract calibration/serial/IMEI data. It can help resolve the board/controller
 identity missing from internet sources; it is not itself a hardware driver test.
+
+## Latest end-to-end check
+
+latest-checked-build.json identifies the checked source revision, configuration,
+Image/DTB hashes and 145 module paths. The final verifier completed with zero
+applicable DTB schema diagnostics, 37 source/compiled-DT tests and one million
+ASan/UBSan decoder cases. It also rechecked the fragment after schema generation.
+No Android/vendor files were changed, and no phone command has been executed.
+
+The work is published on topic branches. It does NOT mean that every independent
+kernel task is finished: board variants, fuel gauge, Type-C, audio, GNSS, NFC,
+sensors and remaining camera/lens work are still tracked above. Some require
+physical identification, calibration/protocol data or hardware validation before
+we can make defensible changes, in addition to future Android/vendor integration.
