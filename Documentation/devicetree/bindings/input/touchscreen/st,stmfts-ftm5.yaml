@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/st,stmfts-ftm5.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics FTM5 resident-firmware touchscreen
+
+maintainers:
+  - adkaore <adkaore@gmail.com>
+
+description: |
+  I2C FTM5 touchscreen with chip identifier bytes 0x36 and 0x39. The driver
+  uses already programmed firmware and does not update flash or calibration.
+  It supports ten multitouch contacts but not wake gestures or stylus/hover.
+
+allOf:
+  - $ref: touchscreen.yaml#
+
+properties:
+  compatible:
+    const: st,stmfts-ftm5
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  reset-gpios:
+    maxItems: 1
+    description: Active-low controller reset
+
+  vdd-supply:
+    description: I/O power supply
+
+  avdd-supply:
+    description: Analog power supply
+
+  touchscreen-size-x:
+    minimum: 1
+    maximum: 4096
+
+  touchscreen-size-y:
+    minimum: 1
+    maximum: 4096
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - reset-gpios
+  - vdd-supply
+  - avdd-supply
+  - touchscreen-size-x
+  - touchscreen-size-y
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    #include <dt-bindings/interrupt-controller/irq.h>
+
+    i2c {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        touchscreen@49 {
+            compatible = "st,stmfts-ftm5";
+            reg = <0x49>;
+            interrupt-parent = <&gpio>;
+            interrupts = <31 IRQ_TYPE_LEVEL_LOW>;
+            reset-gpios = <&gpio 32 GPIO_ACTIVE_LOW>;
+            vdd-supply = <&touch_io>;
+            avdd-supply = <&touch_analog>;
+            touchscreen-size-x = <1080>;
+            touchscreen-size-y = <2248>;
+        };
+    };
+...

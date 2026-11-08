@@ -1250,6 +1250,16 @@ config TOUCHSCREEN_ST1232
 	  To compile this driver as a module, choose M here: the
 	  module will be called st1232_ts.
 
+config TOUCHSCREEN_STMFTS_FTM5
+	tristate "STMicroelectronics FTM5 resident-firmware touchscreen"
+	depends on I2C && OF && GPIOLIB
+	help
+	  Runtime-only FTM5 I2C input using existing, valid controller firmware.
+	  This driver never programs flash or persistent calibration data.
+	  Only multitouch finger/glove/palm input is supported. Gestures and
+	  wake-on-touch are not implemented. Hardware validation is pending.
+	  If unsure, say N. The module is called stmfts-ftm5.
+
 config TOUCHSCREEN_STMFTS
 	tristate "STMicroelectronics STMFTS touchscreen"
 	depends on I2C
