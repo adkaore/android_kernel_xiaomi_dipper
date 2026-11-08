@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Offline checks after the pinned toolchains and schema venv are provisioned.
+set -euo pipefail
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+venv=${DT_SCHEMA_VENV:?Set DT_SCHEMA_VENV to a provisioned dtschema Python venv}
+out=${1:?Pass an absolute external build output directory}
+"$root/tools/dipper/build-core.sh" "$out"
+out=$(realpath "$out")
+export PATH="$venv/bin:$PATH"
+cd "$root"
+make O="$out" ARCH=arm64 LLVM=1 \
+    DT_SCHEMA_FILES=arm/qcom.yaml:display/panel/samsung,ea8074.yaml:media/i2c/sony,imx363.yaml:input/touchscreen/st,stmfts-ftm5.yaml \
+    dt_binding_check
+schemas="$out/Documentation/devicetree/bindings/processed-schema.json"
+dtb="$out/arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb"
+dt-validate -s "$schemas" --json-output "$out/dipper-schema-result.json" "$dtb"
+# dt-validate may exit zero while reporting errors: inspect the JSON explicitly.
+"$venv/bin/python" - "$out/dipper-schema-result.json" <<'PY'
+import json,sys
+with open(sys.argv[1]) as source:
+    diagnostics=json.load(source)
+if diagnostics:
+    raise SystemExit(f'DTB validation produced {len(diagnostics)} diagnostics')
+print('DTB schema diagnostics: 0')
+PY
+DIPPER_DTB="$dtb" PYTHONDONTWRITEBYTECODE=1 "$venv/bin/python" \
+    -m unittest discover -s tools/dipper/tests -v
+"$root/tools/dipper/test-ftm5.sh" "$out/host-tests"
+git diff --check
+printf '\nPASS: build, DTB schemas, source/compiled-DT tests and decoder sanitizers.\n'
+printf 'No device boot, power, IRQ or camera hardware validation is implied.\n'
