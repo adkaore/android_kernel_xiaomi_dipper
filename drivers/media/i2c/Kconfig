@@ -257,11 +257,14 @@ config VIDEO_IMX355
 	  module will be called imx355.
 
 config VIDEO_IMX363
-	tristate "Sony IMX363 sensor support"
+	tristate "Sony IMX363 sensor support (experimental RAW)"
+	depends on OF_GPIO
 	select V4L2_CCI_I2C
 	help
 	  This is a Video4Linux2 sensor driver for the Sony
-	  IMX363 camera.
+	  IMX363 camera. Only a candidate four-lane full-resolution RAW mode
+	  is currently exposed; autofocus, OIS and Android camera HAL integration
+	  are not implemented by this sensor driver.
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called imx363.

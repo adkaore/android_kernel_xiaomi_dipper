@@ -1,0 +1,9 @@
+{
+  "package": "linux-6.12-sdm845 6.12.115-1",
+  "package_url": "https://repo.mobian.org/pool/main/l/linux-6.12-sdm845/",
+  "debian_archive_sha256": "33baddaf9083e4691f0716355fc9a893506a5defa9e061e676f444ea798b7f7a",
+  "patch": "0109-media-i2c-Add-imx363-image-sensor-driver.patch",
+  "patch_sha256": "03d5845c88581590e080a1b7030224d3cd99885c0da661c2a6e0ec732571071a",
+  "original_import_commit": "9b50edadb057",
+  "note": "Archive checksum matched HTTPS .dsc; no package-signature verification is claimed."
+}

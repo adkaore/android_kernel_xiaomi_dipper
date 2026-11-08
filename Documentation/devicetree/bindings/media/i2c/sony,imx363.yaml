@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/i2c/sony,imx363.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Sony IMX363 image sensor
+
+maintainers:
+  - adkaore <adkaore@gmail.com>
+
+description: |
+  Sony IMX363 camera sensor connected through I2C and a four-lane MIPI CSI-2
+  D-PHY interface. This initial driver exposes a candidate 4032x3024 RAW10
+  mode with a 24 MHz input clock. Lens actuator, OIS, EEPROM calibration
+  and Android camera-provider support are separate from this sensor node.
+
+allOf:
+  - $ref: /schemas/media/video-interface-devices.yaml#
+
+properties:
+  compatible:
+    const: sony,imx363
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: xvclk
+
+  clock-frequency:
+    const: 24000000
+
+  reset-gpios:
+    maxItems: 1
+    description: Active-low reset signal
+
+  vana-supply:
+    description: Analog supply
+
+  vdig-supply:
+    description: Digital core supply
+
+  vif-supply:
+    description: I/O supply
+
+  port:
+    $ref: /schemas/graph.yaml#/$defs/port-base
+    additionalProperties: false
+    properties:
+      endpoint:
+        $ref: /schemas/media/video-interfaces.yaml#
+        unevaluatedProperties: false
+        properties:
+          data-lanes:
+            minItems: 4
+            maxItems: 4
+            uniqueItems: true
+            items:
+              minimum: 0
+              maximum: 4
+
+          link-frequencies:
+            items:
+              - const: 636000000
+
+        required:
+          - data-lanes
+          - link-frequencies
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - vana-supply
+  - vdig-supply
+  - vif-supply
+  - port
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+
+    i2c {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        camera@1a {
+            compatible = "sony,imx363";
+            reg = <0x1a>;
+            clocks = <&camclk>;
+            clock-names = "xvclk";
+            reset-gpios = <&gpio 119 GPIO_ACTIVE_LOW>;
+            vana-supply = <&camera_analog>;
+            vdig-supply = <&camera_digital>;
+            vif-supply = <&camera_io>;
+
+            port {
+                endpoint {
+                    data-lanes = <1 2 3 4>;
+                    link-frequencies = /bits/ 64 <636000000>;
+                };
+            };
+        };
+    };
+...

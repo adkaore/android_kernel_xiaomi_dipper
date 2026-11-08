@@ -15,119 +15,118 @@
 #include <media/v4l2-fwnode.h>
 #include <linux/unaligned.h>
 
-#define IMX363_REG_MODE_SELECT	CCI_REG8(0x0100)
-#define IMX363_MODE_STANDBY		0x00
-#define IMX363_MODE_STREAMING	0x01
+#define IMX363_REG_MODE_SELECT CCI_REG8(0x0100)
+#define IMX363_MODE_STANDBY 0x00
+#define IMX363_MODE_STREAMING 0x01
 
-#define IMX363_REG_RESET		CCI_REG8(0x0103)
+#define IMX363_REG_RESET CCI_REG8(0x0103)
 
 /* Chip ID */
-#define IMX363_REG_CHIP_ID		CCI_REG16(0x0016)
-#define IMX363_CHIP_ID			0x0363
+#define IMX363_REG_CHIP_ID CCI_REG16(0x0016)
+#define IMX363_CHIP_ID 0x0363
 
 /* V_TIMING internal */
-#define IMX363_VTS_30FPS		3170
-#define IMX363_VTS_30FPS_HD		1296
-#define IMX363_VTS_MAX			65525
+#define IMX363_VTS_DEFAULT 3170
+#define IMX363_VTS_MAX 65525
 
 /* HBLANK control - read only */
-#define IMX363_PPL_DEFAULT		8832
+#define IMX363_PPL_DEFAULT 8832
 
 /* Exposure control */
-#define IMX363_REG_EXPOSURE		CCI_REG16(0x0202)
-#define IMX363_EXPOSURE_OFFSET	10
-#define IMX363_EXPOSURE_MIN		4
-#define IMX363_EXPOSURE_STEP	1
-#define IMX363_EXPOSURE_DEFAULT	0x640
-#define IMX363_EXPOSURE_MAX		(IMX363_VTS_MAX - IMX363_EXPOSURE_OFFSET)
+#define IMX363_REG_EXPOSURE CCI_REG16(0x0202)
+#define IMX363_EXPOSURE_OFFSET 10
+#define IMX363_EXPOSURE_MIN 4
+#define IMX363_EXPOSURE_STEP 1
+#define IMX363_EXPOSURE_DEFAULT 0x640
+#define IMX363_EXPOSURE_MAX (IMX363_VTS_MAX - IMX363_EXPOSURE_OFFSET)
 
 /* Analog gain control */
-#define IMX363_REG_ANALOG_GAIN	CCI_REG16(0x0204)
-#define IMX363_ANA_GAIN_MIN		0
-#define IMX363_ANA_GAIN_MAX		480
-#define IMX363_ANA_GAIN_STEP	1
-#define IMX363_ANA_GAIN_DEFAULT	0x0
+#define IMX363_REG_ANALOG_GAIN CCI_REG16(0x0204)
+#define IMX363_ANA_GAIN_MIN 0
+#define IMX363_ANA_GAIN_MAX 480
+#define IMX363_ANA_GAIN_STEP 1
+#define IMX363_ANA_GAIN_DEFAULT 0x0
 
 /* Digital gain control */
-#define IMX363_REG_GR_DIGITAL_GAIN	CCI_REG16(0x020e)
-#define IMX363_REG_R_DIGITAL_GAIN	CCI_REG16(0x0210)
-#define IMX363_REG_B_DIGITAL_GAIN	CCI_REG16(0x0212)
-#define IMX363_REG_GB_DIGITAL_GAIN	CCI_REG16(0x0214)
-#define IMX363_DGTL_GAIN_MIN		0
-#define IMX363_DGTL_GAIN_MAX		4096	/* Max = 0xFFF */
-#define IMX363_DGTL_GAIN_DEFAULT	1024
-#define IMX363_DGTL_GAIN_STEP		1
+#define IMX363_REG_GR_DIGITAL_GAIN CCI_REG16(0x020e)
+#define IMX363_REG_R_DIGITAL_GAIN CCI_REG16(0x0210)
+#define IMX363_REG_B_DIGITAL_GAIN CCI_REG16(0x0212)
+#define IMX363_REG_GB_DIGITAL_GAIN CCI_REG16(0x0214)
+#define IMX363_DGTL_GAIN_MIN 0
+#define IMX363_DGTL_GAIN_MAX 4095 /* Max = 0xFFF */
+#define IMX363_DGTL_GAIN_DEFAULT 1024
+#define IMX363_DGTL_GAIN_STEP 1
 
 /* HDR control */
-#define IMX363_REG_HDR				CCI_REG8(0x0220)
-#define IMX363_HDR_ON				BIT(0)
-#define IMX363_REG_HDR_RATIO		CCI_REG8(0x0222)
-#define IMX363_HDR_RATIO_MIN		0
-#define IMX363_HDR_RATIO_MAX		5
-#define IMX363_HDR_RATIO_STEP		1
-#define IMX363_HDR_RATIO_DEFAULT	0x0
+#define IMX363_REG_HDR CCI_REG8(0x0220)
+#define IMX363_HDR_ON BIT(0)
+#define IMX363_REG_HDR_RATIO CCI_REG8(0x0222)
+#define IMX363_HDR_RATIO_MIN 0
+#define IMX363_HDR_RATIO_MAX 5
+#define IMX363_HDR_RATIO_STEP 1
+#define IMX363_HDR_RATIO_DEFAULT 0x0
 
 /* Test Pattern Control */
-#define IMX363_REG_TEST_PATTERN		CCI_REG16(0x0600)
+#define IMX363_REG_TEST_PATTERN CCI_REG16(0x0600)
 
-#define IMX363_CLK_BLANK_STOP		CCI_REG8(0x4040)
+#define IMX363_CLK_BLANK_STOP CCI_REG8(0x4040)
 
 /* Orientation */
-#define REG_MIRROR_FLIP_CONTROL		CCI_REG8(0x0101)
-#define REG_CONFIG_MIRROR_HFLIP		0x01
-#define REG_CONFIG_MIRROR_VFLIP		0x02
+#define REG_MIRROR_FLIP_CONTROL CCI_REG8(0x0101)
+#define REG_CONFIG_MIRROR_HFLIP 0x01
+#define REG_CONFIG_MIRROR_VFLIP 0x02
 
 /* IMX363 native and active pixel array size. */
-#define IMX363_NATIVE_WIDTH			4048U
-#define IMX363_NATIVE_HEIGHT		3168U
-#define IMX363_PIXEL_ARRAY_LEFT		8U
-#define IMX363_PIXEL_ARRAY_TOP		24U
-#define IMX363_PIXEL_ARRAY_WIDTH	4032U
-#define IMX363_PIXEL_ARRAY_HEIGHT	3024U
+#define IMX363_NATIVE_WIDTH 4048U
+#define IMX363_NATIVE_HEIGHT 3168U
+#define IMX363_PIXEL_ARRAY_LEFT 8U
+#define IMX363_PIXEL_ARRAY_TOP 24U
+#define IMX363_PIXEL_ARRAY_WIDTH 4032U
+#define IMX363_PIXEL_ARRAY_HEIGHT 3024U
 
 /* regs */
-#define IMX363_REG_PLL_MULT_DRIV                  CCI_REG8(0x0310)
-#define IMX363_REG_IVTPXCK_DIV                    CCI_REG8(0x0301)
-#define IMX363_REG_IVTSYCK_DIV                    CCI_REG8(0x0303)
-#define IMX363_REG_PREPLLCK_VT_DIV                CCI_REG8(0x0305)
-#define IMX363_REG_IOPPXCK_DIV                    CCI_REG8(0x0309)
-#define IMX363_REG_IOPSYCK_DIV                    CCI_REG8(0x030b)
-#define IMX363_REG_PREPLLCK_OP_DIV                CCI_REG8(0x030d)
-#define IMX363_REG_PHASE_PIX_OUTEN                CCI_REG8(0x3030)
-#define IMX363_REG_PDPIX_DATA_RATE                CCI_REG8(0x3032)
-#define IMX363_REG_SCALE_MODE                     CCI_REG8(0x0401)
-#define IMX363_REG_SCALE_MODE_EXT                 CCI_REG8(0x3038)
-#define IMX363_REG_AF_WINDOW_MODE                 CCI_REG8(0x7bcd)
-#define IMX363_REG_FRM_LENGTH_CTL                 CCI_REG8(0x0350)
-#define IMX363_REG_CSI_LANE_MODE                  CCI_REG8(0x0114)
-#define IMX363_REG_X_EVN_INC                      CCI_REG8(0x0381)
-#define IMX363_REG_X_ODD_INC                      CCI_REG8(0x0383)
-#define IMX363_REG_Y_EVN_INC                      CCI_REG8(0x0385)
-#define IMX363_REG_Y_ODD_INC                      CCI_REG8(0x0387)
-#define IMX363_REG_BINNING_MODE                   CCI_REG8(0x0900)
-#define IMX363_REG_BINNING_TYPE_V                 CCI_REG8(0x0901)
-#define IMX363_REG_FORCE_FD_SUM                   CCI_REG8(0x300d)
-#define IMX363_REG_DIG_CROP_X_OFFSET              CCI_REG16(0x0408)
-#define IMX363_REG_DIG_CROP_Y_OFFSET              CCI_REG16(0x040a)
-#define IMX363_REG_DIG_CROP_IMAGE_WIDTH           CCI_REG16(0x040c)
-#define IMX363_REG_DIG_CROP_IMAGE_HEIGHT          CCI_REG16(0x040e)
-#define IMX363_REG_SCALE_M                        CCI_REG16(0x0404)
-#define IMX363_REG_X_OUT_SIZE                     CCI_REG16(0x034c)
-#define IMX363_REG_Y_OUT_SIZE                     CCI_REG16(0x034e)
-#define IMX363_REG_X_ADD_STA                      CCI_REG16(0x0344)
-#define IMX363_REG_Y_ADD_STA                      CCI_REG16(0x0346)
-#define IMX363_REG_X_ADD_END                      CCI_REG16(0x0348)
-#define IMX363_REG_Y_ADD_END                      CCI_REG16(0x034a)
-#define IMX363_REG_EXCK_FREQ                      CCI_REG16(0x0136)
-#define IMX363_REG_CSI_DT_FMT                     CCI_REG16(0x0112)
-#define IMX363_REG_LINE_LENGTH_PCK                CCI_REG16(0x0342)
-#define IMX363_REG_SCALE_M_EXT                    CCI_REG16(0x303a)
-#define IMX363_REG_FRM_LENGTH_LINES               CCI_REG16(0x0340)
-#define IMX363_REG_FINE_INTEG_TIME                CCI_REG8(0x0200)
-#define IMX363_REG_PLL_IVT_MPY                    CCI_REG16(0x0306)
-#define IMX363_REG_PLL_IOP_MPY                    CCI_REG16(0x030e)
-#define IMX363_REG_REQ_LINK_BIT_RATE_MBPS_H       CCI_REG16(0x0820)
-#define IMX363_REG_REQ_LINK_BIT_RATE_MBPS_L       CCI_REG16(0x0822)
+#define IMX363_REG_PLL_MULT_DRIV CCI_REG8(0x0310)
+#define IMX363_REG_IVTPXCK_DIV CCI_REG8(0x0301)
+#define IMX363_REG_IVTSYCK_DIV CCI_REG8(0x0303)
+#define IMX363_REG_PREPLLCK_VT_DIV CCI_REG8(0x0305)
+#define IMX363_REG_IOPPXCK_DIV CCI_REG8(0x0309)
+#define IMX363_REG_IOPSYCK_DIV CCI_REG8(0x030b)
+#define IMX363_REG_PREPLLCK_OP_DIV CCI_REG8(0x030d)
+#define IMX363_REG_PHASE_PIX_OUTEN CCI_REG8(0x3030)
+#define IMX363_REG_PDPIX_DATA_RATE CCI_REG8(0x3032)
+#define IMX363_REG_SCALE_MODE CCI_REG8(0x0401)
+#define IMX363_REG_SCALE_MODE_EXT CCI_REG8(0x3038)
+#define IMX363_REG_AF_WINDOW_MODE CCI_REG8(0x7bcd)
+#define IMX363_REG_FRM_LENGTH_CTL CCI_REG8(0x0350)
+#define IMX363_REG_CSI_LANE_MODE CCI_REG8(0x0114)
+#define IMX363_REG_X_EVN_INC CCI_REG8(0x0381)
+#define IMX363_REG_X_ODD_INC CCI_REG8(0x0383)
+#define IMX363_REG_Y_EVN_INC CCI_REG8(0x0385)
+#define IMX363_REG_Y_ODD_INC CCI_REG8(0x0387)
+#define IMX363_REG_BINNING_MODE CCI_REG8(0x0900)
+#define IMX363_REG_BINNING_TYPE_V CCI_REG8(0x0901)
+#define IMX363_REG_FORCE_FD_SUM CCI_REG8(0x300d)
+#define IMX363_REG_DIG_CROP_X_OFFSET CCI_REG16(0x0408)
+#define IMX363_REG_DIG_CROP_Y_OFFSET CCI_REG16(0x040a)
+#define IMX363_REG_DIG_CROP_IMAGE_WIDTH CCI_REG16(0x040c)
+#define IMX363_REG_DIG_CROP_IMAGE_HEIGHT CCI_REG16(0x040e)
+#define IMX363_REG_SCALE_M CCI_REG16(0x0404)
+#define IMX363_REG_X_OUT_SIZE CCI_REG16(0x034c)
+#define IMX363_REG_Y_OUT_SIZE CCI_REG16(0x034e)
+#define IMX363_REG_X_ADD_STA CCI_REG16(0x0344)
+#define IMX363_REG_Y_ADD_STA CCI_REG16(0x0346)
+#define IMX363_REG_X_ADD_END CCI_REG16(0x0348)
+#define IMX363_REG_Y_ADD_END CCI_REG16(0x034a)
+#define IMX363_REG_EXCK_FREQ CCI_REG16(0x0136)
+#define IMX363_REG_CSI_DT_FMT CCI_REG16(0x0112)
+#define IMX363_REG_LINE_LENGTH_PCK CCI_REG16(0x0342)
+#define IMX363_REG_SCALE_M_EXT CCI_REG16(0x303a)
+#define IMX363_REG_FRM_LENGTH_LINES CCI_REG16(0x0340)
+#define IMX363_REG_FINE_INTEG_TIME CCI_REG8(0x0200)
+#define IMX363_REG_PLL_IVT_MPY CCI_REG16(0x0306)
+#define IMX363_REG_PLL_IOP_MPY CCI_REG16(0x030e)
+#define IMX363_REG_REQ_LINK_BIT_RATE_MBPS_H CCI_REG16(0x0820)
+#define IMX363_REG_REQ_LINK_BIT_RATE_MBPS_L CCI_REG16(0x0822)
 
 struct imx363_reg_list {
 	u32 num_of_regs;
@@ -140,7 +139,6 @@ struct imx363_link_cfg {
 };
 
 enum {
-	IMX363_2_LANE_MODE,
 	IMX363_4_LANE_MODE,
 	IMX363_LANE_CONFIGS,
 };
@@ -168,180 +166,73 @@ struct imx363_mode {
 	u32 link_freq_index;
 	/* Default register values */
 	struct imx363_reg_list reg_list;
-
-	/* Analog crop rectangle */
-	struct v4l2_rect crop;
 };
 
-static const struct cci_reg_sequence mipi_2300mbps_24mhz_2l[] = {
-	{ IMX363_REG_EXCK_FREQ, 0x1800 },
-	{ IMX363_REG_IVTPXCK_DIV, 10 },
-	{ IMX363_REG_IVTSYCK_DIV, 2 },
-	{ IMX363_REG_PREPLLCK_VT_DIV, 4 },
-	{ IMX363_REG_PLL_IVT_MPY, 212 },
-	{ IMX363_REG_IOPPXCK_DIV, 10 },
-	{ IMX363_REG_IOPSYCK_DIV, 1 },
-	{ IMX363_REG_PREPLLCK_OP_DIV, 2 },
-	{ IMX363_REG_PLL_IOP_MPY, 216 },
-	{ IMX363_REG_PLL_MULT_DRIV, 0 },
-
-	{ IMX363_REG_CSI_LANE_MODE, 1 },
-};
-
-static const struct cci_reg_sequence mipi_2300mbps_24mhz_4l[] = {
-	{ IMX363_REG_EXCK_FREQ, 0x1800 },
-	{ IMX363_REG_IVTPXCK_DIV, 3 },
-	{ IMX363_REG_IVTSYCK_DIV, 2 },
-	{ IMX363_REG_PREPLLCK_VT_DIV, 4 },
-	{ IMX363_REG_PLL_IVT_MPY, 208 },
-	{ IMX363_REG_IOPPXCK_DIV, 10 },
-	{ IMX363_REG_IOPSYCK_DIV, 1 },
-	{ IMX363_REG_PREPLLCK_OP_DIV, 4 },
-	{ IMX363_REG_PLL_IOP_MPY, 230 },
-	{ IMX363_REG_PLL_MULT_DRIV, 1 },
+static const struct cci_reg_sequence mipi_24mhz_4lane_regs[] = {
+	{ IMX363_REG_EXCK_FREQ, 0x1800 }, { IMX363_REG_IVTPXCK_DIV, 3 },
+	{ IMX363_REG_IVTSYCK_DIV, 2 },	  { IMX363_REG_PREPLLCK_VT_DIV, 4 },
+	{ IMX363_REG_PLL_IVT_MPY, 208 },  { IMX363_REG_IOPPXCK_DIV, 10 },
+	{ IMX363_REG_IOPSYCK_DIV, 1 },	  { IMX363_REG_PREPLLCK_OP_DIV, 4 },
+	{ IMX363_REG_PLL_IOP_MPY, 230 },  { IMX363_REG_PLL_MULT_DRIV, 1 },
 
 	{ IMX363_REG_CSI_LANE_MODE, 3 },
-};
-
-static const struct cci_reg_sequence mipi_642mbps_24mhz_2l[] = {
-	{ IMX363_REG_EXCK_FREQ, 0x1800 },
-	{ IMX363_REG_IVTPXCK_DIV, 5 },
-	{ IMX363_REG_IVTSYCK_DIV, 2 },
-	{ IMX363_REG_PREPLLCK_VT_DIV, 4 },
-	{ IMX363_REG_PLL_IVT_MPY, 107 },
-	{ IMX363_REG_IOPPXCK_DIV, 10 },
-	{ IMX363_REG_IOPSYCK_DIV, 1 },
-	{ IMX363_REG_PREPLLCK_OP_DIV, 2 },
-	{ IMX363_REG_PLL_IOP_MPY, 216 },
-	{ IMX363_REG_PLL_MULT_DRIV, 0 },
-
-	{ IMX363_REG_CSI_LANE_MODE, 1 },
-	{ IMX363_REG_REQ_LINK_BIT_RATE_MBPS_H, 642 * 2 },
-	{ IMX363_REG_REQ_LINK_BIT_RATE_MBPS_L, 0 },
-};
-
-static const struct cci_reg_sequence mipi_642mbps_24mhz_4l[] = {
-	{ IMX363_REG_EXCK_FREQ, 0x1800 },
-	{ IMX363_REG_IVTPXCK_DIV, 5 },
-	{ IMX363_REG_IVTSYCK_DIV, 2 },
-	{ IMX363_REG_PREPLLCK_VT_DIV, 4 },
-	{ IMX363_REG_PLL_IVT_MPY, 107 },
-	{ IMX363_REG_IOPPXCK_DIV, 10 },
-	{ IMX363_REG_IOPSYCK_DIV, 1 },
-	{ IMX363_REG_PREPLLCK_OP_DIV, 2 },
-	{ IMX363_REG_PLL_IOP_MPY, 216 },
-	{ IMX363_REG_PLL_MULT_DRIV, 0 },
-
-	{ IMX363_REG_CSI_LANE_MODE, 3 },
-	{ IMX363_REG_REQ_LINK_BIT_RATE_MBPS_H, 642 * 4 },
-	{ IMX363_REG_REQ_LINK_BIT_RATE_MBPS_L, 0 },
 };
 
 static const struct cci_reg_sequence mode_common_regs[] = {
-	{CCI_REG8(0x0136), 0x18},
-	{CCI_REG8(0x0137), 0x00},
-	{CCI_REG8(0x31A3), 0x00},
-	{CCI_REG8(0x64D4), 0x01},
-	{CCI_REG8(0x64D5), 0xAA},
-	{CCI_REG8(0x64D6), 0x01},
-	{CCI_REG8(0x64D7), 0xA9},
-	{CCI_REG8(0x64D8), 0x01},
-	{CCI_REG8(0x64D9), 0xA5},
-	{CCI_REG8(0x64DA), 0x01},
-	{CCI_REG8(0x64DB), 0xA1},
-	{CCI_REG8(0x720A), 0x24},
-	{CCI_REG8(0x720B), 0x89},
-	{CCI_REG8(0x720C), 0x85},
-	{CCI_REG8(0x720D), 0xA1},
-	{CCI_REG8(0x720E), 0x6E},
-	{CCI_REG8(0x729C), 0x59},
-	{CCI_REG8(0x817C), 0xFF},
-	{CCI_REG8(0x817D), 0x80},
-	{CCI_REG8(0x9348), 0x96},
-	{CCI_REG8(0x934B), 0x8C},
-	{CCI_REG8(0x934C), 0x82},
-	{CCI_REG8(0x9353), 0xAA},
-	{CCI_REG8(0x9354), 0xAA},
-	{CCI_REG8(0x4073), 0x30},
+	{ CCI_REG8(0x0136), 0x18 }, { CCI_REG8(0x0137), 0x00 },
+	{ CCI_REG8(0x31A3), 0x00 }, { CCI_REG8(0x64D4), 0x01 },
+	{ CCI_REG8(0x64D5), 0xAA }, { CCI_REG8(0x64D6), 0x01 },
+	{ CCI_REG8(0x64D7), 0xA9 }, { CCI_REG8(0x64D8), 0x01 },
+	{ CCI_REG8(0x64D9), 0xA5 }, { CCI_REG8(0x64DA), 0x01 },
+	{ CCI_REG8(0x64DB), 0xA1 }, { CCI_REG8(0x720A), 0x24 },
+	{ CCI_REG8(0x720B), 0x89 }, { CCI_REG8(0x720C), 0x85 },
+	{ CCI_REG8(0x720D), 0xA1 }, { CCI_REG8(0x720E), 0x6E },
+	{ CCI_REG8(0x729C), 0x59 }, { CCI_REG8(0x817C), 0xFF },
+	{ CCI_REG8(0x817D), 0x80 }, { CCI_REG8(0x9348), 0x96 },
+	{ CCI_REG8(0x934B), 0x8C }, { CCI_REG8(0x934C), 0x82 },
+	{ CCI_REG8(0x9353), 0xAA }, { CCI_REG8(0x9354), 0xAA },
+	{ CCI_REG8(0x4073), 0x30 },
 };
 
 static const struct cci_reg_sequence mode_4032x3024_regs[] = {
-	{CCI_REG8(0x0112), 0x0A},
-	{CCI_REG8(0x0113), 0x0A},
-	{CCI_REG8(0x0114), 0x03},
-	{CCI_REG8(0x0220), 0x00},
-	{CCI_REG8(0x0221), 0x11},
-	{CCI_REG8(0x0340), 0x0C},
-	{CCI_REG8(0x0341), 0x62},
-	{CCI_REG8(0x0342), 0x22},
-	{CCI_REG8(0x0343), 0x80},
-	{CCI_REG8(0x0381), 0x01},
-	{CCI_REG8(0x0383), 0x01},
-	{CCI_REG8(0x0385), 0x01},
-	{CCI_REG8(0x0387), 0x01},
-	{CCI_REG8(0x0900), 0x00},
-	{CCI_REG8(0x0901), 0x11},
-	{CCI_REG8(0x30F4), 0x02},
-	{CCI_REG8(0x30F5), 0x80},
-	{CCI_REG8(0x30F6), 0x00},
-	{CCI_REG8(0x30F7), 0xc8},
-	{CCI_REG8(0x31A0), 0x00},
-	{CCI_REG8(0x31A5), 0x00},
-	{CCI_REG8(0x31A6), 0x00},
-	{CCI_REG8(0x560F), 0xbe},
-	{CCI_REG8(0x5856), 0x08},
-	{CCI_REG8(0x58D0), 0x10},
-	{CCI_REG8(0x734A), 0x01},
-	{CCI_REG8(0x734F), 0x2b},
-	{CCI_REG8(0x7441), 0x55},
-	{CCI_REG8(0x7914), 0x03},
-	{CCI_REG8(0x7928), 0x04},
-	{CCI_REG8(0x7929), 0x04},
-	{CCI_REG8(0x793F), 0x03},
-	{CCI_REG8(0xBC7B), 0x18},
-	{CCI_REG8(0x0344), 0x00},
-	{CCI_REG8(0x0345), 0x00},
-	{CCI_REG8(0x0346), 0x00},
-	{CCI_REG8(0x0347), 0x00},
-	{CCI_REG8(0x0348), 0x0F},
-	{CCI_REG8(0x0349), 0xBF},
-	{CCI_REG8(0x034A), 0x0B},
-	{CCI_REG8(0x034B), 0xCF},
-	{CCI_REG8(0x034C), 0x0F},
-	{CCI_REG8(0x034D), 0xC0},
-	{CCI_REG8(0x034E), 0x0B},
-	{CCI_REG8(0x034F), 0xD0},
-	{CCI_REG8(0x0408), 0x00},
-	{CCI_REG8(0x0409), 0x00},
-	{CCI_REG8(0x040A), 0x00},
-	{CCI_REG8(0x040B), 0x00},
-	{CCI_REG8(0x040C), 0x0F},
-	{CCI_REG8(0x040D), 0xC0},
-	{CCI_REG8(0x040E), 0x0B},
-	{CCI_REG8(0x040F), 0xD0},
-	{CCI_REG8(0x0301), 0x03},
-	{CCI_REG8(0x0303), 0x02},
-	{CCI_REG8(0x0305), 0x04},
-	{CCI_REG8(0x0306), 0x00},
-	{CCI_REG8(0x0307), 0xd2},
-	{CCI_REG8(0x0309), 0x0A},
-	{CCI_REG8(0x030B), 0x01},
-	{CCI_REG8(0x030D), 0x04},
-	{CCI_REG8(0x030E), 0x00},
-	{CCI_REG8(0x030F), 0xdf},
-	{CCI_REG8(0x0310), 0x01},
-	{CCI_REG8(0x0202), 0x0C},
-	{CCI_REG8(0x0203), 0x52},
-	{CCI_REG8(0x0224), 0x06},
-	{CCI_REG8(0x0225), 0x29},
-	{CCI_REG8(0x0204), 0x00},
-	{CCI_REG8(0x0205), 0x00},
-	{CCI_REG8(0x0216), 0x00},
-	{CCI_REG8(0x0217), 0x00},
-	{CCI_REG8(0x020E), 0x01},
-	{CCI_REG8(0x020F), 0x00},
-	{CCI_REG8(0x0226), 0x01},
-	{CCI_REG8(0x0227), 0x00},
+	{ CCI_REG8(0x0112), 0x0A }, { CCI_REG8(0x0113), 0x0A },
+	{ CCI_REG8(0x0114), 0x03 }, { CCI_REG8(0x0220), 0x00 },
+	{ CCI_REG8(0x0221), 0x11 }, { CCI_REG8(0x0340), 0x0C },
+	{ CCI_REG8(0x0341), 0x62 }, { CCI_REG8(0x0342), 0x22 },
+	{ CCI_REG8(0x0343), 0x80 }, { CCI_REG8(0x0381), 0x01 },
+	{ CCI_REG8(0x0383), 0x01 }, { CCI_REG8(0x0385), 0x01 },
+	{ CCI_REG8(0x0387), 0x01 }, { CCI_REG8(0x0900), 0x00 },
+	{ CCI_REG8(0x0901), 0x11 }, { CCI_REG8(0x30F4), 0x02 },
+	{ CCI_REG8(0x30F5), 0x80 }, { CCI_REG8(0x30F6), 0x00 },
+	{ CCI_REG8(0x30F7), 0xc8 }, { CCI_REG8(0x31A0), 0x00 },
+	{ CCI_REG8(0x31A5), 0x00 }, { CCI_REG8(0x31A6), 0x00 },
+	{ CCI_REG8(0x560F), 0xbe }, { CCI_REG8(0x5856), 0x08 },
+	{ CCI_REG8(0x58D0), 0x10 }, { CCI_REG8(0x734A), 0x01 },
+	{ CCI_REG8(0x734F), 0x2b }, { CCI_REG8(0x7441), 0x55 },
+	{ CCI_REG8(0x7914), 0x03 }, { CCI_REG8(0x7928), 0x04 },
+	{ CCI_REG8(0x7929), 0x04 }, { CCI_REG8(0x793F), 0x03 },
+	{ CCI_REG8(0xBC7B), 0x18 }, { CCI_REG8(0x0344), 0x00 },
+	{ CCI_REG8(0x0345), 0x00 }, { CCI_REG8(0x0346), 0x00 },
+	{ CCI_REG8(0x0347), 0x00 }, { CCI_REG8(0x0348), 0x0F },
+	{ CCI_REG8(0x0349), 0xBF }, { CCI_REG8(0x034A), 0x0B },
+	{ CCI_REG8(0x034B), 0xCF }, { CCI_REG8(0x034C), 0x0F },
+	{ CCI_REG8(0x034D), 0xC0 }, { CCI_REG8(0x034E), 0x0B },
+	{ CCI_REG8(0x034F), 0xD0 }, { CCI_REG8(0x0408), 0x00 },
+	{ CCI_REG8(0x0409), 0x00 }, { CCI_REG8(0x040A), 0x00 },
+	{ CCI_REG8(0x040B), 0x00 }, { CCI_REG8(0x040C), 0x0F },
+	{ CCI_REG8(0x040D), 0xC0 }, { CCI_REG8(0x040E), 0x0B },
+	{ CCI_REG8(0x040F), 0xD0 }, { CCI_REG8(0x0301), 0x03 },
+	{ CCI_REG8(0x0303), 0x02 }, { CCI_REG8(0x0305), 0x04 },
+	{ CCI_REG8(0x0306), 0x00 }, { CCI_REG8(0x0307), 0xd2 },
+	{ CCI_REG8(0x0309), 0x0A }, { CCI_REG8(0x030B), 0x01 },
+	{ CCI_REG8(0x030D), 0x04 }, { CCI_REG8(0x030E), 0x00 },
+	{ CCI_REG8(0x030F), 0xdf }, { CCI_REG8(0x0310), 0x01 },
+	{ CCI_REG8(0x0202), 0x0C }, { CCI_REG8(0x0203), 0x52 },
+	{ CCI_REG8(0x0224), 0x06 }, { CCI_REG8(0x0225), 0x29 },
+	{ CCI_REG8(0x0204), 0x00 }, { CCI_REG8(0x0205), 0x00 },
+	{ CCI_REG8(0x0216), 0x00 }, { CCI_REG8(0x0217), 0x00 },
+	{ CCI_REG8(0x020E), 0x01 }, { CCI_REG8(0x020F), 0x00 },
+	{ CCI_REG8(0x0226), 0x01 }, { CCI_REG8(0x0227), 0x00 },
 };
 
 /*
@@ -355,13 +246,11 @@ static const struct cci_reg_sequence mode_4032x3024_regs[] = {
  */
 static const u32 codes[] = {
 	/* 10-bit modes. */
-	MEDIA_BUS_FMT_SRGGB10_1X10,
-	MEDIA_BUS_FMT_SGRBG10_1X10,
-	MEDIA_BUS_FMT_SGBRG10_1X10,
-	MEDIA_BUS_FMT_SBGGR10_1X10
+	MEDIA_BUS_FMT_SRGGB10_1X10, MEDIA_BUS_FMT_SGRBG10_1X10,
+	MEDIA_BUS_FMT_SGBRG10_1X10, MEDIA_BUS_FMT_SBGGR10_1X10
 };
 
-static const char * const imx363_test_pattern_menu[] = {
+static const char *const imx363_test_pattern_menu[] = {
 	"Disabled",
 	"Solid Colour",
 	"Eight Vertical Colour Bars",
@@ -370,18 +259,17 @@ static const char * const imx363_test_pattern_menu[] = {
 };
 
 /* regulator supplies */
-static const char * const imx363_supply_name[] = {
+static const char *const imx363_supply_name[] = {
 	/* Supplies can be enabled in any order */
-	"vana",  /* Analog (2.8V) supply */
-	"vdig",  /* Digital Core (1.2V) supply */
-	"vif",  /* IF (1.8V) supply */
+	"vana", /* Analog (2.8V) supply */
+	"vdig", /* Digital Core (1.2V) supply */
+	"vif", /* IF (1.8V) supply */
 };
 
 #define IMX363_NUM_SUPPLIES ARRAY_SIZE(imx363_supply_name)
 
 enum {
-	IMX363_LINK_FREQ_2300MBPS,
-	IMX363_LINK_FREQ_640MBPS,
+	IMX363_LINK_FREQ_FULL_RES,
 };
 
 /*
@@ -398,7 +286,8 @@ enum {
  * bits per pixel being 10, and D-PHY being DDR is assumed by this function, so
  * the value is only the combination of number of lanes and pixel clock divider.
  */
-static u64 link_freq_to_pixel_rate(u64 f, const struct imx363_link_cfg *link_cfg)
+static u64 link_freq_to_pixel_rate(u64 f,
+				   const struct imx363_link_cfg *link_cfg)
 {
 	f *= 2 * link_cfg->lf_to_pix_rate_factor;
 	do_div(f, 10);
@@ -411,37 +300,23 @@ static u64 link_freq_to_pixel_rate(u64 f, const struct imx363_link_cfg *link_cfg
 
 static const s64 link_freq_menu_items_24[] = {
 	636000000ULL,
-	321000000ULL,
 };
 
-#define REGS(_list) { .num_of_regs = ARRAY_SIZE(_list), .regs = _list, }
+#define REGS(_list)                               \
+	{                                         \
+		.num_of_regs = ARRAY_SIZE(_list), \
+		.regs = _list,                    \
+	}
 
 static const struct imx363_link_freq_config link_freq_configs_24[] = {
-	[IMX363_LINK_FREQ_2300MBPS] = {
+	[IMX363_LINK_FREQ_FULL_RES] = {
 		.pixels_per_line = IMX363_PPL_DEFAULT,
 		.link_cfg = {
-			[IMX363_2_LANE_MODE] = {
-				.lf_to_pix_rate_factor = 2,
-				.reg_list = REGS(mipi_2300mbps_24mhz_2l),
-			},
 			[IMX363_4_LANE_MODE] = {
 				.lf_to_pix_rate_factor = 4,
-				.reg_list = REGS(mipi_2300mbps_24mhz_4l),
+				.reg_list = REGS(mipi_24mhz_4lane_regs),
 			},
-		}
-	},
-	[IMX363_LINK_FREQ_640MBPS] = {
-		.pixels_per_line = IMX363_PPL_DEFAULT,
-		.link_cfg = {
-			[IMX363_2_LANE_MODE] = {
-				.lf_to_pix_rate_factor = 2 * 2,
-				.reg_list = REGS(mipi_642mbps_24mhz_2l),
-			},
-			[IMX363_4_LANE_MODE] = {
-				.lf_to_pix_rate_factor = 4,
-				.reg_list = REGS(mipi_642mbps_24mhz_4l),
-			},
-		}
+		},
 	},
 };
 
@@ -450,19 +325,13 @@ static const struct imx363_mode supported_modes[] = {
 	{
 		.width = 4032,
 		.height = 3024,
-		.vts_def = IMX363_VTS_30FPS,
-		.vts_min = IMX363_VTS_30FPS,
+		.vts_def = IMX363_VTS_DEFAULT,
+		.vts_min = IMX363_VTS_DEFAULT,
 		.reg_list = {
 			.num_of_regs = ARRAY_SIZE(mode_4032x3024_regs),
 			.regs = mode_4032x3024_regs,
 		},
-		.link_freq_index = IMX363_LINK_FREQ_2300MBPS,
-		.crop = {
-			.left = IMX363_PIXEL_ARRAY_LEFT,
-			.top = IMX363_PIXEL_ARRAY_TOP,
-			.width = IMX363_PIXEL_ARRAY_WIDTH,
-			.height = IMX363_PIXEL_ARRAY_HEIGHT,
-		},
+		.link_freq_index = IMX363_LINK_FREQ_FULL_RES,
 	},
 };
 
@@ -515,8 +384,7 @@ static u32 imx363_get_format_code(const struct imx363 *imx363)
 
 	lockdep_assert_held(&imx363->mutex);
 
-	i = (imx363->vflip->val ? 2 : 0) |
-	    (imx363->hflip->val ? 1 : 0);
+	i = (imx363->vflip->val ? 2 : 0) | (imx363->hflip->val ? 1 : 0);
 
 	return codes[i];
 }
@@ -527,7 +395,6 @@ static int imx363_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	struct imx363 *imx363 = to_imx363(sd);
 	struct v4l2_mbus_framefmt *try_fmt =
 		v4l2_subdev_state_get_format(fh->state, 0);
-	struct v4l2_rect *try_crop;
 
 	guard(mutex)(&imx363->mutex);
 
@@ -536,13 +403,6 @@ static int imx363_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	try_fmt->height = supported_modes[0].height;
 	try_fmt->code = imx363_get_format_code(imx363);
 	try_fmt->field = V4L2_FIELD_NONE;
-
-	/* Initialize try_crop */
-	try_crop = v4l2_subdev_state_get_crop(fh->state, 0);
-	try_crop->left = IMX363_PIXEL_ARRAY_LEFT;
-	try_crop->top = IMX363_PIXEL_ARRAY_TOP;
-	try_crop->width = IMX363_PIXEL_ARRAY_WIDTH;
-	try_crop->height = IMX363_PIXEL_ARRAY_HEIGHT;
 
 	return 0;
 }
@@ -600,8 +460,8 @@ static int imx363_set_ctrl(struct v4l2_ctrl *ctrl)
 				ctrl->val, NULL);
 		break;
 	case V4L2_CID_EXPOSURE:
-		ret = cci_write(imx363->regmap, IMX363_REG_EXPOSURE,
-				ctrl->val, NULL);
+		ret = cci_write(imx363->regmap, IMX363_REG_EXPOSURE, ctrl->val,
+				NULL);
 		break;
 	case V4L2_CID_DIGITAL_GAIN:
 		ret = imx363_update_digital_gain(imx363, ctrl->val);
@@ -616,17 +476,17 @@ static int imx363_set_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 	case V4L2_CID_VFLIP:
 	case V4L2_CID_HFLIP:
-		ret = cci_write(imx363->regmap, REG_MIRROR_FLIP_CONTROL,
-				(imx363->hflip->val ?
-				 REG_CONFIG_MIRROR_HFLIP : 0) |
-				(imx363->vflip->val ?
-				 REG_CONFIG_MIRROR_VFLIP : 0),
-				NULL);
+		ret = cci_write(
+			imx363->regmap, REG_MIRROR_FLIP_CONTROL,
+			(imx363->hflip->val ? REG_CONFIG_MIRROR_HFLIP : 0) |
+				(imx363->vflip->val ? REG_CONFIG_MIRROR_VFLIP :
+						      0),
+			NULL);
 		break;
 	default:
 		dev_info(&client->dev,
-			 "ctrl(id:0x%x,val:0x%x) is not handled\n",
-			 ctrl->id, ctrl->val);
+			 "ctrl(id:0x%x,val:0x%x) is not handled\n", ctrl->id,
+			 ctrl->val);
 		ret = -EINVAL;
 		break;
 	}
@@ -641,8 +501,8 @@ static const struct v4l2_ctrl_ops imx363_ctrl_ops = {
 };
 
 static int imx363_enum_mbus_code(struct v4l2_subdev *sd,
-				  struct v4l2_subdev_state *sd_state,
-				  struct v4l2_subdev_mbus_code_enum *code)
+				 struct v4l2_subdev_state *sd_state,
+				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct imx363 *imx363 = to_imx363(sd);
 
@@ -693,8 +553,7 @@ static int __imx363_get_pad_format(struct imx363 *imx363,
 				   struct v4l2_subdev_format *fmt)
 {
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
-		fmt->format = *v4l2_subdev_state_get_format(sd_state,
-							    fmt->pad);
+		fmt->format = *v4l2_subdev_state_get_format(sd_state, fmt->pad);
 	else
 		imx363_update_pad_format(imx363, imx363->cur_mode, fmt);
 
@@ -737,8 +596,9 @@ static int imx363_set_pad_format(struct v4l2_subdev *sd,
 	fmt->format.code = imx363_get_format_code(imx363);
 
 	mode = v4l2_find_nearest_size(supported_modes,
-		ARRAY_SIZE(supported_modes), width, height,
-		fmt->format.width, fmt->format.height);
+				      ARRAY_SIZE(supported_modes), width,
+				      height, fmt->format.width,
+				      fmt->format.height);
 	imx363_update_pad_format(imx363, mode, fmt);
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
 		framefmt = v4l2_subdev_state_get_format(sd_state, fmt->pad);
@@ -756,75 +616,23 @@ static int imx363_set_pad_format(struct v4l2_subdev *sd,
 		__v4l2_ctrl_modify_range(imx363->pixel_rate, pixel_rate,
 					 pixel_rate, 1, pixel_rate);
 		/* Update limits and set FPS to default */
-		vblank_def = imx363->cur_mode->vts_def -
-			     imx363->cur_mode->height;
-		vblank_min = imx363->cur_mode->vts_min -
-			     imx363->cur_mode->height;
-		__v4l2_ctrl_modify_range(
-			imx363->vblank, vblank_min,
-			IMX363_VTS_MAX - imx363->cur_mode->height, 1,
-			vblank_def);
+		vblank_def =
+			imx363->cur_mode->vts_def - imx363->cur_mode->height;
+		vblank_min =
+			imx363->cur_mode->vts_min - imx363->cur_mode->height;
+		__v4l2_ctrl_modify_range(imx363->vblank, vblank_min,
+					 IMX363_VTS_MAX -
+						 imx363->cur_mode->height,
+					 1, vblank_def);
 		__v4l2_ctrl_s_ctrl(imx363->vblank, vblank_def);
-		h_blank =
-			imx363->link_freq_configs[mode->link_freq_index].pixels_per_line
-			 - imx363->cur_mode->width;
-		__v4l2_ctrl_modify_range(imx363->hblank, h_blank,
-					 h_blank, 1, h_blank);
+		h_blank = imx363->link_freq_configs[mode->link_freq_index]
+				  .pixels_per_line -
+			  imx363->cur_mode->width;
+		__v4l2_ctrl_modify_range(imx363->hblank, h_blank, h_blank, 1,
+					 h_blank);
 	}
 
 	return 0;
-}
-
-static const struct v4l2_rect *
-__imx363_get_pad_crop(struct imx363 *imx363,
-		      struct v4l2_subdev_state *sd_state,
-		      unsigned int pad, enum v4l2_subdev_format_whence which)
-{
-	switch (which) {
-	case V4L2_SUBDEV_FORMAT_TRY:
-		return v4l2_subdev_state_get_crop(sd_state, pad);
-	case V4L2_SUBDEV_FORMAT_ACTIVE:
-		return &imx363->cur_mode->crop;
-	}
-
-	return NULL;
-}
-
-static int imx363_get_selection(struct v4l2_subdev *sd,
-				struct v4l2_subdev_state *sd_state,
-				struct v4l2_subdev_selection *sel)
-{
-	switch (sel->target) {
-	case V4L2_SEL_TGT_CROP: {
-		struct imx363 *imx363 = to_imx363(sd);
-
-		mutex_lock(&imx363->mutex);
-		sel->r = *__imx363_get_pad_crop(imx363, sd_state, sel->pad,
-						sel->which);
-		mutex_unlock(&imx363->mutex);
-
-		return 0;
-	}
-
-	case V4L2_SEL_TGT_NATIVE_SIZE:
-		sel->r.left = 0;
-		sel->r.top = 0;
-		sel->r.width = IMX363_NATIVE_WIDTH;
-		sel->r.height = IMX363_NATIVE_HEIGHT;
-
-		return 0;
-
-	case V4L2_SEL_TGT_CROP_DEFAULT:
-	case V4L2_SEL_TGT_CROP_BOUNDS:
-		sel->r.left = IMX363_PIXEL_ARRAY_LEFT;
-		sel->r.top = IMX363_PIXEL_ARRAY_TOP;
-		sel->r.width = IMX363_PIXEL_ARRAY_WIDTH;
-		sel->r.height = IMX363_PIXEL_ARRAY_HEIGHT;
-
-		return 0;
-	}
-
-	return -EINVAL;
 }
 
 /* Start streaming */
@@ -849,7 +657,8 @@ static int imx363_start_streaming(struct imx363 *imx363)
 	link_freq_cfg = &imx363->link_freq_configs[link_freq_index];
 
 	reg_list = &link_freq_cfg->link_cfg[imx363->lane_mode_idx].reg_list;
-	ret = cci_multi_reg_write(imx363->regmap, reg_list->regs, reg_list->num_of_regs, NULL);
+	ret = cci_multi_reg_write(imx363->regmap, reg_list->regs,
+				  reg_list->num_of_regs, NULL);
 	if (ret) {
 		dev_err(&client->dev, "%s failed to set plls\n", __func__);
 		return ret;
@@ -858,21 +667,25 @@ static int imx363_start_streaming(struct imx363 *imx363)
 	ret = cci_multi_reg_write(imx363->regmap, mode_common_regs,
 				  ARRAY_SIZE(mode_common_regs), NULL);
 	if (ret) {
-		dev_err(&client->dev, "%s failed to set common regs\n", __func__);
+		dev_err(&client->dev, "%s failed to set common regs\n",
+			__func__);
 		return ret;
 	}
 
 	ret = cci_write(imx363->regmap, IMX363_CLK_BLANK_STOP,
-			!!(imx363->csi2_flags & V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK),
+			!!(imx363->csi2_flags &
+			   V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK),
 			NULL);
 	if (ret) {
-		dev_err(&client->dev, "%s failed to set clock lane mode\n", __func__);
+		dev_err(&client->dev, "%s failed to set clock lane mode\n",
+			__func__);
 		return ret;
 	}
 
 	/* Apply default values of current mode */
 	reg_list = &imx363->cur_mode->reg_list;
-	ret = cci_multi_reg_write(imx363->regmap, reg_list->regs, reg_list->num_of_regs, NULL);
+	ret = cci_multi_reg_write(imx363->regmap, reg_list->regs,
+				  reg_list->num_of_regs, NULL);
 	if (ret) {
 		dev_err(&client->dev, "%s failed to set mode\n", __func__);
 		return ret;
@@ -925,18 +738,16 @@ static int imx363_power_on(struct device *dev)
 
 	fsleep(1000);
 
-	ret = regulator_bulk_enable(IMX363_NUM_SUPPLIES,
-				    imx363->supplies);
+	ret = regulator_bulk_enable(IMX363_NUM_SUPPLIES, imx363->supplies);
 	if (ret) {
-		dev_err(dev, "%s: failed to enable regulators\n",
-			__func__);
+		dev_err(dev, "%s: failed to enable regulators\n", __func__);
 		clk_disable_unprepare(imx363->clk);
 		return ret;
 	}
 
 	fsleep(10000);
 
-	gpiod_set_value_cansleep(imx363->reset_gpio, 1);
+	gpiod_set_value_cansleep(imx363->reset_gpio, 0);
 
 	fsleep(20000);
 
@@ -947,12 +758,17 @@ static int imx363_power_off(struct device *dev)
 {
 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
 	struct imx363 *imx363 = to_imx363(sd);
+	int ret;
 
+	gpiod_set_value_cansleep(imx363->reset_gpio, 1);
+	ret = regulator_bulk_disable(IMX363_NUM_SUPPLIES, imx363->supplies);
+	if (ret) {
+		/* bulk_disable restores the previous supply votes on failure. */
+		gpiod_set_value_cansleep(imx363->reset_gpio, 0);
+		fsleep(20000);
+		return ret;
+	}
 	clk_disable_unprepare(imx363->clk);
-
-	gpiod_set_value_cansleep(imx363->reset_gpio, 0);
-
-	regulator_bulk_disable(IMX363_NUM_SUPPLIES, imx363->supplies);
 
 	return 0;
 }
@@ -1006,8 +822,7 @@ static int imx363_identify_module(struct imx363 *imx363)
 	int ret;
 	u64 val;
 
-	ret = cci_read(imx363->regmap, IMX363_REG_CHIP_ID,
-		       &val, NULL);
+	ret = cci_read(imx363->regmap, IMX363_REG_CHIP_ID, &val, NULL);
 	if (ret) {
 		dev_err(&client->dev, "failed to read chip id %x\n",
 			IMX363_CHIP_ID);
@@ -1032,7 +847,6 @@ static const struct v4l2_subdev_pad_ops imx363_pad_ops = {
 	.get_fmt = imx363_get_pad_format,
 	.set_fmt = imx363_set_pad_format,
 	.enum_frame_size = imx363_enum_frame_size,
-	.get_selection = imx363_get_selection,
 };
 
 static const struct v4l2_subdev_ops imx363_subdev_ops = {
@@ -1064,12 +878,10 @@ static int imx363_init_controls(struct imx363 *imx363)
 
 	mutex_init(&imx363->mutex);
 	ctrl_hdlr->lock = &imx363->mutex;
-	imx363->link_freq = v4l2_ctrl_new_int_menu(ctrl_hdlr,
-				&imx363_ctrl_ops,
-				V4L2_CID_LINK_FREQ,
-				ARRAY_SIZE(link_freq_menu_items_24) - 1,
-				0,
-				imx363->link_freq_menu_items);
+	imx363->link_freq = v4l2_ctrl_new_int_menu(
+		ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_LINK_FREQ,
+		ARRAY_SIZE(link_freq_menu_items_24) - 1, 0,
+		imx363->link_freq_menu_items);
 
 	if (imx363->link_freq)
 		imx363->link_freq->flags |= V4L2_CTRL_FLAG_READ_ONLY;
@@ -1091,52 +903,47 @@ static int imx363_init_controls(struct imx363 *imx363)
 
 	/* By default, PIXEL_RATE is read only */
 	imx363->pixel_rate = v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops,
-				V4L2_CID_PIXEL_RATE,
-				pixel_rate, pixel_rate,
-				1, pixel_rate);
+					       V4L2_CID_PIXEL_RATE, pixel_rate,
+					       pixel_rate, 1, pixel_rate);
 
 	vblank_def = imx363->cur_mode->vts_def - imx363->cur_mode->height;
 	vblank_min = imx363->cur_mode->vts_min - imx363->cur_mode->height;
 	imx363->vblank = v4l2_ctrl_new_std(
-				ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_VBLANK,
-				vblank_min,
-				IMX363_VTS_MAX - imx363->cur_mode->height, 1,
-				vblank_def);
+		ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_VBLANK, vblank_min,
+		IMX363_VTS_MAX - imx363->cur_mode->height, 1, vblank_def);
 
 	imx363->hblank = v4l2_ctrl_new_std(
-				ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_HBLANK,
-				IMX363_PPL_DEFAULT - imx363->cur_mode->width,
-				IMX363_PPL_DEFAULT - imx363->cur_mode->width,
-				1,
-				IMX363_PPL_DEFAULT - imx363->cur_mode->width);
+		ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_HBLANK,
+		IMX363_PPL_DEFAULT - imx363->cur_mode->width,
+		IMX363_PPL_DEFAULT - imx363->cur_mode->width, 1,
+		IMX363_PPL_DEFAULT - imx363->cur_mode->width);
 
 	if (imx363->hblank)
 		imx363->hblank->flags |= V4L2_CTRL_FLAG_READ_ONLY;
 
 	imx363->exposure = v4l2_ctrl_new_std(
-				ctrl_hdlr, &imx363_ctrl_ops,
-				V4L2_CID_EXPOSURE, IMX363_EXPOSURE_MIN,
-				imx363->cur_mode->vts_def - IMX363_EXPOSURE_OFFSET, IMX363_EXPOSURE_STEP,
-				IMX363_EXPOSURE_DEFAULT);
+		ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_EXPOSURE,
+		IMX363_EXPOSURE_MIN,
+		imx363->cur_mode->vts_def - IMX363_EXPOSURE_OFFSET,
+		IMX363_EXPOSURE_STEP, IMX363_EXPOSURE_DEFAULT);
 
 	v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_ANALOGUE_GAIN,
-				IMX363_ANA_GAIN_MIN, IMX363_ANA_GAIN_MAX,
-				IMX363_ANA_GAIN_STEP, IMX363_ANA_GAIN_DEFAULT);
+			  IMX363_ANA_GAIN_MIN, IMX363_ANA_GAIN_MAX,
+			  IMX363_ANA_GAIN_STEP, IMX363_ANA_GAIN_DEFAULT);
 
 	v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_DIGITAL_GAIN,
-				IMX363_DGTL_GAIN_MIN, IMX363_DGTL_GAIN_MAX,
-				IMX363_DGTL_GAIN_STEP,
-				IMX363_DGTL_GAIN_DEFAULT);
+			  IMX363_DGTL_GAIN_MIN, IMX363_DGTL_GAIN_MAX,
+			  IMX363_DGTL_GAIN_STEP, IMX363_DGTL_GAIN_DEFAULT);
 
 	v4l2_ctrl_new_std_menu_items(ctrl_hdlr, &imx363_ctrl_ops,
-				V4L2_CID_TEST_PATTERN,
-				ARRAY_SIZE(imx363_test_pattern_menu) - 1,
-				0, 0, imx363_test_pattern_menu);
+				     V4L2_CID_TEST_PATTERN,
+				     ARRAY_SIZE(imx363_test_pattern_menu) - 1,
+				     0, 0, imx363_test_pattern_menu);
 
 	if (ctrl_hdlr->error) {
 		ret = ctrl_hdlr->error;
-		dev_err(&client->dev, "%s control init failed (%d)\n",
-				__func__, ret);
+		dev_err(&client->dev, "%s control init failed (%d)\n", __func__,
+			ret);
 		goto error;
 	}
 
@@ -1174,17 +981,15 @@ static int imx363_get_regulators(struct imx363 *imx363,
 	for (i = 0; i < IMX363_NUM_SUPPLIES; i++)
 		imx363->supplies[i].supply = imx363_supply_name[i];
 
-	return devm_regulator_bulk_get(&client->dev,
-				    IMX363_NUM_SUPPLIES, imx363->supplies);
+	return devm_regulator_bulk_get(&client->dev, IMX363_NUM_SUPPLIES,
+				       imx363->supplies);
 }
 
 static int imx363_probe(struct i2c_client *client)
 {
 	struct imx363 *imx363;
 	struct fwnode_handle *endpoint;
-	struct v4l2_fwnode_endpoint ep = {
-		.bus_type = V4L2_MBUS_CSI2_DPHY
-	};
+	struct v4l2_fwnode_endpoint ep = { .bus_type = V4L2_MBUS_CSI2_DPHY };
 	int ret;
 	u32 val = 0;
 
@@ -1211,7 +1016,8 @@ static int imx363_probe(struct i2c_client *client)
 
 	ret = clk_set_rate(imx363->clk, 24000000);
 	if (ret)
-		return dev_err_probe(&client->dev, ret, "failed to set clock rate\n");
+		return dev_err_probe(&client->dev, ret,
+				     "failed to set clock rate\n");
 	val = clk_get_rate(imx363->clk);
 	if (val != 24000000)
 		return dev_err_probe(&client->dev, -EINVAL,
@@ -1219,7 +1025,8 @@ static int imx363_probe(struct i2c_client *client)
 	imx363->link_freq_configs = link_freq_configs_24;
 	imx363->link_freq_menu_items = link_freq_menu_items_24;
 
-	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(&client->dev), NULL);
+	endpoint =
+		fwnode_graph_get_next_endpoint(dev_fwnode(&client->dev), NULL);
 	if (!endpoint) {
 		dev_err(&client->dev, "Endpoint node not found\n");
 		return -EINVAL;
@@ -1232,8 +1039,7 @@ static int imx363_probe(struct i2c_client *client)
 		return ret;
 	}
 
-	ret = v4l2_link_freq_to_bitmap(&client->dev,
-				       ep.link_frequencies,
+	ret = v4l2_link_freq_to_bitmap(&client->dev, ep.link_frequencies,
 				       ep.nr_of_link_frequencies,
 				       imx363->link_freq_menu_items,
 				       ARRAY_SIZE(link_freq_menu_items_24),
@@ -1244,8 +1050,9 @@ static int imx363_probe(struct i2c_client *client)
 	}
 
 	if (ep.bus.mipi_csi2.num_data_lanes != 4 ||
-	    !test_bit(IMX363_LINK_FREQ_2300MBPS, &imx363->link_freq_bitmap)) {
-		dev_err(&client->dev, "full-resolution RAW requires four lanes and 636 MHz\n");
+	    !test_bit(IMX363_LINK_FREQ_FULL_RES, &imx363->link_freq_bitmap)) {
+		dev_err(&client->dev,
+			"full-resolution RAW requires four lanes and 636 MHz\n");
 		ret = -EINVAL;
 		goto error_endpoint_free;
 	}
@@ -1254,8 +1061,8 @@ static int imx363_probe(struct i2c_client *client)
 	imx363->csi2_flags = ep.bus.mipi_csi2.flags;
 
 	/* request optional reset pin */
-	imx363->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
-						     GPIOD_OUT_LOW);
+	imx363->reset_gpio =
+		devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
 	if (IS_ERR(imx363->reset_gpio)) {
 		ret = PTR_ERR(imx363->reset_gpio);
 		goto error_endpoint_free;
@@ -1293,12 +1100,16 @@ static int imx363_probe(struct i2c_client *client)
 	if (ret)
 		goto error_handler_free;
 
-	ret = v4l2_async_register_subdev_sensor(&imx363->sd);
-	if (ret < 0)
+	ret = pm_runtime_set_active(&client->dev);
+	if (ret)
 		goto error_media_entity;
-
-	pm_runtime_set_active(&client->dev);
 	pm_runtime_enable(&client->dev);
+
+	ret = v4l2_async_register_subdev_sensor(&imx363->sd);
+	if (ret < 0) {
+		pm_runtime_disable(&client->dev);
+		goto error_media_entity;
+	}
 	pm_runtime_idle(&client->dev);
 	v4l2_fwnode_endpoint_free(&ep);
 
@@ -1334,23 +1145,19 @@ static void imx363_remove(struct i2c_client *client)
 	pm_runtime_set_suspended(&client->dev);
 }
 
-static const struct dev_pm_ops imx363_pm_ops = {
-	SET_RUNTIME_PM_OPS(imx363_power_off, imx363_power_on, NULL)
-};
+static const struct dev_pm_ops imx363_pm_ops = { SET_RUNTIME_PM_OPS(
+	imx363_power_off, imx363_power_on, NULL) };
 
 #ifdef CONFIG_ACPI
-static const struct acpi_device_id imx363_acpi_ids[] = {
-	{ "SONY363A" },
-	{ /* sentinel */ }
-};
+static const struct acpi_device_id imx363_acpi_ids[] = { { "SONY363A" },
+							 { /* sentinel */ } };
 
 MODULE_DEVICE_TABLE(acpi, imx363_acpi_ids);
 #endif
 
-static const struct of_device_id imx363_dt_ids[] = {
-	{ .compatible = "sony,imx363" },
-	{ /* sentinel */ }
-};
+static const struct of_device_id imx363_dt_ids[] = { { .compatible =
+							       "sony,imx363" },
+						     { /* sentinel */ } };
 MODULE_DEVICE_TABLE(of, imx363_dt_ids);
 
 static struct i2c_driver imx363_i2c_driver = {
