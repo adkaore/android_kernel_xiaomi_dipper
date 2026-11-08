@@ -71,3 +71,11 @@ Use pinned, per-subsystem comparisons, not a wholesale replacement of Linux core
 
 Vendor changes have not been started. The independent kernel tasks above remain
 open rather than being hidden behind compatibility stubs or disabled checks.
+
+## Before selecting a physical-board test image
+
+`tools/dipper/read-hardware.sh` is an optional, explicitly invoked read-only ADB
+inventory. It is not run by any build/verification script and has not been run
+against the owner's phone. It does not request root, reboot, write partitions or
+extract calibration/serial/IMEI data. It can help resolve the board/controller
+identity missing from internet sources; it is not itself a hardware driver test.

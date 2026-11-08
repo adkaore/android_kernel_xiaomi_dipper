@@ -6,11 +6,14 @@ venv=${DT_SCHEMA_VENV:?Set DT_SCHEMA_VENV to a provisioned dtschema Python venv}
 out=${1:?Pass an absolute external build output directory}
 "$root/tools/dipper/build-core.sh" "$out"
 out=$(realpath "$out")
-export PATH="$venv/bin:$PATH"
+export PATH="$venv/bin:$TOOLCHAINS_DIR/clang-r596125/bin:$TOOLCHAINS_DIR/1.91.1.p3/bin:$TOOLCHAINS_DIR/clang-tools/bin:$PATH"
+export LIBCLANG_PATH="$TOOLCHAINS_DIR/clang-r596125/lib"
+export RUST_LIB_SRC="$TOOLCHAINS_DIR/1.91.1.p3/lib/rustlib/src/rust/library"
 cd "$root"
 make O="$out" ARCH=arm64 LLVM=1 \
     DT_SCHEMA_FILES=arm/qcom.yaml:display/panel/samsung,ea8074.yaml:media/i2c/sony,imx363.yaml:input/touchscreen/st,stmfts-ftm5.yaml \
     dt_binding_check
+python3 tools/dipper/check-config.py arch/arm64/configs/dipper/core.config "$out/.config"
 schemas="$out/Documentation/devicetree/bindings/processed-schema.json"
 dtb="$out/arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb"
 dt-validate -s "$schemas" --json-output "$out/dipper-schema-result.json" "$dtb"
