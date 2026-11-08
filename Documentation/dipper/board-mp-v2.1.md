@@ -1,0 +1,53 @@
+# MP v2.1 board integration (compile-tested only)
+
+The generic dipper DT from Max Furman's port is retained in Git history with its
+authorship. The adapted ACK target is explicitly named
+`sdm845-xiaomi-dipper-mp-v2.1.dtb`; it does not claim to cover the 14 other legacy
+board descriptions. qcom board ID 55 and SDM845 revision 0x20001 match the old
+MP v2.1 DTS. The active device's actual board revision is not yet known.
+
+## Described using existing ACK drivers
+
+RPMh power supplies, CPU/interconnect/thermal description inherited from SDM845,
+UFS and its PHY, EA8074/DRM display, Adreno 630, USB2 peripheral mode and PHY,
+volume keys/PMIC power key, WCN3990 Wi-Fi/Bluetooth, Venus video codec, SMB2
+charger. A DT node's presence is not a hardware test or Android HAL integration.
+
+Wi-Fi board/calibration data and all named firmware files must match this phone;
+no device-specific MAC, calibration or proprietary blobs are committed.
+
+## Deliberate changes relative to the reference
+
+- Retain the TrustZone carveout rather than reclaiming it for Linux.
+- Reserve the full two-megabyte XBL area from the old kernel, not just the last MB.
+- Preserve the old ADSP/WLAN/modem/video/CDSP/MBA/SLPI/SPSS addresses and sizes.
+- Allocate a guarded RMTFS pool through reserved-memory instead of hardcoding the
+  reference author's runtime address. RMTFS userspace/protocol still needs review.
+- Do not introduce an unverified ramoops buffer at 0xb0000000 or a live
+  simple-framebuffer with assumptions about bootloader ownership/format.
+- No hard-coded MAC, foreign USB VID/PID, or forced always-on camera rails.
+- No unsupported q6voice, FTM5, TAS2557 or fuel-gauge nodes without their drivers.
+- USB is peripheral-only; do not advertise PD, OTG or source VBUS before the
+  PMI8998 controller implementation and role/power sequencing are reviewed.
+- Panel L14 is consumer-managed. The existing L2 boot reference-clock supply
+  remains always-on pending a proper consumer; old unused UFS DT properties do
+  not substitute for a modern driver implementation.
+- ADSP/CDSP/modem/SLPI remain disabled pending firmware and userspace integration.
+  Their reserved areas are retained. Camera/audio/touch are separate work items.
+
+## Validation
+
+DTC compilation passed. Full dt-validate using the generated ACK schema database
+produced an empty diagnostic JSON array after fixing regulator-node names, UART
+pinctrl child names and obsolete UFS properties. W=1 additionally emits two
+inherited SoC warnings (DSI1 address cells and duplicate QFPROM fuse offset);
+these are not suppressed in source or claimed as fixed here.
+
+Run the compiled DT tests with the dtschema venv Python, setting DIPPER_DTB to
+the compiled file, followed by `-m unittest discover -s tools/dipper/tests -v`.
+Nineteen panel/board source and DT tests passed. They verify region overlap,
+identity, guarded RMTFS allocation and absence of known unsafe carryovers, not
+physical operation, modem compatibility, charging safety or suspend current.
+
+The charger uses the reference board's 4.4V design maximum. Hardware battery
+variant, board revision and recovery must be checked before any deployment.

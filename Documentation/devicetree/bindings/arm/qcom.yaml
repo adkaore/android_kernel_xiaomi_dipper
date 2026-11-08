@@ -912,6 +912,11 @@ properties:
           - const: qcom,sdm845
 
       - items:
+          - const: xiaomi,dipper-mp-v2.1
+          - const: xiaomi,dipper
+          - const: qcom,sdm845
+
+      - items:
           - enum:
               - oneplus,billie2
           - const: qcom,sm4250
