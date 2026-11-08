@@ -2,6 +2,7 @@
 // Copyright (C) 2018 Intel Corporation
 
 #include <linux/acpi.h>
+#include <linux/gpio/consumer.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -25,9 +26,7 @@
 #define IMX363_CHIP_ID			0x0363
 
 /* V_TIMING internal */
-// basically frame length lines? from downstream
-#define IMX363_VTS_30FPS		3136 //0c40
-// #define IMX363_VTS_30FPS_2K		0x0638
+#define IMX363_VTS_30FPS		3170
 #define IMX363_VTS_30FPS_HD		1296
 #define IMX363_VTS_MAX			65525
 
@@ -202,8 +201,6 @@ static const struct cci_reg_sequence mipi_2300mbps_24mhz_4l[] = {
 	{ IMX363_REG_PLL_MULT_DRIV, 1 },
 
 	{ IMX363_REG_CSI_LANE_MODE, 3 },
-	// { IMX363_REG_REQ_LINK_BIT_RATE_MBPS_H, 2300 * 4 },
-	// { IMX363_REG_REQ_LINK_BIT_RATE_MBPS_L, 0 },
 };
 
 static const struct cci_reg_sequence mipi_642mbps_24mhz_2l[] = {
@@ -241,62 +238,6 @@ static const struct cci_reg_sequence mipi_642mbps_24mhz_4l[] = {
 };
 
 static const struct cci_reg_sequence mode_common_regs[] = {
-	//Magical IMX363 Regs & Values - Found in downstream. Doesnt affect output except for the few noted. So disable.
-	// { CCI_REG8(0x31a3), 0x00 },
-	// { CCI_REG8(0x64d4), 0x01 },
-	// { CCI_REG8(0x64d5), 0xaa },
-	// { CCI_REG8(0x64d6), 0x01 },
-	// { CCI_REG8(0x64d7), 0xa9 },
-	// { CCI_REG8(0x64d8), 0x01 },
-	// { CCI_REG8(0x64d9), 0xa5 },
-	// { CCI_REG8(0x64da), 0x01 },
-	// { CCI_REG8(0x64db), 0xa1 },
-	// { CCI_REG8(0x720a), 0x24 },
-	// { CCI_REG8(0x720b), 0x89 },
-	// { CCI_REG8(0x720c), 0x85 },
-	// { CCI_REG8(0x720d), 0xa1 },
-	// { CCI_REG8(0x720e), 0x6e },
-	// { CCI_REG8(0x729c), 0x59 },
-	// { CCI_REG8(0x817c), 0xff },
-	// { CCI_REG8(0x817d), 0x80 },
-	// { CCI_REG8(0x9348), 0x96 },
-	// { CCI_REG8(0x934b), 0x8c },
-	// { CCI_REG8(0x934c), 0x82 },
-	// { CCI_REG8(0x9353), 0xaa },
-	// { CCI_REG8(0x9354), 0xaa },
-	// { CCI_REG8(0x30F4), 0x02 },
-	// { CCI_REG8(0x30F5), 0x80 },
-	// { CCI_REG8(0x31A5), 0x00 }, //causes white output
-	// { CCI_REG8(0x31A6), 0x00 }, //causes white output
-	// { CCI_REG8(0x560F), 0xBE }, //causes cropped corrupted nonsensical output
-	// { CCI_REG8(0x5856), 0x08 },
-	// { CCI_REG8(0x58D0), 0x10 },
-	// { CCI_REG8(0x734A), 0x01 },
-	// { CCI_REG8(0x734F), 0x2B },
-	// { CCI_REG8(0x7441), 0x55 },
-	// { CCI_REG8(0x7914), 0x03 },
-	// { CCI_REG8(0x7928), 0x04 },
-	// { CCI_REG8(0x7929), 0x04 },
-	// { CCI_REG8(0x793F), 0x03 },
-	
-	// present in imx258. not present in android downstream logs. doesnt seem to affect output.
-	// {IMX363_REG_SCALE_MODE_EXT, 0}, 
-	// {IMX363_REG_SCALE_M_EXT, 16},
-	// {IMX363_REG_FORCE_FD_SUM, 1},
-	// {IMX363_REG_FRM_LENGTH_CTL, 0},
-	// {IMX363_REG_ANALOG_GAIN, 0},
-	// {IMX363_REG_GR_DIGITAL_GAIN, 256},
-	// {IMX363_REG_R_DIGITAL_GAIN, 256},
-	// {IMX363_REG_B_DIGITAL_GAIN, 256},
-	// {IMX363_REG_GB_DIGITAL_GAIN, 256},
-	// {IMX363_REG_AF_WINDOW_MODE, 0},
-	// {IMX363_REG_PHASE_PIX_OUTEN, 0},
-	// {IMX363_REG_PDPIX_DATA_RATE, 0},
-	// {IMX363_REG_HDR, 0},
-	
-	// Seems important. Probably will work even without specifying these. But let's just set it anyway.
-	// {IMX363_REG_CSI_DT_FMT, 0x0a0a},
-	// {IMX363_REG_LINE_LENGTH_PCK, IMX363_PPL_DEFAULT},
 	{CCI_REG8(0x0136), 0x18},
 	{CCI_REG8(0x0137), 0x00},
 	{CCI_REG8(0x31A3), 0x00},
@@ -325,25 +266,6 @@ static const struct cci_reg_sequence mode_common_regs[] = {
 };
 
 static const struct cci_reg_sequence mode_4032x3024_regs[] = {
-	// {IMX363_REG_BINNING_MODE, 0},
-	// {IMX363_REG_BINNING_TYPE_V, 0x11},
-	// // {IMX363_REG_SCALE_MODE, 1},
-	// // {IMX363_REG_SCALE_M, 64},
-	// {IMX363_REG_X_ADD_STA, 0}, // analog cropping
-	// {IMX363_REG_Y_ADD_STA, 0},
-	// {IMX363_REG_X_ADD_END, 4031},
-	// {IMX363_REG_Y_ADD_END, 3023},
-	// {IMX363_REG_X_EVN_INC, 1}, //subsampling
-	// {IMX363_REG_X_ODD_INC, 1},
-	// {IMX363_REG_Y_EVN_INC, 1},
-	// {IMX363_REG_Y_ODD_INC, 1},
-	// {IMX363_REG_DIG_CROP_X_OFFSET, 0}, // digital cropping
-	// {IMX363_REG_DIG_CROP_Y_OFFSET, 0},
-	// {IMX363_REG_DIG_CROP_IMAGE_WIDTH, 4032},
-	// {IMX363_REG_DIG_CROP_IMAGE_HEIGHT, 3024},
-	// {IMX363_REG_X_OUT_SIZE, 4032},
-	// {IMX363_REG_Y_OUT_SIZE, 3024},
-	// {IMX363_REG_FRM_LENGTH_LINES, IMX363_VTS_30FPS},
 	{CCI_REG8(0x0112), 0x0A},
 	{CCI_REG8(0x0113), 0x0A},
 	{CCI_REG8(0x0114), 0x03},
@@ -422,28 +344,6 @@ static const struct cci_reg_sequence mode_4032x3024_regs[] = {
 	{CCI_REG8(0x0227), 0x00},
 };
 
-static const struct cci_reg_sequence mode_1920_1080_regs[] = {
-	{IMX363_REG_BINNING_MODE, 1},
-	{IMX363_REG_BINNING_TYPE_V, 0x42},
-	// {IMX363_REG_SCALE_MODE, 1},
-	// {IMX363_REG_SCALE_M, 64},
-	{IMX363_REG_X_ADD_STA, 0}, // analog cropping
-	{IMX363_REG_Y_ADD_STA, 0},
-	{IMX363_REG_X_ADD_END, 4031},
-	{IMX363_REG_Y_ADD_END, 3023},
-	{IMX363_REG_X_EVN_INC, 1}, //subsampling
-	{IMX363_REG_X_ODD_INC, 1},
-	{IMX363_REG_Y_EVN_INC, 1},
-	{IMX363_REG_Y_ODD_INC, 1},
-	{IMX363_REG_DIG_CROP_X_OFFSET, 0}, // digital cropping
-	{IMX363_REG_DIG_CROP_Y_OFFSET, 0},
-	{IMX363_REG_DIG_CROP_IMAGE_WIDTH, 1920},
-	{IMX363_REG_DIG_CROP_IMAGE_HEIGHT, 1080},
-	{IMX363_REG_X_OUT_SIZE, 1920},
-	{IMX363_REG_Y_OUT_SIZE, 1080},
-	{IMX363_REG_FRM_LENGTH_LINES, IMX363_VTS_30FPS_HD},
-};
-
 /*
  * The supported formats.
  * This table MUST contain 4 entries per format, to cover the various flip
@@ -508,13 +408,9 @@ static u64 link_freq_to_pixel_rate(u64 f, const struct imx363_link_cfg *link_cfg
 
 /* Menu items for LINK_FREQ V4L2 control */
 /* Configurations for supported link frequencies */
-// static const s64 link_freq_menu_items_19_2[] = {
-// 	633600000ULL,
-// 	320000000ULL,
-// };
 
 static const s64 link_freq_menu_items_24[] = {
-	636000000ULL, // NOT SURE HOW TO FIND THIS VALUE
+	636000000ULL,
 	321000000ULL,
 };
 
@@ -568,23 +464,6 @@ static const struct imx363_mode supported_modes[] = {
 			.height = IMX363_PIXEL_ARRAY_HEIGHT,
 		},
 	},
-	{
-		.width = 1920,
-		.height = 1080,
-		.vts_def = IMX363_VTS_30FPS_HD,
-		.vts_min = IMX363_VTS_30FPS_HD,
-		.reg_list = {
-			.num_of_regs = ARRAY_SIZE(mode_1920_1080_regs),
-			.regs = mode_1920_1080_regs,
-		},
-		.link_freq_index = IMX363_LINK_FREQ_640MBPS,
-		.crop = {
-			.left = IMX363_PIXEL_ARRAY_LEFT,
-			.top = IMX363_PIXEL_ARRAY_TOP,
-			.width = 4032,
-			.height = 3024,
-		},
-	},
 };
 
 struct imx363 {
@@ -618,6 +497,7 @@ struct imx363 {
 	 * Protect sensor module set pad format and start/stop streaming safely.
 	 */
 	struct mutex mutex;
+	bool streaming;
 
 	struct clk *clk;
 	struct regulator_bulk_data supplies[IMX363_NUM_SUPPLIES];
@@ -648,6 +528,8 @@ static int imx363_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	struct v4l2_mbus_framefmt *try_fmt =
 		v4l2_subdev_state_get_format(fh->state, 0);
 	struct v4l2_rect *try_crop;
+
+	guard(mutex)(&imx363->mutex);
 
 	/* Initialize try_fmt */
 	try_fmt->width = supported_modes[0].width;
@@ -708,8 +590,9 @@ static int imx363_set_ctrl(struct v4l2_ctrl *ctrl)
 	 * Applying V4L2 control value only happens
 	 * when power is up for streaming
 	 */
-	if (pm_runtime_get_if_in_use(&client->dev) == 0)
-		return 0;
+	ret = pm_runtime_get_if_in_use(&client->dev);
+	if (ret <= 0)
+		return ret;
 
 	switch (ctrl->id) {
 	case V4L2_CID_ANALOGUE_GAIN:
@@ -726,19 +609,6 @@ static int imx363_set_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_TEST_PATTERN:
 		ret = cci_write(imx363->regmap, IMX363_REG_TEST_PATTERN,
 				ctrl->val, NULL);
-		break;
-	case V4L2_CID_WIDE_DYNAMIC_RANGE:
-		if (!ctrl->val) {
-			ret = cci_write(imx363->regmap, IMX363_REG_HDR,
-					IMX363_HDR_RATIO_MIN, NULL);
-		} else {
-			ret = cci_write(imx363->regmap, IMX363_REG_HDR,
-					IMX363_HDR_ON, NULL);
-			if (ret)
-				break;
-			ret = cci_write(imx363->regmap, IMX363_REG_HDR_RATIO,
-					BIT(IMX363_HDR_RATIO_MAX), NULL);
-		}
 		break;
 	case V4L2_CID_VBLANK:
 		ret = cci_write(imx363->regmap, IMX363_REG_FRM_LENGTH_LINES,
@@ -776,6 +646,8 @@ static int imx363_enum_mbus_code(struct v4l2_subdev *sd,
 {
 	struct imx363 *imx363 = to_imx363(sd);
 
+	guard(mutex)(&imx363->mutex);
+
 	/* Only one bayer format (10 bit) is supported */
 	if (code->index > 0)
 		return -EINVAL;
@@ -790,6 +662,8 @@ static int imx363_enum_frame_size(struct v4l2_subdev *sd,
 				  struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct imx363 *imx363 = to_imx363(sd);
+
+	guard(mutex)(&imx363->mutex);
 	if (fse->index >= ARRAY_SIZE(supported_modes))
 		return -EINVAL;
 
@@ -856,7 +730,9 @@ static int imx363_set_pad_format(struct v4l2_subdev *sd,
 	s64 pixel_rate;
 	s64 link_freq;
 
-	mutex_lock(&imx363->mutex);
+	guard(mutex)(&imx363->mutex);
+	if (fmt->which == V4L2_SUBDEV_FORMAT_ACTIVE && imx363->streaming)
+		return -EBUSY;
 
 	fmt->format.code = imx363_get_format_code(imx363);
 
@@ -895,8 +771,6 @@ static int imx363_set_pad_format(struct v4l2_subdev *sd,
 		__v4l2_ctrl_modify_range(imx363->hblank, h_blank,
 					 h_blank, 1, h_blank);
 	}
-
-	mutex_unlock(&imx363->mutex);
 
 	return 0;
 }
@@ -1005,7 +879,7 @@ static int imx363_start_streaming(struct imx363 *imx363)
 	}
 
 	/* Apply customized values from user */
-	ret =  __v4l2_ctrl_handler_setup(imx363->sd.ctrl_handler);
+	ret = __v4l2_ctrl_handler_setup(imx363->sd.ctrl_handler);
 	if (ret)
 		return ret;
 
@@ -1083,6 +957,8 @@ static int imx363_set_stream(struct v4l2_subdev *sd, int enable)
 	int ret = 0;
 
 	mutex_lock(&imx363->mutex);
+	if (imx363->streaming == !!enable)
+		goto err_unlock;
 
 	if (enable) {
 		ret = pm_runtime_resume_and_get(&client->dev);
@@ -1101,6 +977,9 @@ static int imx363_set_stream(struct v4l2_subdev *sd, int enable)
 		pm_runtime_put(&client->dev);
 	}
 
+	imx363->streaming = !!enable;
+	__v4l2_ctrl_grab(imx363->hflip, enable);
+	__v4l2_ctrl_grab(imx363->vflip, enable);
 	mutex_unlock(&imx363->mutex);
 
 	return ret;
@@ -1199,10 +1078,9 @@ static int imx363_init_controls(struct imx363 *imx363)
 		imx363->vflip->flags |= V4L2_CTRL_FLAG_MODIFY_LAYOUT;
 
 	link_freq_cfgs = &imx363->link_freq_configs[0];
-	link_cfg = link_freq_cfgs[imx363->lane_mode_idx].link_cfg;
+	link_cfg = &link_freq_cfgs->link_cfg[imx363->lane_mode_idx];
 	pixel_rate = link_freq_to_pixel_rate(imx363->link_freq_menu_items[0],
 					     link_cfg);
-	printk(KERN_INFO "imx363: pixel_rate: %lld\n", pixel_rate);
 
 	/* By default, PIXEL_RATE is read only */
 	imx363->pixel_rate = v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops,
@@ -1231,7 +1109,7 @@ static int imx363_init_controls(struct imx363 *imx363)
 	imx363->exposure = v4l2_ctrl_new_std(
 				ctrl_hdlr, &imx363_ctrl_ops,
 				V4L2_CID_EXPOSURE, IMX363_EXPOSURE_MIN,
-				IMX363_EXPOSURE_MAX, IMX363_EXPOSURE_STEP,
+				imx363->cur_mode->vts_def - IMX363_EXPOSURE_OFFSET, IMX363_EXPOSURE_STEP,
 				IMX363_EXPOSURE_DEFAULT);
 
 	v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_ANALOGUE_GAIN,
@@ -1242,9 +1120,6 @@ static int imx363_init_controls(struct imx363 *imx363)
 				IMX363_DGTL_GAIN_MIN, IMX363_DGTL_GAIN_MAX,
 				IMX363_DGTL_GAIN_STEP,
 				IMX363_DGTL_GAIN_DEFAULT);
-
-	v4l2_ctrl_new_std(ctrl_hdlr, &imx363_ctrl_ops, V4L2_CID_WIDE_DYNAMIC_RANGE,
-				0, 1, 1, IMX363_HDR_RATIO_DEFAULT);
 
 	v4l2_ctrl_new_std_menu_items(ctrl_hdlr, &imx363_ctrl_ops,
 				V4L2_CID_TEST_PATTERN,
@@ -1322,37 +1197,20 @@ static int imx363_probe(struct i2c_client *client)
 		return dev_err_probe(&client->dev, ret,
 				     "failed to get regulators\n");
 
-	imx363->clk = devm_clk_get_optional(&client->dev, NULL);
+	imx363->clk = devm_v4l2_sensor_clk_get(&client->dev, NULL);
 	if (IS_ERR(imx363->clk))
 		return dev_err_probe(&client->dev, PTR_ERR(imx363->clk),
 				     "error getting clock\n");
-	// if (!imx363->clk) {
-	// 	dev_warn(&client->dev,
-	// 		"no clock provided, using clock-frequency property\n");
 
-	device_property_read_u32(&client->dev, "clock-frequency", &val);
-	// } else {
-		// val = clk_get_rate(imx363->clk);
-	// }
-	ret = clk_set_rate(imx363->clk, val);
+	ret = clk_set_rate(imx363->clk, 24000000);
 	if (ret)
-		return dev_err_probe(&client->dev, ret,
-						"failed to set clock rate\n");
-
-	switch (val) {
-	// case 19200000:
-	// 	imx363->link_freq_configs = link_freq_configs_19_2;
-	// 	imx363->link_freq_menu_items = link_freq_menu_items_19_2;
-	// 	break;
-	case 24000000:
-		imx363->link_freq_configs = link_freq_configs_24;
-		imx363->link_freq_menu_items = link_freq_menu_items_24;
-		break;
-	default:
-		dev_err(&client->dev, "input clock frequency of %u not supported\n",
-			val);
-		return -EINVAL;
-	}
+		return dev_err_probe(&client->dev, ret, "failed to set clock rate\n");
+	val = clk_get_rate(imx363->clk);
+	if (val != 24000000)
+		return dev_err_probe(&client->dev, -EINVAL,
+				     "input clock must be 24 MHz\n");
+	imx363->link_freq_configs = link_freq_configs_24;
+	imx363->link_freq_menu_items = link_freq_menu_items_24;
 
 	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(&client->dev), NULL);
 	if (!endpoint) {
@@ -1378,29 +1236,23 @@ static int imx363_probe(struct i2c_client *client)
 		goto error_endpoint_free;
 	}
 
-	/* Get number of data lanes */
-	switch (ep.bus.mipi_csi2.num_data_lanes) {
-	case 2:
-		imx363->lane_mode_idx = IMX363_2_LANE_MODE;
-		break;
-	case 4:
-		imx363->lane_mode_idx = IMX363_4_LANE_MODE;
-		printk(KERN_INFO "imx363: 4 lanes\n");
-		break;
-	default:
-		dev_err(&client->dev, "Invalid data lanes: %u\n",
-			ep.bus.mipi_csi2.num_data_lanes);
+	if (ep.bus.mipi_csi2.num_data_lanes != 4 ||
+	    !test_bit(IMX363_LINK_FREQ_2300MBPS, &imx363->link_freq_bitmap)) {
+		dev_err(&client->dev, "full-resolution RAW requires four lanes and 636 MHz\n");
 		ret = -EINVAL;
 		goto error_endpoint_free;
 	}
+	imx363->lane_mode_idx = IMX363_4_LANE_MODE;
 
 	imx363->csi2_flags = ep.bus.mipi_csi2.flags;
 
 	/* request optional reset pin */
 	imx363->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
 						     GPIOD_OUT_LOW);
-	if (IS_ERR(imx363->reset_gpio))
-		return PTR_ERR(imx363->reset_gpio);
+	if (IS_ERR(imx363->reset_gpio)) {
+		ret = PTR_ERR(imx363->reset_gpio);
+		goto error_endpoint_free;
+	}
 
 	/* Initialize subdev */
 	v4l2_i2c_subdev_init(&imx363->sd, client, &imx363_subdev_ops);
@@ -1489,7 +1341,7 @@ MODULE_DEVICE_TABLE(acpi, imx363_acpi_ids);
 #endif
 
 static const struct of_device_id imx363_dt_ids[] = {
-	{ .compatible = "sony,imx363"},
+	{ .compatible = "sony,imx363" },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, imx363_dt_ids);
