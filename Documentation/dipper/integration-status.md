@@ -39,7 +39,7 @@ no NFC ABI is selected automatically from them or from the age of an interface.
   Charger/PD input limits, VBUS measurement and revision workarounds remain open.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
-- Combined build produced Image, 14 final DTB targets and 148 current-build modules
+- Combined build produced Image, 14 final DTB targets and 151 current-build modules
   on a clean Git tree. The matching helper base and two plugins are hashed too.
   Historical result records identify their own source revisions.
 
