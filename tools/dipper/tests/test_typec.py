@@ -93,12 +93,24 @@ class TypeCSourceTests(unittest.TestCase):
 
 @unittest.skipUnless(libfdt and DTB_DIR, 'set DIPPER_DTB_DIR and use schema Python')
 class TypeCDTTests(unittest.TestCase):
+    def find(self, tree, compatible, node=0):
+        if tree.hasprop(node, 'compatible') and compatible in tree.getprop(node, 'compatible').as_stringlist():
+            return node
+        child = tree.first_subnode(node, quiet=(libfdt.NOTFOUND,))
+        while child >= 0:
+            found = self.find(tree, compatible, child)
+            if found is not None:
+                return found
+            child = tree.next_subnode(child, quiet=(libfdt.NOTFOUND,))
+        return None
+
     def test_all_candidates_remain_gated_without_foreign_connector_policy(self):
         targets = json.loads((ROOT / 'Documentation/dipper/board-targets.json').read_text())['targets']
         for target in targets:
             with self.subTest(dtb=target['dtb']):
                 tree = libfdt.Fdt((Path(DTB_DIR) / target['dtb']).read_bytes())
-                offset = tree.node_offset_by_compatible(-1, 'qcom,pmi8998-typec')
+                offset = self.find(tree, 'qcom,pmi8998-typec')
+                self.assertIsNotNone(offset)
                 self.assertEqual(tree.getprop(offset, 'status').as_str(), 'disabled')
                 self.assertEqual(tree.getprop(offset, 'reg').as_uint32_list(), [0x1300, 0x1700])
                 self.assertFalse(tree.hasprop(offset, 'source-pdos'))
