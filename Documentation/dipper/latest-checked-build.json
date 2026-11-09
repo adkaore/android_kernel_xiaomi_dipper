@@ -3,13 +3,45 @@
   "hardware_tested": false,
   "flashable_boot_image": false,
   "hermetic_kleaf_build": false,
-  "utc": "2026-11-08T20:52:53.183296+00:00",
-  "commit": "ebe3c2a209a3324a9e6233bae21624fa9ddb50fd",
+  "utc": "2026-11-09T07:43:24.811669+00:00",
+  "commit": "e9b708836d85909622cdee3e08315f1a15ba162e",
   "source_dirty": false,
+  "board_targets": [
+    "sdm845-xiaomi-dipper-mp-v2.1.dtb",
+    "sdm845-xiaomi-dipper-mp-v2.dtb",
+    "sdm845-xiaomi-dipper-p0-v2.1.dtb",
+    "sdm845-xiaomi-dipper-p0-v2.dtb",
+    "sdm845-xiaomi-dipper-p1-v2-cn.dtb",
+    "sdm845-xiaomi-dipper-p1-v2-gb.dtb",
+    "sdm845-xiaomi-dipper-p1-v2.1-cn.dtb",
+    "sdm845-xiaomi-dipper-p1-v2.1-gb.dtb",
+    "sdm845-xiaomi-dipper-p1.1-v2.1.dtb",
+    "sdm845-xiaomi-dipper-p1.1-v2.dtb",
+    "sdm845-xiaomi-dipper-p2-v2.1.dtb",
+    "sdm845-xiaomi-dipper-p2-v2.dtb",
+    "sdm845-xiaomi-dipper-p0-v2-overlay.dtb",
+    "sdm845-xiaomi-dipper-p0-v2.1-overlay.dtb"
+  ],
   "sha256": {
     ".config": "be7884c6386e9d6fa4953dc1e9bcb0881cf7bc2c86ddf211da8e532ef94c4eb1",
-    "arch/arm64/boot/Image": "f380e46dec0d50dd99033304355be2b518885b028709084dce9ba0d9c552bec4",
-    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb": "8552e4d4d25c89b6396d2b83a98a64a34dbf4b82eb2d781534bd42cd46e96923"
+    "arch/arm64/boot/Image": "9f3ffd64d74546cffe9be1ed644fdd7f1d551a0b693ac32f64a6142077035782",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb": "069dc014bf3027ba0f7e526c7237b95c9474a2512acd794b6c27169f4e43d82b",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.dtb": "d270415984fd66508731ea76e4f92eddff460c2388a4e62f544516cab5b9e7e7",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2.1.dtb": "2b548f11cba92499e1c9c8c5113b858583ba62e6f0002dc47e5a107a68474348",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2.dtb": "56a76fffe13ad755c8615a9ca3954f678d74d64200028060db352b45677f2b0f",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1-v2-cn.dtb": "5910e01a26f0c5e5e1cda92fb60022040639226be8a2035a3924baf96152bd7f",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1-v2-gb.dtb": "6a98d82ee4c01623ee26258df18e7678c8b7dc800efc8db57046ea5b2d526dad",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1-v2.1-cn.dtb": "4e15de0555c3783f0aef5b9226dd52801f0aaff47d52aeea0d3bcde277b6423a",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1-v2.1-gb.dtb": "2658fcf15f24f90a4abcbed580b0ced39010fb0a5a9d6a32163026e12b27a2ef",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1.1-v2.1.dtb": "67154c6fe9758a10a0c34434ae7f8360290d86e662391b1b0f50536757fd2c11",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p1.1-v2.dtb": "9be95af5d028700108c1a86386bbd6e5b29e09af7d2b211e49449285c268e898",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p2-v2.1.dtb": "07c0f0686636022e9f156a775ab13d563b217d1e776834f332ba4093f5f52db5",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p2-v2.dtb": "9e66735237bf15592a523f0e33e7ec18880641673167770a6a42e5d8f1850652",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2-overlay.dtb": "fb5ffd744b0d92eabbac435f953e37db6d9b575c3b26e560e663783b572347e5",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2.1-overlay.dtb": "ccd770fea648e5dfb0a4a5c8ede2cdcdd55c1e6aa976f8828e2ba8126a19114b",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-common-base.dtb": "77a16ca9b0f058da62f893dec921d287874e2aa8624964323cb15df79f934d6f",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2-select.dtbo": "223bb464b3c1ab11d73082d793728ff5d715aa327ddb5ecf3d437c8ae4da7dc0",
+    "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2.1-select.dtbo": "e890610ca6ea566a8116de20f288be2113330dc97f78adb31fc473522d732a30"
   },
   "modules": [
     "arch/arm64/geniezone/gzvm.ko",
@@ -158,14 +190,15 @@
     "sound/soc/soc-topology-test.ko",
     "sound/soc/soc-utils-test.ko"
   ],
-  "checks": {
-    "dtb_schema_diagnostics": 0,
-    "python_source_and_dtb_tests": 37,
-    "ftm5_decoder_fuzz_packets": 1000000,
-    "decoder_sanitizers": [
-      "ASan",
-      "UBSan"
-    ],
-    "hardware_tested": false
+  "offline_verification": {
+    "unit_tests": 230,
+    "ftm5_asan_ubsan_fuzz_packets": 1000000,
+    "applicable_dtb_schema_diagnostics": 0,
+    "validated_final_dtbs": 14,
+    "validated_helper_bases": 1,
+    "selection_plugins_composed": 2,
+    "legacy_manifest_reproduced": true,
+    "checkpatch_dipper_dt_sources": "0 errors, 0 warnings, 0 checks",
+    "verifier_log_sha256": "e058d6132005d64a9b71fb2e03688d8da91299009da0a4c27ea43fc97be944ef"
   }
 }

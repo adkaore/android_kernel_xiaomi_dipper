@@ -22,8 +22,9 @@ No phone was accessed, rebooted, flashed or otherwise changed.
   Compile-selected, with a deliberately disabled board node pending identification.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
-- Earlier combined build produced Image, MP v2.1 DTB and 145 modules on a clean Git tree.
-  Previous result records are historical; they identify the exact source revision.
+- Combined build produced Image, 14 final DTB targets and 145 current-build modules
+  on a clean Git tree. The matching helper base and two plugins are hashed too.
+  Historical result records identify their own source revisions.
 
 ## Repeat checks
 
@@ -93,13 +94,16 @@ identity missing from internet sources; it is not itself a hardware driver test.
 ## Latest end-to-end check
 
 latest-checked-build.json identifies the checked source revision, configuration,
-Image/DTB hashes and 145 module paths. The final verifier completed with zero
-applicable DTB schema diagnostics, 37 source/compiled-DT tests and one million
-ASan/UBSan decoder cases. It also rechecked the fragment after schema generation.
+Image/DTB/plugin hashes and 145 module paths. At source revision
+`e9b708836d85909622cdee3e08315f1a15ba162e` the final verifier completed with
+zero applicable schema diagnostics for all 14 final trees and the helper base,
+230 source/compiled-DT tests and one million ASan/UBSan decoder cases. It also
+rechecked all 94 explicit fragment requests after schema generation. The pinned
+legacy DTS audit was rerun and reproduced the tracked manifest exactly.
 No Android/vendor files were changed, and no phone command has been executed.
 
 The work is published on topic branches. It does NOT mean that every independent
-kernel task is finished: board variants, fuel gauge, Type-C, audio, GNSS, NFC,
+kernel task is finished: per-revision runtime checks, fuel gauge, Type-C, audio, GNSS, NFC,
 sensors and remaining camera/lens work are still tracked above. Some require
 physical identification, calibration/protocol data or hardware validation before
 we can make defensible changes, in addition to future Android/vendor integration.
