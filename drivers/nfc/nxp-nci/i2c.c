@@ -13,10 +13,15 @@
  */
 
 #include <linux/acpi.h>
+#include <linux/cleanup.h>
+#include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/pm_wakeup.h>
+#include <linux/property.h>
 #include <linux/nfc.h>
 #include <linux/gpio/consumer.h>
 #include <linux/unaligned.h>
@@ -35,6 +40,13 @@ struct nxp_nci_i2c_phy {
 
 	struct gpio_desc *gpiod_en;
 	struct gpio_desc *gpiod_fw;
+	struct clk *ref_clk;
+	/* Serialize GPIO sequencing and the optional clock vote. */
+	struct mutex power_lock;
+	bool clock_enabled;
+	bool irq_requested;
+	bool irq_enabled;
+	bool wake_enabled;
 
 	int hard_fault; /*
 			 * < 0 if hardware error occurred (e.g. i2c err)
@@ -42,19 +54,78 @@ struct nxp_nci_i2c_phy {
 			 */
 };
 
-static int nxp_nci_i2c_set_mode(void *phy_id,
-				    enum nxp_nci_mode mode)
+static int nxp_nci_i2c_power_off(struct nxp_nci_i2c_phy *phy)
 {
-	struct nxp_nci_i2c_phy *phy = (struct nxp_nci_i2c_phy *) phy_id;
+	int ret, fw_ret, wake_ret = 0;
 
-	gpiod_set_value_cansleep(phy->gpiod_fw, (mode == NXP_NCI_MODE_FW) ? 1 : 0);
-	gpiod_set_value_cansleep(phy->gpiod_en, (mode != NXP_NCI_MODE_COLD) ? 1 : 0);
+	lockdep_assert_held(&phy->power_lock);
+	if (phy->wake_enabled) {
+		wake_ret = disable_irq_wake(phy->i2c_dev->irq);
+		if (!wake_ret)
+			phy->wake_enabled = false;
+	}
+	if (phy->irq_enabled) {
+		disable_irq_nosync(phy->i2c_dev->irq);
+		phy->irq_enabled = false;
+	}
+	ret = gpiod_set_value_cansleep(phy->gpiod_en, 0);
+	fw_ret = gpiod_set_value_cansleep(phy->gpiod_fw, 0);
 	usleep_range(10000, 15000);
+	if (phy->clock_enabled) {
+		clk_disable_unprepare(phy->ref_clk);
+		phy->clock_enabled = false;
+	}
+	if (!ret)
+		ret = fw_ret;
+	if (!ret)
+		ret = wake_ret;
+	WRITE_ONCE(phy->hard_fault, ret);
+	return ret;
+}
 
+static int nxp_nci_i2c_set_mode(void *phy_id, enum nxp_nci_mode mode)
+{
+	struct nxp_nci_i2c_phy *phy = phy_id;
+	int ret, off_ret;
+
+	guard(mutex)(&phy->power_lock);
 	if (mode == NXP_NCI_MODE_COLD)
-		phy->hard_fault = 0;
+		return nxp_nci_i2c_power_off(phy);
+	if (mode != NXP_NCI_MODE_NCI && mode != NXP_NCI_MODE_FW)
+		return -EINVAL;
+	if (mode == NXP_NCI_MODE_FW && !phy->gpiod_fw)
+		return -EOPNOTSUPP;
+	if (!phy->clock_enabled) {
+		ret = clk_prepare_enable(phy->ref_clk);
+		if (ret)
+			return ret;
+		phy->clock_enabled = true;
+	}
+	ret = gpiod_set_value_cansleep(phy->gpiod_fw, mode == NXP_NCI_MODE_FW);
+	if (!ret)
+		ret = gpiod_set_value_cansleep(phy->gpiod_en, 1);
+	if (ret) {
+		off_ret = nxp_nci_i2c_power_off(phy);
+		if (off_ret)
+			nfc_err(&phy->i2c_dev->dev, "Power rollback failed: %d\n", off_ret);
+		return ret;
+	}
+	usleep_range(10000, 15000);
+	if (phy->irq_requested && !phy->irq_enabled) {
+		phy->irq_enabled = true;
+		enable_irq(phy->i2c_dev->irq);
+	}
 
 	return 0;
+}
+
+static void nxp_nci_i2c_power_cleanup(void *data)
+{
+	struct nxp_nci_i2c_phy *phy = data;
+	int ret = nxp_nci_i2c_set_mode(phy, NXP_NCI_MODE_COLD);
+
+	if (ret)
+		nfc_err(&phy->i2c_dev->dev, "Poweroff failed: %d\n", ret);
 }
 
 static int nxp_nci_i2c_write(void *phy_id, struct sk_buff *skb)
@@ -63,8 +134,9 @@ static int nxp_nci_i2c_write(void *phy_id, struct sk_buff *skb)
 	struct nxp_nci_i2c_phy *phy = phy_id;
 	struct i2c_client *client = phy->i2c_dev;
 
-	if (phy->hard_fault != 0)
-		return phy->hard_fault;
+	r = READ_ONCE(phy->hard_fault);
+	if (r)
+		return r;
 
 	r = i2c_master_send(client, skb->data, skb->len);
 	if (r < 0) {
@@ -88,11 +160,6 @@ static int nxp_nci_i2c_write(void *phy_id, struct sk_buff *skb)
 	return r;
 }
 
-static const struct nxp_nci_phy_ops i2c_phy_ops = {
-	.set_mode = nxp_nci_i2c_set_mode,
-	.write = nxp_nci_i2c_write,
-};
-
 static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
 			       struct sk_buff **skb)
 {
@@ -101,7 +168,7 @@ static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
 	__be16 header;
 	int r;
 
-	r = i2c_master_recv(client, (u8 *) &header, NXP_NCI_FW_HDR_LEN);
+	r = i2c_master_recv(client, (u8 *)&header, NXP_NCI_FW_HDR_LEN);
 	if (r < 0) {
 		goto fw_read_exit;
 	} else if (r != NXP_NCI_FW_HDR_LEN) {
@@ -114,7 +181,7 @@ static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
 		    NXP_NCI_FW_CRC_LEN;
 
 	*skb = alloc_skb(NXP_NCI_FW_HDR_LEN + frame_len, GFP_KERNEL);
-	if (*skb == NULL) {
+	if (!*skb) {
 		r = -ENOMEM;
 		goto fw_read_exit;
 	}
@@ -147,7 +214,7 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
 	struct i2c_client *client = phy->i2c_dev;
 	int r;
 
-	r = i2c_master_recv(client, (u8 *) &header, NCI_CTRL_HDR_SIZE);
+	r = i2c_master_recv(client, (u8 *)&header, NCI_CTRL_HDR_SIZE);
 	if (r < 0) {
 		goto nci_read_exit;
 	} else if (r != NCI_CTRL_HDR_SIZE) {
@@ -157,7 +224,7 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
 	}
 
 	*skb = alloc_skb(NCI_CTRL_HDR_SIZE + header.plen, GFP_KERNEL);
-	if (*skb == NULL) {
+	if (!*skb) {
 		r = -ENOMEM;
 		goto nci_read_exit;
 	}
@@ -210,7 +277,7 @@ static irqreturn_t nxp_nci_i2c_irq_thread_fn(int irq, void *phy_id)
 
 	mutex_lock(&info->info_lock);
 
-	if (phy->hard_fault != 0)
+	if (info->removing || READ_ONCE(phy->hard_fault))
 		goto exit_irq_handled;
 
 	switch (info->mode) {
@@ -221,16 +288,21 @@ static irqreturn_t nxp_nci_i2c_irq_thread_fn(int irq, void *phy_id)
 		r = nxp_nci_i2c_fw_read(phy, &skb);
 		break;
 	case NXP_NCI_MODE_COLD:
-		r = -EREMOTEIO;
-		break;
+		/* VEN transitions may produce an edge while the chip is off. */
+		goto exit_irq_handled;
 	}
 
-	if (r == -EREMOTEIO) {
-		phy->hard_fault = r;
+	if (r < 0) {
+		int off_ret;
+
+		mutex_lock(&phy->power_lock);
+		off_ret = nxp_nci_i2c_power_off(phy);
+		WRITE_ONCE(phy->hard_fault, r);
+		mutex_unlock(&phy->power_lock);
+		if (off_ret)
+			nfc_err(&client->dev, "Poweroff after receive fault failed: %d\n", off_ret);
 		if (info->mode == NXP_NCI_MODE_FW)
 			nxp_nci_fw_recv_frame(phy->ndev, NULL);
-	}
-	if (r < 0) {
 		nfc_err(&client->dev, "Read failed with error %d\n", r);
 		goto exit_irq_handled;
 	}
@@ -253,6 +325,45 @@ exit_irq_none:
 	WARN_ON_ONCE(1);
 	return IRQ_NONE;
 }
+
+static int nxp_nci_i2c_start(void *data)
+{
+	struct nxp_nci_i2c_phy *phy = data;
+	int ret;
+
+	ret = request_threaded_irq(phy->i2c_dev->irq, NULL,
+				   nxp_nci_i2c_irq_thread_fn, IRQF_ONESHOT | IRQF_NO_AUTOEN,
+				   NXP_NCI_I2C_DRIVER_NAME, phy);
+	if (!ret)
+		phy->irq_requested = true;
+	return ret;
+}
+
+static void nxp_nci_i2c_stop(void *data)
+{
+	struct nxp_nci_i2c_phy *phy = data;
+	int ret;
+
+	if (phy->irq_requested) {
+		mutex_lock(&phy->power_lock);
+		ret = nxp_nci_i2c_power_off(phy);
+		mutex_unlock(&phy->power_lock);
+		if (ret)
+			nfc_err(&phy->i2c_dev->dev, "Transport poweroff failed: %d\n", ret);
+		free_irq(phy->i2c_dev->irq, phy);
+		phy->irq_requested = false;
+		phy->irq_enabled = false;
+		/* No further wake-depth operations after the IRQ is released. */
+		phy->wake_enabled = false;
+	}
+}
+
+static const struct nxp_nci_phy_ops i2c_phy_ops = {
+	.start = nxp_nci_i2c_start,
+	.stop = nxp_nci_i2c_stop,
+	.set_mode = nxp_nci_i2c_set_mode,
+	.write = nxp_nci_i2c_write,
+};
 
 static const struct acpi_gpio_params firmware_gpios = { 1, 0, false };
 static const struct acpi_gpio_params enable_gpios = { 2, 0, false };
@@ -280,7 +391,11 @@ static int nxp_nci_i2c_probe(struct i2c_client *client)
 		return -ENOMEM;
 
 	phy->i2c_dev = client;
+	mutex_init(&phy->power_lock);
 	i2c_set_clientdata(client, phy);
+	phy->ref_clk = devm_clk_get_optional(dev, "ref_clk");
+	if (IS_ERR(phy->ref_clk))
+		return dev_err_probe(dev, PTR_ERR(phy->ref_clk), "Missing reference clock\n");
 
 	r = devm_acpi_dev_add_driver_gpios(dev, acpi_nxp_nci_gpios);
 	if (r)
@@ -297,29 +412,67 @@ static int nxp_nci_i2c_probe(struct i2c_client *client)
 		nfc_err(dev, "Failed to get FW gpio\n");
 		return PTR_ERR(phy->gpiod_fw);
 	}
-
-	r = nxp_nci_probe(phy, &client->dev, &i2c_phy_ops,
-			  NXP_NCI_I2C_MAX_PAYLOAD, &phy->ndev);
-	if (r < 0)
+	r = devm_add_action_or_reset(dev, nxp_nci_i2c_power_cleanup, phy);
+	if (r)
 		return r;
+	if (device_property_read_bool(dev, "wakeup-source")) {
+		r = devm_device_init_wakeup(dev);
+		if (r)
+			return r;
+	}
 
-	r = request_threaded_irq(client->irq, NULL,
-				 nxp_nci_i2c_irq_thread_fn,
-				 IRQF_ONESHOT,
-				 NXP_NCI_I2C_DRIVER_NAME, phy);
-	if (r < 0)
-		nfc_err(&client->dev, "Unable to register IRQ handler\n");
-
-	return r;
+	return nxp_nci_probe(phy, &client->dev, &i2c_phy_ops,
+			     NXP_NCI_I2C_MAX_PAYLOAD, &phy->ndev);
 }
 
 static void nxp_nci_i2c_remove(struct i2c_client *client)
 {
 	struct nxp_nci_i2c_phy *phy = i2c_get_clientdata(client);
 
+	if (!phy->ndev)
+		return;
 	nxp_nci_remove(phy->ndev);
-	free_irq(client->irq, phy);
+	phy->ndev = NULL;
 }
+
+static int nxp_nci_i2c_suspend(struct device *dev)
+{
+	struct nxp_nci_i2c_phy *phy = dev_get_drvdata(dev);
+	struct nxp_nci_info *info;
+	int ret;
+
+	if (!phy->ndev)
+		return 0;
+	info = nci_get_drvdata(phy->ndev);
+	guard(mutex)(&info->info_lock);
+	/* Never suspend the adapter in the middle of a firmware transfer. */
+	if (info->mode == NXP_NCI_MODE_FW)
+		return -EBUSY;
+	guard(mutex)(&phy->power_lock);
+	if (!device_may_wakeup(dev) || !phy->irq_enabled || phy->wake_enabled)
+		return 0;
+	ret = enable_irq_wake(phy->i2c_dev->irq);
+	if (!ret)
+		phy->wake_enabled = true;
+	return ret;
+}
+
+static int nxp_nci_i2c_resume(struct device *dev)
+{
+	struct nxp_nci_i2c_phy *phy = dev_get_drvdata(dev);
+	int ret;
+
+	guard(mutex)(&phy->power_lock);
+	if (!phy->wake_enabled)
+		return 0;
+	ret = disable_irq_wake(phy->i2c_dev->irq);
+	if (!ret)
+		phy->wake_enabled = false;
+	return ret;
+}
+
+static DEFINE_SIMPLE_DEV_PM_OPS(nxp_nci_i2c_pm_ops,
+			      nxp_nci_i2c_suspend, nxp_nci_i2c_resume);
 
 static const struct i2c_device_id nxp_nci_i2c_id_table[] = {
 	{ "nxp-nci_i2c" },
@@ -348,10 +501,12 @@ static struct i2c_driver nxp_nci_i2c_driver = {
 		   .name = NXP_NCI_I2C_DRIVER_NAME,
 		   .acpi_match_table = ACPI_PTR(acpi_id),
 		   .of_match_table = of_nxp_nci_i2c_match,
+		   .pm = pm_sleep_ptr(&nxp_nci_i2c_pm_ops),
 		  },
 	.probe = nxp_nci_i2c_probe,
 	.id_table = nxp_nci_i2c_id_table,
 	.remove = nxp_nci_i2c_remove,
+	.shutdown = nxp_nci_i2c_remove,
 };
 
 module_i2c_driver(nxp_nci_i2c_driver);

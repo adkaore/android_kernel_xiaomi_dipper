@@ -26,17 +26,30 @@ properties:
   firmware-gpios:
     description: Output GPIO pin used to enter firmware download mode
 
+  clocks:
+    maxItems: 1
+    description: Optional external reference clock, enabled while the controller is on.
+
+  clock-names:
+    const: ref_clk
+
   interrupts:
     maxItems: 1
 
   reg:
     maxItems: 1
 
+  wakeup-source: true
+
 required:
   - compatible
   - enable-gpios
   - interrupts
   - reg
+
+dependencies:
+  clocks: [clock-names]
+  clock-names: [clocks]
 
 additionalProperties: false
 

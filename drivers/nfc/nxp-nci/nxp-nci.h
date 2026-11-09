@@ -6,7 +6,7 @@
  *
  * Derived from PN544 device driver:
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
-*/
+ */
 
 #ifndef __LOCAL_NXP_NCI_H_
 #define __LOCAL_NXP_NCI_H_
@@ -14,6 +14,7 @@
 #include <linux/completion.h>
 #include <linux/firmware.h>
 #include <linux/nfc.h>
+#include <linux/workqueue.h>
 
 #include <net/nfc/nci_core.h>
 
@@ -29,6 +30,9 @@ enum nxp_nci_mode {
 };
 
 struct nxp_nci_phy_ops {
+	/* Start before NCI registration; stop/synchronize before NCI is freed. */
+	int (*start)(void *id);
+	void (*stop)(void *id);
 	int (*set_mode)(void *id, enum nxp_nci_mode mode);
 	int (*write)(void *id, struct sk_buff *skb);
 };
@@ -43,8 +47,8 @@ struct nxp_nci_fw_info {
 	const u8 *data;
 	size_t frame_size;
 
-	struct work_struct work;
-	struct completion cmd_completion;
+	struct delayed_work work;
+	bool waiting_response;
 
 	int cmd_result;
 };
@@ -55,10 +59,12 @@ struct nxp_nci_info {
 	struct device *pdev;
 
 	enum nxp_nci_mode mode;
+	bool removing;
 
 	const struct nxp_nci_phy_ops *phy_ops;
 	unsigned int max_payload;
 
+	/* Serialize mode, firmware state, IRQ receive and teardown gate. */
 	struct mutex info_lock;
 
 	struct nxp_nci_fw_info fw_info;

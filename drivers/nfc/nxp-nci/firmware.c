@@ -16,6 +16,7 @@
 #include <linux/unaligned.h>
 
 #include "nxp-nci.h"
+#include "frame.h"
 
 /* Crypto operations can take up to 30 seconds */
 #define NXP_NCI_FW_ANSWER_TIMEOUT	msecs_to_jiffies(30000)
@@ -57,17 +58,19 @@ void nxp_nci_fw_work_complete(struct nxp_nci_info *info, int result)
 	if (info->phy_ops->set_mode) {
 		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
 		if (r < 0 && result == 0)
-			result = -r;
+			result = r;
 	}
 
 	info->mode = NXP_NCI_MODE_COLD;
+	fw_info->waiting_response = false;
+	cancel_delayed_work(&fw_info->work);
 
 	if (fw_info->fw) {
 		release_firmware(fw_info->fw);
 		fw_info->fw = NULL;
 	}
 
-	nfc_fw_download_done(info->ndev->nfc_dev, fw_info->name, (u32) -result);
+	nfc_fw_download_done(info->ndev->nfc_dev, fw_info->name, (u32)-result);
 }
 
 /* crc_ccitt cannot be used since it is computed MSB first and not LSB first */
@@ -128,14 +131,13 @@ static int nxp_nci_fw_send_chunk(struct nxp_nci_info *info)
 static int nxp_nci_fw_send(struct nxp_nci_info *info)
 {
 	struct nxp_nci_fw_info *fw_info = &info->fw_info;
-	long completion_rc;
+	unsigned int frame_size;
 	int r;
 
-	reinit_completion(&fw_info->cmd_completion);
-
 	if (fw_info->written == 0) {
-		fw_info->frame_size = get_unaligned_be16(fw_info->data) &
-				      NXP_NCI_FW_FRAME_LEN_MASK;
+		if (!nxp_nci_fw_frame_size(fw_info->data, fw_info->size, &frame_size))
+			return -EMSGSIZE;
+		fw_info->frame_size = frame_size;
 		fw_info->data += NXP_NCI_FW_HDR_LEN;
 		fw_info->size -= NXP_NCI_FW_HDR_LEN;
 	}
@@ -151,13 +153,12 @@ static int nxp_nci_fw_send(struct nxp_nci_info *info)
 
 	if (*fw_info->data == NXP_NCI_FW_CMD_RESET) {
 		fw_info->cmd_result = 0;
-		if (fw_info->fw)
-			schedule_work(&fw_info->work);
+		fw_info->waiting_response = false;
+		mod_delayed_work(system_wq, &fw_info->work, 0);
 	} else {
-		completion_rc = wait_for_completion_interruptible_timeout(
-			&fw_info->cmd_completion, NXP_NCI_FW_ANSWER_TIMEOUT);
-		if (completion_rc == 0)
-			return -ETIMEDOUT;
+		/* Do not wait with info_lock held: the receive IRQ needs it too. */
+		fw_info->waiting_response = true;
+		mod_delayed_work(system_wq, &fw_info->work, NXP_NCI_FW_ANSWER_TIMEOUT);
 	}
 
 	return 0;
@@ -169,12 +170,14 @@ void nxp_nci_fw_work(struct work_struct *work)
 	struct nxp_nci_fw_info *fw_info;
 	int r;
 
-	fw_info = container_of(work, struct nxp_nci_fw_info, work);
+	fw_info = container_of(to_delayed_work(work), struct nxp_nci_fw_info, work);
 	info = container_of(fw_info, struct nxp_nci_info, fw_info);
 
 	mutex_lock(&info->info_lock);
+	if (info->removing || info->mode != NXP_NCI_MODE_FW)
+		goto unlock_work;
 
-	r = fw_info->cmd_result;
+	r = fw_info->waiting_response ? -ETIMEDOUT : fw_info->cmd_result;
 	if (r < 0)
 		goto exit_work;
 
@@ -190,6 +193,7 @@ void nxp_nci_fw_work(struct work_struct *work)
 exit_work:
 	if (r < 0 || fw_info->size == 0)
 		nxp_nci_fw_work_complete(info, r);
+unlock_work:
 	mutex_unlock(&info->info_lock);
 }
 
@@ -201,6 +205,15 @@ int nxp_nci_fw_download(struct nci_dev *ndev, const char *firmware_name)
 
 	mutex_lock(&info->info_lock);
 
+	if (info->removing) {
+		r = -ESHUTDOWN;
+		goto fw_download_exit;
+	}
+	if (info->mode != NXP_NCI_MODE_COLD) {
+		r = -EBUSY;
+		goto fw_download_exit;
+	}
+
 	if (!info->phy_ops->set_mode || !info->phy_ops->write) {
 		r = -ENOTSUPP;
 		goto fw_download_exit;
@@ -211,18 +224,22 @@ int nxp_nci_fw_download(struct nci_dev *ndev, const char *firmware_name)
 		goto fw_download_exit;
 	}
 
-	strcpy(fw_info->name, firmware_name);
+	r = strscpy(fw_info->name, firmware_name, sizeof(fw_info->name));
+	if (r < 0)
+		goto fw_download_exit;
 
 	r = request_firmware(&fw_info->fw, firmware_name,
 			     ndev->nfc_dev->dev.parent);
 	if (r < 0)
 		goto fw_download_exit;
 
-	r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_FW);
-	if (r < 0) {
-		release_firmware(fw_info->fw);
-		goto fw_download_exit;
+	if (fw_info->fw->size < NXP_NCI_FW_HDR_LEN + 1) {
+		r = -EMSGSIZE;
+		goto release_fw;
 	}
+	r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_FW);
+	if (r < 0)
+		goto release_fw;
 
 	info->mode = NXP_NCI_MODE_FW;
 
@@ -232,8 +249,13 @@ int nxp_nci_fw_download(struct nci_dev *ndev, const char *firmware_name)
 	fw_info->frame_size = 0;
 	fw_info->cmd_result = 0;
 
-	schedule_work(&fw_info->work);
+	fw_info->waiting_response = false;
+	mod_delayed_work(system_wq, &fw_info->work, 0);
+	goto fw_download_exit;
 
+release_fw:
+	release_firmware(fw_info->fw);
+	fw_info->fw = NULL;
 fw_download_exit:
 	mutex_unlock(&info->info_lock);
 	return r;
@@ -290,20 +312,27 @@ void nxp_nci_fw_recv_frame(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct nxp_nci_info *info = nci_get_drvdata(ndev);
 	struct nxp_nci_fw_info *fw_info = &info->fw_info;
+	u8 status;
 
-	complete(&fw_info->cmd_completion);
+	if (!fw_info->waiting_response || info->mode != NXP_NCI_MODE_FW) {
+		kfree_skb(skb);
+		return;
+	}
+	fw_info->waiting_response = false;
 
 	if (skb) {
-		if (nxp_nci_fw_check_crc(skb) != 0x00)
+		if (!nxp_nci_fw_has_status(skb->len) || nxp_nci_fw_check_crc(skb) != 0x00) {
 			fw_info->cmd_result = -EBADMSG;
-		else
-			fw_info->cmd_result = nxp_nci_fw_read_status(*(u8 *)skb_pull(skb, NXP_NCI_FW_HDR_LEN));
+		} else {
+			status = skb->data[NXP_NCI_FW_HDR_LEN];
+			fw_info->cmd_result = nxp_nci_fw_read_status(status);
+		}
 		kfree_skb(skb);
 	} else {
 		fw_info->cmd_result = -EIO;
 	}
 
 	if (fw_info->fw)
-		schedule_work(&fw_info->work);
+		mod_delayed_work(system_wq, &fw_info->work, 0);
 }
 EXPORT_SYMBOL(nxp_nci_fw_recv_frame);

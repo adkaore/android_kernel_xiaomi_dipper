@@ -37,6 +37,11 @@ static int nxp_nci_open(struct nci_dev *ndev)
 
 	mutex_lock(&info->info_lock);
 
+	if (info->removing) {
+		r = -ESHUTDOWN;
+		goto open_exit;
+	}
+
 	if (info->mode != NXP_NCI_MODE_COLD) {
 		r = -EBUSY;
 		goto open_exit;
@@ -45,7 +50,8 @@ static int nxp_nci_open(struct nci_dev *ndev)
 	if (info->phy_ops->set_mode)
 		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_NCI);
 
-	info->mode = NXP_NCI_MODE_NCI;
+	if (!r)
+		info->mode = NXP_NCI_MODE_NCI;
 
 open_exit:
 	mutex_unlock(&info->info_lock);
@@ -62,7 +68,8 @@ static int nxp_nci_close(struct nci_dev *ndev)
 	if (info->phy_ops->set_mode)
 		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
 
-	info->mode = NXP_NCI_MODE_COLD;
+	if (!r)
+		info->mode = NXP_NCI_MODE_COLD;
 
 	mutex_unlock(&info->info_lock);
 	return r;
@@ -72,6 +79,13 @@ static int nxp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct nxp_nci_info *info = nci_get_drvdata(ndev);
 	int r;
+
+	if (READ_ONCE(info->removing)) {
+		/* Unregister may submit its final RESET after the transport is gone. */
+		nci_req_complete(ndev, NCI_STATUS_REJECTED);
+		kfree_skb(skb);
+		return -ESHUTDOWN;
+	}
 
 	if (!info->phy_ops->write) {
 		kfree_skb(skb);
@@ -139,6 +153,8 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 	struct nxp_nci_info *info;
 	int r;
 
+	if (max_payload <= NXP_NCI_FW_HDR_LEN + NXP_NCI_FW_CRC_LEN)
+		return -EINVAL;
 	info = devm_kzalloc(pdev, sizeof(struct nxp_nci_info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
@@ -147,8 +163,7 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 	info->pdev = pdev;
 	info->phy_ops = phy_ops;
 	info->max_payload = max_payload;
-	INIT_WORK(&info->fw_info.work, nxp_nci_fw_work);
-	init_completion(&info->fw_info.cmd_completion);
+	INIT_DELAYED_WORK(&info->fw_info.work, nxp_nci_fw_work);
 	mutex_init(&info->info_lock);
 
 	if (info->phy_ops->set_mode) {
@@ -166,13 +181,24 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 
 	nci_set_parent_dev(info->ndev, pdev);
 	nci_set_drvdata(info->ndev, info);
+	/* The transport IRQ must have a valid ndev before userspace can open it. */
+	*ndev = info->ndev;
+	if (phy_ops->start) {
+		r = phy_ops->start(phy_id);
+		if (r)
+			goto free_ndev;
+	}
 	r = nci_register_device(info->ndev);
 	if (r < 0) {
-		nci_free_device(info->ndev);
-		return r;
+		if (phy_ops->stop)
+			phy_ops->stop(phy_id);
+		goto free_ndev;
 	}
 
-	*ndev = info->ndev;
+	return 0;
+free_ndev:
+	*ndev = NULL;
+	nci_free_device(info->ndev);
 	return r;
 }
 EXPORT_SYMBOL(nxp_nci_probe);
@@ -180,20 +206,28 @@ EXPORT_SYMBOL(nxp_nci_probe);
 void nxp_nci_remove(struct nci_dev *ndev)
 {
 	struct nxp_nci_info *info = nci_get_drvdata(ndev);
-
-	if (info->mode == NXP_NCI_MODE_FW)
-		nxp_nci_fw_work_complete(info, -ESHUTDOWN);
-	cancel_work_sync(&info->fw_info.work);
+	int r;
 
 	mutex_lock(&info->info_lock);
-
-	if (info->phy_ops->set_mode)
-		info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
-
-	nci_unregister_device(ndev);
-	nci_free_device(ndev);
-
+	WRITE_ONCE(info->removing, true);
+	if (info->mode == NXP_NCI_MODE_FW)
+		nxp_nci_fw_work_complete(info, -ESHUTDOWN);
 	mutex_unlock(&info->info_lock);
+	if (info->phy_ops->stop)
+		info->phy_ops->stop(info->phy_id);
+	cancel_delayed_work_sync(&info->fw_info.work);
+
+	/* Unregister invokes ->close(), which takes info_lock itself. */
+	nci_unregister_device(ndev);
+	mutex_lock(&info->info_lock);
+	if (info->phy_ops->set_mode) {
+		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
+		if (r)
+			nfc_err(info->pdev, "Poweroff failed at removal: %d\n", r);
+	}
+	info->mode = NXP_NCI_MODE_COLD;
+	mutex_unlock(&info->info_lock);
+	nci_free_device(ndev);
 }
 EXPORT_SYMBOL(nxp_nci_remove);
 
