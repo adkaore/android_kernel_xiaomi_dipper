@@ -3,6 +3,7 @@
 This is a development kernel, not a stable or flashable crDroid release.
 No phone was accessed, rebooted, flashed or otherwise changed.
 
+The exact target is crDroid 13.1 / Android 17.
 Target requirements are tracked in crdroid13-target-audit.md/json. The platform
 17.0 source is available, but a matching dipper Android 17 device/vendor
 selection is not confirmed. The old 15.0 trees are comparison references only;
