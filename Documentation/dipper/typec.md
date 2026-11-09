@@ -35,12 +35,17 @@ The source pins and reference-patch hashes are in typec-sources.json.
   signal encodings, matching downstream; signal TX completion is reported.
   Only SOP messages and hard/cable-reset signals are accepted for transmission.
   No SOP-prime/cable discovery, FRS, alternate-mode or PPS parity is claimed.
-- A distinct PMI8998 VBUS provider has the real 250 mA..1.5 A selector table.
+- A distinct PMI8998 VBUS provider uses the Xiaomi/old-board 250 mA..1.5 A
+  selector range. The declared Qualcomm base allows up to 2 A with the same
+  250 mA encoding; 1.5 A is a factory configuration ceiling, not proof of an
+  absolute silicon limit.
   The reference patch's PM8150B fallback would incorrectly use 500 mA..3 A.
   Descriptors are per-instance instead of mutable global offsets. Software
   ownership is established before publication; an unaccounted bootloader boost
   enable is cleared. Enable performs downstream's secure HALT_1_IN_8 sequence
-  and bounds soft-start/state polling with rollback. No unsupported PM660 OTG
+  and bounds soft-start/state polling with rollback. Official Xiaomi dcfb1676925a and its declared Qualcomm base now provide a
+  separate cross-check of these offsets/encodings; see hardware-comparison.md.
+  No unsupported PM660 OTG
   workaround or automatic overcurrent retry is copied into this PMI8998 path.
 - When an enabled PMI8998 Type-C sibling is described, SMB2 initialization
   leaves CC/VCONN registers to that sibling regardless of probe order. Type-C

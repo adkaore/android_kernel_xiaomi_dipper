@@ -9,6 +9,10 @@ Target requirements are tracked in crdroid13-target-audit.md/json. The platform
 selection is not confirmed. The old 15.0 trees are comparison references only;
 no NFC ABI is selected automatically from them or from the age of an interface.
 
+Official Xiaomi dipper-q-oss and its declared Qualcomm base are now separate,
+pinned comparison sources, with Linux version controls and subsystem evidence
+in hardware-comparison.md. This does not change the target HAL uncertainty.
+
 ## Completed offline work
 
 - Hardened EA8074 panel: LP command parity with the old kernel, complete vendor

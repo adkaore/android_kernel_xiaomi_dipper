@@ -3,7 +3,7 @@
 Status: offline development builds and tests pass; no hardware boot has been tested.
 See integration-status.md for current results and remaining compatibility gaps.
 The initial-audit findings below are historical, not a statement that no code was ported.
-Target: Xiaomi Mi 8 (dipper), Android 17 / crDroid 13, ACK android17-6.18.
+Target: Xiaomi Mi 8 (dipper), Android 17 / crDroid 13.1, ACK android17-6.18.
 No Mobian/postmarketOS userspace target, flashing scripts or firmware redistribution.
 
 ## Git layout
@@ -13,6 +13,9 @@ No Mobian/postmarketOS userspace target, flashing scripts or firmware redistribu
 - `dipper/android17-6.18`: integrated port; integration does not imply hardware validation.
 - `work/*`: isolated changes and review. Merge completed changes into the port branch.
 - `legacy/15.0`: read-only comparison reference for crDroid 11; never merge this unrelated tree.
+- `xiaomi/dipper-q-oss`: pinned official MiCode hardware reference; never merge wholesale.
+- `caf/xiaomi-q-declared-base`: Qualcomm tag declared by Xiaomi, not the target HAL.
+- `linux-stable/v4.9.186` and `v4.9.337`: version-matched comparison controls.
 - `origin`: user's GitHub repository. No force pushes or rewriting published device commits.
 
 Commits in sources.json pin the actual inspected revisions. The legacy branch tip
@@ -20,6 +23,10 @@ is NOT proven to be the exact source revision inside the crDroid 11.17 release Z
 Shallow history saves disk space; future merges may require targeted deepening.
 Publishing a shallow root into an empty GitHub repository may require more history;
 do not solve this by silently squashing away upstream provenance.
+
+See hardware-comparison.md for the Xiaomi/crDroid/Linux/Qualcomm evidence matrix,
+review decisions and unresolved provenance. A large cross-version diff is not a
+set of Mi 8 patches, and absence in Xiaomi does not invalidate a later fix.
 
 ## Findings
 

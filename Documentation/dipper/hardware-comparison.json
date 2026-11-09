@@ -1,0 +1,3734 @@
+{
+  "target": "crDroid 13.1 / Android 17",
+  "hardware_accessed": false,
+  "policy": "This is a per-file evidence inventory, never a ready-to-apply device patch set. Presence, byte equality and diff size do not decide relevance or authorship.",
+  "sources": {
+    "xiaomi": {
+      "repository": "https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git",
+      "commit": "dcfb1676925aec83b06ae04fd8ca989ced75067c",
+      "linux_version": "4.9.186"
+    },
+    "legacy": {
+      "repository": "https://github.com/crdroidandroid/android_kernel_xiaomi_sdm845.git",
+      "commit": "0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6",
+      "linux_version": "4.9.337"
+    },
+    "xiaomi_declared_caf": {
+      "repository": "https://git.codelinaro.org/clo/la/kernel/msm-4.9.git",
+      "commit": "1f01db5a42ccd3123517a9d5730024719abf095d",
+      "linux_version": "4.9.186"
+    },
+    "linux_4_9_186": {
+      "repository": "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git",
+      "commit": "35c308d7828de5c5784bb75efcf848996b3a82d1",
+      "linux_version": "4.9.186"
+    },
+    "linux_4_9_337": {
+      "repository": "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git",
+      "commit": "87a72e81764d2fc5411706c551462d61cdb97660",
+      "linux_version": "4.9.337"
+    }
+  },
+  "scope_sha256": "9185fcaacfad8ab71f02f8739c4e23ac12a0907ecd70c4812e309c3cf80be9ef",
+  "groups": {
+    "power_suspend": [
+      "drivers/cpuidle/lpm-levels-legacy.c",
+      "drivers/cpuidle/lpm-levels-of-legacy.c",
+      "drivers/cpuidle/lpm-levels-of.c",
+      "drivers/cpuidle/lpm-levels.c",
+      "drivers/cpuidle/lpm-workarounds.c",
+      "drivers/soc/qcom/lpm-stats.c",
+      "drivers/soc/qcom/msm-pm.c",
+      "drivers/soc/qcom/msm-spm.c",
+      "drivers/soc/qcom/rpmh.c",
+      "drivers/soc/qcom/system_pm.c"
+    ],
+    "charging_gauge": [
+      "drivers/power/supply/qcom/fg-reg.h",
+      "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+      "drivers/power/supply/qcom/qpnp-smb2.c",
+      "drivers/power/supply/qcom/smb-lib.c",
+      "drivers/power/supply/qcom/smb-lib.h",
+      "drivers/power/supply/qcom/smb-reg.h",
+      "drivers/power/supply/qcom/step-chg-jeita.c"
+    ],
+    "typec_pd": [
+      "drivers/power/supply/qcom/qpnp-typec.c",
+      "drivers/usb/pd/policy_engine.c",
+      "drivers/usb/pd/qpnp-pdphy.c"
+    ],
+    "camera": [
+      "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+      "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+      "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+      "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+      "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+      "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c"
+    ],
+    "board_variants": [
+      "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+      "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+      "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+      "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+      "arch/arm64/boot/dts/qcom/pmi8998.dtsi"
+    ],
+    "nfc_hardware_only": [
+      "drivers/nfc/nq-nci.c",
+      "drivers/nfc/nq-nci.h"
+    ],
+    "generic_version_controls": [
+      "drivers/base/power/wakeup.c",
+      "drivers/cpuidle/cpuidle.c",
+      "drivers/regulator/core.c",
+      "drivers/usb/dwc3/core.c",
+      "kernel/power/suspend.c"
+    ]
+  },
+  "files": {
+    "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi": {
+      "xiaomi": {
+        "sha256": "350da6a9cebcb7761d5147a1c4b4cc59d54a7102ec4d906258373ab66196b6c1",
+        "bytes": 14096
+      },
+      "legacy": {
+        "sha256": "fd9b0df457322e15b8d0941f4cc61c1abc4842113b8a06647f74026644e32a59",
+        "bytes": 14096
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi": {
+      "xiaomi": {
+        "sha256": "3e33bd7481eb89589eb526f1fb0f87bbec502cdf7c0f7cb018fbdf0a09056c26",
+        "bytes": 604
+      },
+      "legacy": {
+        "sha256": "c773e2464f6f3fac85e192e80d88f6efa18b84ea093670b4a71726b1aea47b28",
+        "bytes": 604
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts": {
+      "xiaomi": {
+        "sha256": "5b201d90c342ae5ac2444511a66b43ec2a2e19893c6530de5d8251ceffe48f49",
+        "bytes": 885
+      },
+      "legacy": {
+        "sha256": "7a38030b3cd50a02ba38b8b5365db12d79876a28a5b69e1dd522beac05a0f302",
+        "bytes": 885
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts": {
+      "xiaomi": {
+        "sha256": "9386f527436f4b3283705ad0fbcdd39c04f1c66804651fa493210dc42d130913",
+        "bytes": 882
+      },
+      "legacy": {
+        "sha256": "f130ace10eed7ec5cb832df049dcd1757adce3cb8da51c12256cdc75a7de4272",
+        "bytes": 882
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-mp.dtsi": {
+      "xiaomi": {
+        "sha256": "fa595a1bb44390b9df88c8d37970243345983915f2a9de73c4e2048d3618cb5f",
+        "bytes": 719
+      },
+      "legacy": {
+        "sha256": "14e3f6466563c6d5a774d652d158734143e533eaf926975f8bad35bf9f102740",
+        "bytes": 719
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi": {
+      "xiaomi": {
+        "sha256": "4ea2ae237e7a7854b490d73d2a54ca7afd3389226f9765c63aba4a7ff1edf44a",
+        "bytes": 14884
+      },
+      "legacy": {
+        "sha256": "4ea2ae237e7a7854b490d73d2a54ca7afd3389226f9765c63aba4a7ff1edf44a",
+        "bytes": 14884
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi": {
+      "xiaomi": {
+        "sha256": "97384c4a300dbceeeb9e9cfc78a6057d4802637b2a23dc01d0ee037a07edcc4d",
+        "bytes": 12213
+      },
+      "legacy": {
+        "sha256": "d915332cc886cf1eabdb36882c187ceefc7e8394f8fe43b12486ecf8f9fea0c3",
+        "bytes": 12213
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts": {
+      "xiaomi": {
+        "sha256": "d5d2ac14c47c6846a8020089a10e90a7b92b7674091b76a2cf900809b2ba0ca7",
+        "bytes": 1137
+      },
+      "legacy": {
+        "sha256": "1799131d75c0391ee84af2bbce61fe0abc9e0b37556f07bcc1e8dae41131c36f",
+        "bytes": 1137
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts": {
+      "xiaomi": {
+        "sha256": "00bf14aada6376d80b09997de121b646f7150dd47fdde78c8a803b9769aaa55e",
+        "bytes": 1139
+      },
+      "legacy": {
+        "sha256": "48e2dab51e191fef2723334afb102aee740eac17aad757accb862d7c7da84903",
+        "bytes": 1139
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts": {
+      "xiaomi": {
+        "sha256": "7200ef7e83f143e0d47d9c22923821fd327827d6769aa3c350dbe3cd5abe6618",
+        "bytes": 885
+      },
+      "legacy": {
+        "sha256": "5d6562fa5dba5df5c32ccc4ab13af96c246745e5c58e752ddd578cdd212c7655",
+        "bytes": 885
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts": {
+      "xiaomi": {
+        "sha256": "bca3861ed2994ed3bfa41359b9919b0f67618d8cc2f9e3d23b2642b780e1e3bf",
+        "bytes": 882
+      },
+      "legacy": {
+        "sha256": "3e6b0ab1c3c6fa750c492c9324f48fb0c3ea1c0a32bea5dcd799a6e0e7be5375",
+        "bytes": 882
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0.dts": {
+      "xiaomi": {
+        "sha256": "70e047d09ab318a193f748b8133924d2eaf11aa2f17ea8bacc0f1cfd2b14dcc3",
+        "bytes": 835
+      },
+      "legacy": {
+        "sha256": "4742c2133c8284a36f56141b5030b38a6b9986683a0e65b3406e3f1352f02fcf",
+        "bytes": 835
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p0.dtsi": {
+      "xiaomi": {
+        "sha256": "7394e12290bfbd778afaa35a1b14866f59dd103f9709fdf45d1b2c092390216f",
+        "bytes": 25256
+      },
+      "legacy": {
+        "sha256": "f27a6d09081d8ce3a2dc267f707e555e8696c381b0db075950e1267431b14271",
+        "bytes": 24823
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi": {
+      "xiaomi": {
+        "sha256": "7feaca02974171e8f0e63b487752ae85fd7f5f44c60cd8edac5f4dcbf8fba71d",
+        "bytes": 637
+      },
+      "legacy": {
+        "sha256": "68571e0b1f88feb4d759cccbca29e6e7871f1d5265a317f6330de9076549163f",
+        "bytes": 637
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi": {
+      "xiaomi": {
+        "sha256": "772126bc6d1c046566de8af0e92c0584595835b154b61c92b40f9202c4cad437",
+        "bytes": 603
+      },
+      "legacy": {
+        "sha256": "4e5ec7ffc0f7e4e938cc783972222612e2e4bff7f16a9b98e1aabb9112de913a",
+        "bytes": 603
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi": {
+      "xiaomi": {
+        "sha256": "dc2f190d556e90062ce3866007c8f0aa45f8ecd94983526edb3a47324a4628bd",
+        "bytes": 604
+      },
+      "legacy": {
+        "sha256": "6b94b5072a8fac9a8578834475260fdd180a87981bd436ed2f841135b11d7110",
+        "bytes": 604
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts": {
+      "xiaomi": {
+        "sha256": "a23744b52ba5b46b83cc56503bf49fa179dc15dc9205d421281953f8d13fa06c",
+        "bytes": 885
+      },
+      "legacy": {
+        "sha256": "aa35b87fd0cd5977806d467d8aa8abd4618a373021ce6ff0d7fe792b7dd795e7",
+        "bytes": 885
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts": {
+      "xiaomi": {
+        "sha256": "02a1ffb41bdefd5f45b4cf12f8641c17c439e0373f8c7882e4f0b0dbac3466af",
+        "bytes": 891
+      },
+      "legacy": {
+        "sha256": "7981c759788ba765f195dd9e5ce3f721d7007c75c87f940e567dc87ba55ade6c",
+        "bytes": 891
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts": {
+      "xiaomi": {
+        "sha256": "abbfc40eebba9f4ecf37235d0d0b6bdc4bf42ac5456373fc9fb21ffc5fb058db",
+        "bytes": 888
+      },
+      "legacy": {
+        "sha256": "afc6cdb75bc6f3bf850a71664deba604c5679e2a26127bf3c94b3e2ec9c6510a",
+        "bytes": 888
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts": {
+      "xiaomi": {
+        "sha256": "6d651bfac0504f597e82f03ca2cc5c363c0af471cfd15188c545c6c5ffd996da",
+        "bytes": 894
+      },
+      "legacy": {
+        "sha256": "555dcd20e83c6c82c9df5a4d18ab504ca8fbe349426e60c06dcfd43fea9b61a5",
+        "bytes": 894
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi": {
+      "xiaomi": {
+        "sha256": "fae64d28fe4fb25025b8e0f6247547b0f2d1582b6607ea15927595731a978a63",
+        "bytes": 604
+      },
+      "legacy": {
+        "sha256": "bf91e2747c6413bf47b4eb984367eac365608fcbc2e74326099933f45edbce2d",
+        "bytes": 604
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts": {
+      "xiaomi": {
+        "sha256": "ee2545b624e6c271f937cec12ad7c5c35b134656d52a7780df7de4622f97e5e7",
+        "bytes": 891
+      },
+      "legacy": {
+        "sha256": "95b898776db232f2311ad67e43e7999b4b8119f8a9556b82f9730efd7249732f",
+        "bytes": 891
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts": {
+      "xiaomi": {
+        "sha256": "80762f989ea8dad675723d88b949f037c802b8fd8968e5b6da5fce39da98d348",
+        "bytes": 888
+      },
+      "legacy": {
+        "sha256": "a5b1d10037c9646678c7de3f1aadd742f5ad05e951cb2e4fddcc2041e7e3a7cb",
+        "bytes": 888
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi": {
+      "xiaomi": {
+        "sha256": "9ea5cc0c2558e4f7bcd7d36dbe7944574150931a416f7ff279d66bad92095946",
+        "bytes": 596
+      },
+      "legacy": {
+        "sha256": "66ca2f3f4b26310fec976b1b762e8db63d0148bdaac78c40a4d06467bcb91504",
+        "bytes": 596
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi": {
+      "xiaomi": {
+        "sha256": "9d12eb34e9043f364cb10ea4a213d687a4ee9e77ac8b69a7eda94d1154578cff",
+        "bytes": 11038
+      },
+      "legacy": {
+        "sha256": "1f08e60ff05dc74097379887118f9c720d5a0b545198fe870fe062a479a77363",
+        "bytes": 11038
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi": {
+      "xiaomi": {
+        "sha256": "348e23477343ee89f475c6aa4a6df111899ff97da7c8172886ddd6f5d50dd54e",
+        "bytes": 11038
+      },
+      "legacy": {
+        "sha256": "c96479aae16ca872089fb7cd742aaaaf275ccedf4022371397d019863c90220b",
+        "bytes": 11038
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p1.dtsi": {
+      "xiaomi": {
+        "sha256": "cf7a553fe6d869aaa5e774796cbc88ae4243d73a1980e44e8b236c1155880da0",
+        "bytes": 596
+      },
+      "legacy": {
+        "sha256": "fa3b2dad010a0877b33bea968d3ae2ac3dbdd55e0bfca7fd8bb3ee2787cda09e",
+        "bytes": 596
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi": {
+      "xiaomi": {
+        "sha256": "6b4f19b2cc73da6feed85fd23eaf86baf5c4b4b8e5ccce51f59a63f0c64e04b6",
+        "bytes": 606
+      },
+      "legacy": {
+        "sha256": "5b2642458e9453909425794ad608e1593e8f42095858be49b640d8473a2bd2c7",
+        "bytes": 606
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts": {
+      "xiaomi": {
+        "sha256": "9644ec8b78ca3d9cbe3b15d666b25db9ab3d67693d87bd03bec4854ba7752e25",
+        "bytes": 885
+      },
+      "legacy": {
+        "sha256": "26b6f6610017fabda359bae0d23661e98a8ecf6341f47b42b93d4c34756b8417",
+        "bytes": 885
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts": {
+      "xiaomi": {
+        "sha256": "0dda9e986fbe9eef415c12a4bd90396d3257ed7d84f3660ee6496773bc4fdbff",
+        "bytes": 882
+      },
+      "legacy": {
+        "sha256": "24f39400dc2ab13078e84a3c27a675475bbe97a119beeac7a533883993345f5c",
+        "bytes": 882
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/dipper-p2.dtsi": {
+      "xiaomi": {
+        "sha256": "a37457a4d8ea20a8dc85a5ebfbd1b53e7184ea9012557888b1ad1bb90d256bfa",
+        "bytes": 598
+      },
+      "legacy": {
+        "sha256": "d4583d11fe1d69519528b9cb54b4475462fdbab38f647f2563b68ad5bf56dca5",
+        "bytes": 598
+      },
+      "xiaomi_declared_caf": null,
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "arch/arm64/boot/dts/qcom/pmi8998.dtsi": {
+      "xiaomi": {
+        "sha256": "14d340448d5585e45b1a1ef72975cb400b8253bbb2fc2143e3122696525e20e0",
+        "bytes": 23089
+      },
+      "legacy": {
+        "sha256": "6cb9571d880b1bdc60bf04d88c2bb9b19bfcd8c1de6241f36e4db12037a28252",
+        "bytes": 23089
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "d42724b621154b4f704d9082c544512f708a5831490147248e1fcffaf1f0e99b",
+        "bytes": 23118
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/base/power/wakeup.c": {
+      "xiaomi": {
+        "sha256": "9be28904447065c4cf3ca3be6dffe07c8f041c3e240d692ec40b3ecf4558a79d",
+        "bytes": 31991
+      },
+      "legacy": {
+        "sha256": "b6660e21e902b4e84ca4f33c04008bbc0972f3e33830b6d6943a4c8b8e027a2c",
+        "bytes": 30319
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "b6660e21e902b4e84ca4f33c04008bbc0972f3e33830b6d6943a4c8b8e027a2c",
+        "bytes": 30319
+      },
+      "linux_4_9_186": {
+        "sha256": "a12ddcf62053f2e8de731e97ee1fa1ab9974acd4020dd2f65604376604b0209a",
+        "bytes": 29006
+      },
+      "linux_4_9_337": {
+        "sha256": "a12ddcf62053f2e8de731e97ee1fa1ab9974acd4020dd2f65604376604b0209a",
+        "bytes": 29006
+      }
+    },
+    "drivers/cpuidle/cpuidle.c": {
+      "xiaomi": {
+        "sha256": "15a1cc3851ff467ebfba94b9d31824abc397bba17196539fed688c12b5823e10",
+        "bytes": 15992
+      },
+      "legacy": {
+        "sha256": "15a1cc3851ff467ebfba94b9d31824abc397bba17196539fed688c12b5823e10",
+        "bytes": 15992
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "15a1cc3851ff467ebfba94b9d31824abc397bba17196539fed688c12b5823e10",
+        "bytes": 15992
+      },
+      "linux_4_9_186": {
+        "sha256": "055b462fa76a5060fe977e824dc15fe1ec116b13cbd23ca3b4f9746cb7212f4a",
+        "bytes": 15550
+      },
+      "linux_4_9_337": {
+        "sha256": "055b462fa76a5060fe977e824dc15fe1ec116b13cbd23ca3b4f9746cb7212f4a",
+        "bytes": 15550
+      }
+    },
+    "drivers/cpuidle/lpm-levels-legacy.c": {
+      "xiaomi": {
+        "sha256": "6b261db4142467182f07d7940c2cd37266d4b58739a8660abd28a945f4c0fb7c",
+        "bytes": 38163
+      },
+      "legacy": {
+        "sha256": "6b261db4142467182f07d7940c2cd37266d4b58739a8660abd28a945f4c0fb7c",
+        "bytes": 38163
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "6b261db4142467182f07d7940c2cd37266d4b58739a8660abd28a945f4c0fb7c",
+        "bytes": 38163
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/cpuidle/lpm-levels-of-legacy.c": {
+      "xiaomi": {
+        "sha256": "5dfb92a79f5ba92f905841ddefecb08ccee203b8a7b9583c877b7ca09c117cba",
+        "bytes": 23258
+      },
+      "legacy": {
+        "sha256": "5dfb92a79f5ba92f905841ddefecb08ccee203b8a7b9583c877b7ca09c117cba",
+        "bytes": 23258
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "5dfb92a79f5ba92f905841ddefecb08ccee203b8a7b9583c877b7ca09c117cba",
+        "bytes": 23258
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/cpuidle/lpm-levels-of.c": {
+      "xiaomi": {
+        "sha256": "bfbdbc03b07a15ec0dd01b565a6925ced1ba09877df9b80bc7fa49777603163c",
+        "bytes": 21817
+      },
+      "legacy": {
+        "sha256": "bfbdbc03b07a15ec0dd01b565a6925ced1ba09877df9b80bc7fa49777603163c",
+        "bytes": 21817
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "bfbdbc03b07a15ec0dd01b565a6925ced1ba09877df9b80bc7fa49777603163c",
+        "bytes": 21817
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/cpuidle/lpm-levels.c": {
+      "xiaomi": {
+        "sha256": "f07b1e16b2efaacdaeff2774c014cc32a6c545bda1a959e019cb1c29b365f8f0",
+        "bytes": 45371
+      },
+      "legacy": {
+        "sha256": "3ffd5d44dd673d277926860bb9dd84edeaba74ea818bfa317bf84ef5dcb558dd",
+        "bytes": 44882
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "a1d7e511cb7bc2b3c393775b9fb37ed7e4fa104c545b55b86e38f5b2c2600aee",
+        "bytes": 44619
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/cpuidle/lpm-workarounds.c": {
+      "xiaomi": {
+        "sha256": "4127fc523bc3eb4a7b109781a9175bcb3d5f6efc4b803c8890818506f8eb6238",
+        "bytes": 3526
+      },
+      "legacy": {
+        "sha256": "4127fc523bc3eb4a7b109781a9175bcb3d5f6efc4b803c8890818506f8eb6238",
+        "bytes": 3526
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "4127fc523bc3eb4a7b109781a9175bcb3d5f6efc4b803c8890818506f8eb6238",
+        "bytes": 3526
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c": {
+      "xiaomi": {
+        "sha256": "5dcf5841798bce6e348b296f61d5d0b00ff0cd98dc6af5f05eabe88ab443f1ea",
+        "bytes": 60922
+      },
+      "legacy": {
+        "sha256": "5dcf5841798bce6e348b296f61d5d0b00ff0cd98dc6af5f05eabe88ab443f1ea",
+        "bytes": 60922
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "5dcf5841798bce6e348b296f61d5d0b00ff0cd98dc6af5f05eabe88ab443f1ea",
+        "bytes": 60922
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c": {
+      "xiaomi": {
+        "sha256": "a082bf07d19691a427a313d284bc8bb8f7744ff9f947065040bb90983ff3cf52",
+        "bytes": 55423
+      },
+      "legacy": {
+        "sha256": "a082bf07d19691a427a313d284bc8bb8f7744ff9f947065040bb90983ff3cf52",
+        "bytes": 55423
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "a082bf07d19691a427a313d284bc8bb8f7744ff9f947065040bb90983ff3cf52",
+        "bytes": 55423
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c": {
+      "xiaomi": {
+        "sha256": "b10c8cb2977f1927e0b393786e7771f0b6c262ffb79368d6659957aa8a5cbd5d",
+        "bytes": 47868
+      },
+      "legacy": {
+        "sha256": "48b0cc85a77c1678ff7d50093553794883b4446f36dc72d5c7bb0e38a63799f2",
+        "bytes": 47866
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "b10c8cb2977f1927e0b393786e7771f0b6c262ffb79368d6659957aa8a5cbd5d",
+        "bytes": 47868
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c": {
+      "xiaomi": {
+        "sha256": "82bda28b019906cebcafe67ee8d928b55c40c210f0cb26c56a91a09bad4c9811",
+        "bytes": 47769
+      },
+      "legacy": {
+        "sha256": "ba93556d75e946e9f2af01dd75c5df136af0d98ec3c835d551e3c234ee80f48b",
+        "bytes": 47824
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "82bda28b019906cebcafe67ee8d928b55c40c210f0cb26c56a91a09bad4c9811",
+        "bytes": 47769
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c": {
+      "xiaomi": {
+        "sha256": "cc9089b01d6a7d2dbd0a01719fb688164f1d03a1c4cd762c61b842d8c60eb56e",
+        "bytes": 28940
+      },
+      "legacy": {
+        "sha256": "cc9089b01d6a7d2dbd0a01719fb688164f1d03a1c4cd762c61b842d8c60eb56e",
+        "bytes": 28940
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "cc9089b01d6a7d2dbd0a01719fb688164f1d03a1c4cd762c61b842d8c60eb56e",
+        "bytes": 28940
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/nfc/nq-nci.c": {
+      "xiaomi": {
+        "sha256": "1229a06cf2575586add0a709f10567c6152fc0120825981bf4101199b1a886dc",
+        "bytes": 34704
+      },
+      "legacy": {
+        "sha256": "bc176a66a89983b5910bc58b9df22fb08a6891a36986c4dee6f34f5a904c6854",
+        "bytes": 35148
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "92848175199e69b21ff85fff5810ffdce76587cf56a0a34755685a27e8e4e552",
+        "bytes": 33918
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/nfc/nq-nci.h": {
+      "xiaomi": {
+        "sha256": "dd265e78568484bf534f870bcd0f0e54beee2457273fa795b71658ea867431bc",
+        "bytes": 1775
+      },
+      "legacy": {
+        "sha256": "3baa8e3bf23ee8363c21c03ee2ee6844cd9d984672b1ee02bca37cbc2f06e4bb",
+        "bytes": 1870
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "dd265e78568484bf534f870bcd0f0e54beee2457273fa795b71658ea867431bc",
+        "bytes": 1775
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/fg-reg.h": {
+      "xiaomi": {
+        "sha256": "e1393142a7262d5403ec38cb085d6505cae29abbee19e1362d665edfd413da86",
+        "bytes": 12665
+      },
+      "legacy": {
+        "sha256": "e1393142a7262d5403ec38cb085d6505cae29abbee19e1362d665edfd413da86",
+        "bytes": 12665
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "e1393142a7262d5403ec38cb085d6505cae29abbee19e1362d665edfd413da86",
+        "bytes": 12665
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/qpnp-fg-gen3.c": {
+      "xiaomi": {
+        "sha256": "7be3ff4c0911ed4c38976089b57530dc8b05838bdf0fb31afedae70291936ce2",
+        "bytes": 177169
+      },
+      "legacy": {
+        "sha256": "3bac0ab6d16b87f6356d399a0abeb576fea8f875ea5e366605df11b93e014755",
+        "bytes": 177468
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "b5f9163fa398fffdf27f0a227b0717aeb1f4602a2e7e09fecb1a335587858c99",
+        "bytes": 162798
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/qpnp-smb2.c": {
+      "xiaomi": {
+        "sha256": "0c9b52463fa31ac5094c0a172bf9ca82ca3ad3b18c2e858126d85e410c80835d",
+        "bytes": 81805
+      },
+      "legacy": {
+        "sha256": "93e17c758d6fc7d896aaca32d1eca5c16c040014ed147faad80ed61dba8b4d88",
+        "bytes": 82591
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "d588457d8d6302f4dd3ff2526ec4c902e0e10516e696fff6767e05b00738a42f",
+        "bytes": 68461
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/qpnp-typec.c": {
+      "xiaomi": {
+        "sha256": "8a2ac4186b16b89d103690b35c212215edf8b19dab5ec3496c80ec5a64573b1d",
+        "bytes": 25600
+      },
+      "legacy": {
+        "sha256": "8a2ac4186b16b89d103690b35c212215edf8b19dab5ec3496c80ec5a64573b1d",
+        "bytes": 25600
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "8a2ac4186b16b89d103690b35c212215edf8b19dab5ec3496c80ec5a64573b1d",
+        "bytes": 25600
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/smb-lib.c": {
+      "xiaomi": {
+        "sha256": "f33bb11bb7a4d1632ead124266e08af73b4de4fa9a84491008a0edcec8ed9abb",
+        "bytes": 177225
+      },
+      "legacy": {
+        "sha256": "f7ed52892070088a71935a9fb4e5b6fd1612a6ebe43ae3492d2c3828f8778584",
+        "bytes": 176324
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "46b3bb64c721f783010724a9c2d2850cf077f55c6c049d0ebbf87a0e5b66a22c",
+        "bytes": 138592
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/smb-lib.h": {
+      "xiaomi": {
+        "sha256": "e4ce99f428e5d0ed8d89daa33e5363ad529024b6185d3096415de5b8fd521ce4",
+        "bytes": 22633
+      },
+      "legacy": {
+        "sha256": "06df965d05d7286e166b7f718e09aa6f9207720070fe118251de843191d1cdfa",
+        "bytes": 22663
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "abf6ef3836121b7641ccb0e2662992ac8050f1ad811864618a74c5c8a92ffe7a",
+        "bytes": 18794
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/smb-reg.h": {
+      "xiaomi": {
+        "sha256": "9fe2e9176fe681f09bc7a348f5fb79b3b434840a55a7cd125caa1ebaaacada3b",
+        "bytes": 36584
+      },
+      "legacy": {
+        "sha256": "cf2c56e5e0c2dbe4a3320f6e67ccd3ba2c8ff50b738cae20745930e1c9a29bd3",
+        "bytes": 36584
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "796a73597cfd29a5bf804668203f16b698f028606d2554c300c2176b696e5d77",
+        "bytes": 36363
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/power/supply/qcom/step-chg-jeita.c": {
+      "xiaomi": {
+        "sha256": "0c875e0df655ddedea90bdf3f237bcbb4191ed755a456fa6e8dfaf57d95af97d",
+        "bytes": 25190
+      },
+      "legacy": {
+        "sha256": "dbf12cc8c56c4e7e87d3d5fc4374c234b0cdc20e9226dbc50920ea2f43d565a0",
+        "bytes": 25186
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "afa10a3bfa804daca497dac7e275dc9cfc8dad5aba7bcd87dfeca76a7a210134",
+        "bytes": 21375
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/regulator/core.c": {
+      "xiaomi": {
+        "sha256": "489c8f0097bbe1a1d40b2a574b57a3184f5fe38e818afc54491383ea0dc87ea7",
+        "bytes": 132284
+      },
+      "legacy": {
+        "sha256": "efaa394c5fc16a31f99311b025964105640b2ea9865b3b860ff873ee11a75607",
+        "bytes": 130022
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "2fd9d82d868d5905546763a55f1e5cfa1603295885f385f6f570bcfb246a4b4e",
+        "bytes": 129567
+      },
+      "linux_4_9_186": {
+        "sha256": "36347525c7672af61df664719dae816b0e4890f10dec261b2525fbbd6deeb6f5",
+        "bytes": 119252
+      },
+      "linux_4_9_337": {
+        "sha256": "ccdb302042f6a25d5de03e8e824da4880e8dda8ccf78cb3034c152b928cf8cf2",
+        "bytes": 119707
+      }
+    },
+    "drivers/soc/qcom/lpm-stats.c": {
+      "xiaomi": {
+        "sha256": "8fea378bbf6c790bc1c7c90099d93b31dc4f005fc7b78cd2d509940e202a316b",
+        "bytes": 20998
+      },
+      "legacy": {
+        "sha256": "8fea378bbf6c790bc1c7c90099d93b31dc4f005fc7b78cd2d509940e202a316b",
+        "bytes": 20998
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "8fea378bbf6c790bc1c7c90099d93b31dc4f005fc7b78cd2d509940e202a316b",
+        "bytes": 20998
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/soc/qcom/msm-pm.c": {
+      "xiaomi": {
+        "sha256": "194435e3fb6143e1405ae958a6a91290e4757b36a90eea4b4a2afa2fa65ac3c2",
+        "bytes": 21523
+      },
+      "legacy": {
+        "sha256": "194435e3fb6143e1405ae958a6a91290e4757b36a90eea4b4a2afa2fa65ac3c2",
+        "bytes": 21523
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "194435e3fb6143e1405ae958a6a91290e4757b36a90eea4b4a2afa2fa65ac3c2",
+        "bytes": 21523
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/soc/qcom/msm-spm.c": {
+      "xiaomi": {
+        "sha256": "7c0823c5033cd3a16e5aba6432c8232d09ac50d1d45e2cdf486123354192d547",
+        "bytes": 19269
+      },
+      "legacy": {
+        "sha256": "f3c0e93e8cbaf7a68d2c7c92814a5e31225d1d52b0e3ea22d3e76c73f74a1d69",
+        "bytes": 19278
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "7c0823c5033cd3a16e5aba6432c8232d09ac50d1d45e2cdf486123354192d547",
+        "bytes": 19269
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/soc/qcom/rpmh.c": {
+      "xiaomi": {
+        "sha256": "e71a6aac5e3cf8e2d9d4fea178946661dcb1c4db0267485ade4619eff0f42c3d",
+        "bytes": 27186
+      },
+      "legacy": {
+        "sha256": "2da1e199580a93149d19270902542a581b9267ff6263b9a60304d755d7386056",
+        "bytes": 27427
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "e71a6aac5e3cf8e2d9d4fea178946661dcb1c4db0267485ade4619eff0f42c3d",
+        "bytes": 27186
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/soc/qcom/system_pm.c": {
+      "xiaomi": {
+        "sha256": "0d62e1005b6e08b03ec352ca81a7a5521a9e43ec733d7d4359061c0c1c4daa6b",
+        "bytes": 2921
+      },
+      "legacy": {
+        "sha256": "0d62e1005b6e08b03ec352ca81a7a5521a9e43ec733d7d4359061c0c1c4daa6b",
+        "bytes": 2921
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "0d62e1005b6e08b03ec352ca81a7a5521a9e43ec733d7d4359061c0c1c4daa6b",
+        "bytes": 2921
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/usb/dwc3/core.c": {
+      "xiaomi": {
+        "sha256": "b5974e1b1e56d568d7891b24eb6442ce488f6965197245e81574462676d1e28e",
+        "bytes": 41746
+      },
+      "legacy": {
+        "sha256": "64a074ad87df9015a144a4cf6a64a6a273fb9b748c644800b184e86ba6681de2",
+        "bytes": 41670
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "b5974e1b1e56d568d7891b24eb6442ce488f6965197245e81574462676d1e28e",
+        "bytes": 41746
+      },
+      "linux_4_9_186": {
+        "sha256": "2657ad3d1e437eaf2ab4609cac2c6856a3b27ae4fdbbff0273a66c2934fb655c",
+        "bytes": 33845
+      },
+      "linux_4_9_337": {
+        "sha256": "29a0347c1e6572f97a5594607b64a6037eedf34af481ce5ee2435411f9045cdd",
+        "bytes": 34208
+      }
+    },
+    "drivers/usb/pd/policy_engine.c": {
+      "xiaomi": {
+        "sha256": "c82354042b8ce563ca3b115d51cc3dd6a026d0de55c30252fff22cb7166aff08",
+        "bytes": 115246
+      },
+      "legacy": {
+        "sha256": "b3cd578c93e6d54ffc0ec0398a721f98ac57f24c9765e27fa4f1dbb6c9e3c732",
+        "bytes": 117454
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "28ec83566ae95377c083f79dbcb2151b24f2ccd9acf0b25e115d1bd0345394e4",
+        "bytes": 111570
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "drivers/usb/pd/qpnp-pdphy.c": {
+      "xiaomi": {
+        "sha256": "7cf201f1d7941ad3cb3748a9bb1b738b26ab9c8fe7c33752902e6fa0f3cd5689",
+        "bytes": 22853
+      },
+      "legacy": {
+        "sha256": "7cf201f1d7941ad3cb3748a9bb1b738b26ab9c8fe7c33752902e6fa0f3cd5689",
+        "bytes": 22853
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "7cf201f1d7941ad3cb3748a9bb1b738b26ab9c8fe7c33752902e6fa0f3cd5689",
+        "bytes": 22853
+      },
+      "linux_4_9_186": null,
+      "linux_4_9_337": null
+    },
+    "kernel/power/suspend.c": {
+      "xiaomi": {
+        "sha256": "e89b2e9c164637c9f007fb4283855e04bbed50cc31d1ea811b1c89b4ec816e30",
+        "bytes": 14969
+      },
+      "legacy": {
+        "sha256": "e89b2e9c164637c9f007fb4283855e04bbed50cc31d1ea811b1c89b4ec816e30",
+        "bytes": 14969
+      },
+      "xiaomi_declared_caf": {
+        "sha256": "e89b2e9c164637c9f007fb4283855e04bbed50cc31d1ea811b1c89b4ec816e30",
+        "bytes": 14969
+      },
+      "linux_4_9_186": {
+        "sha256": "5584f3fea4df423f30da3cc51db1a5838b90aa194f21b7a7dbb5595740b39f66",
+        "bytes": 13800
+      },
+      "linux_4_9_337": {
+        "sha256": "5584f3fea4df423f30da3cc51db1a5838b90aa194f21b7a7dbb5595740b39f66",
+        "bytes": 13800
+      }
+    }
+  },
+  "comparisons": {
+    "linux_4_9_186..xiaomi_declared_caf": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "898",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "different",
+        "numstat": {
+          "added": "51",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "different",
+        "numstat": {
+          "added": "26",
+          "deleted": "6"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1537",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1014",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "948",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1830",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "147",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "2150",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "2020",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1790",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1606",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1110",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1339",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "54",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "350",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "6041",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "2609",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1031",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "5423",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "558",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "1041",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "822",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "426",
+          "deleted": "19"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "886",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "921",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "768",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1133",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "114",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "428",
+          "deleted": "170"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "4251",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "923",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "different",
+        "numstat": {
+          "added": "33",
+          "deleted": "2"
+        }
+      }
+    ],
+    "xiaomi_declared_caf..xiaomi": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "504",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "22",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "535",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "730",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "1054",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "17",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "14",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "5",
+          "deleted": "6"
+        }
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "different",
+        "numstat": {
+          "added": "83",
+          "deleted": "21"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "different",
+        "numstat": {
+          "added": "25",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "different",
+        "numstat": {
+          "added": "38",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "different",
+        "numstat": {
+          "added": "506",
+          "deleted": "21"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "different",
+        "numstat": {
+          "added": "522",
+          "deleted": "14"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "different",
+        "numstat": {
+          "added": "1396",
+          "deleted": "76"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "different",
+        "numstat": {
+          "added": "121",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "different",
+        "numstat": {
+          "added": "5",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "different",
+        "numstat": {
+          "added": "141",
+          "deleted": "10"
+        }
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "94",
+          "deleted": "12"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "different",
+        "numstat": {
+          "added": "144",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "identical-bytes",
+        "numstat": null
+      }
+    ],
+    "xiaomi..legacy": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "8",
+          "deleted": "35"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "different",
+        "numstat": {
+          "added": "21",
+          "deleted": "83"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "16"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "different",
+        "numstat": {
+          "added": "4",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "different",
+        "numstat": {
+          "added": "45",
+          "deleted": "36"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "different",
+        "numstat": {
+          "added": "3",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "different",
+        "numstat": {
+          "added": "83",
+          "deleted": "86"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "different",
+        "numstat": {
+          "added": "58",
+          "deleted": "30"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "different",
+        "numstat": {
+          "added": "147",
+          "deleted": "178"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "different",
+        "numstat": {
+          "added": "6",
+          "deleted": "4"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "different",
+        "numstat": {
+          "added": "1",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "different",
+        "numstat": {
+          "added": "6",
+          "deleted": "7"
+        }
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "76",
+          "deleted": "137"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "different",
+        "numstat": {
+          "added": "9",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "3"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "different",
+        "numstat": {
+          "added": "106",
+          "deleted": "27"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "identical-bytes",
+        "numstat": null
+      }
+    ],
+    "linux_4_9_337..legacy": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "504",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "22",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "535",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "730",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "1027",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "17",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "14",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "897",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "different",
+        "numstat": {
+          "added": "51",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "different",
+        "numstat": {
+          "added": "26",
+          "deleted": "6"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1537",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1014",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "948",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1840",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "147",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "2150",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "2020",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1790",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1609",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1110",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1386",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "56",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "350",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "6523",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "3145",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1031",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "6712",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "681",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "right-only",
+        "numstat": {
+          "added": "1046",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "952",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "426",
+          "deleted": "19"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "886",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "921",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "768",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "1141",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "114",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "432",
+          "deleted": "189"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "4472",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "right-only",
+        "numstat": {
+          "added": "923",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "different",
+        "numstat": {
+          "added": "33",
+          "deleted": "2"
+        }
+      }
+    ],
+    "linux_4_9_186..linux_4_9_337": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "64",
+          "deleted": "43"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "25",
+          "deleted": "11"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "absent-both",
+        "numstat": null
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "identical-bytes",
+        "numstat": null
+      }
+    ],
+    "xiaomi_declared_caf..legacy": [
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "504",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "22",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "535",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "730",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "33",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "1027",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "17",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl-gb.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "14",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.3a-camera-sensor-mtp.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "396",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-pinctrl.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "26",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "status": "right-only",
+        "numstat": {
+          "added": "27",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+        "status": "right-only",
+        "numstat": {
+          "added": "15",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+        "status": "different",
+        "numstat": {
+          "added": "5",
+          "deleted": "6"
+        }
+      },
+      {
+        "file": "drivers/base/power/wakeup.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/cpuidle.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of-legacy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels-of.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/cpuidle/lpm-levels.c",
+        "status": "different",
+        "numstat": {
+          "added": "13",
+          "deleted": "3"
+        }
+      },
+      {
+        "file": "drivers/cpuidle/lpm-workarounds.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+        "status": "different",
+        "numstat": {
+          "added": "4",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/nfc/nq-nci.c",
+        "status": "different",
+        "numstat": {
+          "added": "61",
+          "deleted": "14"
+        }
+      },
+      {
+        "file": "drivers/nfc/nq-nci.h",
+        "status": "different",
+        "numstat": {
+          "added": "3",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/fg-reg.h",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+        "status": "different",
+        "numstat": {
+          "added": "496",
+          "deleted": "14"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+        "status": "different",
+        "numstat": {
+          "added": "558",
+          "deleted": "22"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/qpnp-typec.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.c",
+        "status": "different",
+        "numstat": {
+          "added": "1358",
+          "deleted": "69"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-lib.h",
+        "status": "different",
+        "numstat": {
+          "added": "123",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/smb-reg.h",
+        "status": "different",
+        "numstat": {
+          "added": "5",
+          "deleted": "0"
+        }
+      },
+      {
+        "file": "drivers/power/supply/qcom/step-chg-jeita.c",
+        "status": "different",
+        "numstat": {
+          "added": "139",
+          "deleted": "9"
+        }
+      },
+      {
+        "file": "drivers/regulator/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "64",
+          "deleted": "43"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/lpm-stats.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/soc/qcom/msm-spm.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "2"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/rpmh.c",
+        "status": "different",
+        "numstat": {
+          "added": "9",
+          "deleted": "1"
+        }
+      },
+      {
+        "file": "drivers/soc/qcom/system_pm.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "drivers/usb/dwc3/core.c",
+        "status": "different",
+        "numstat": {
+          "added": "2",
+          "deleted": "3"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/policy_engine.c",
+        "status": "different",
+        "numstat": {
+          "added": "225",
+          "deleted": "4"
+        }
+      },
+      {
+        "file": "drivers/usb/pd/qpnp-pdphy.c",
+        "status": "identical-bytes",
+        "numstat": null
+      },
+      {
+        "file": "kernel/power/suspend.c",
+        "status": "identical-bytes",
+        "numstat": null
+      }
+    ]
+  },
+  "qualcomm_provenance": {
+    "xiaomi": "MiCode README declares LA.UM.8.3.r1-05800-sdm845.0; the tag and commit are pinned, but exact ancestry is not proved",
+    "legacy": "Exact Qualcomm base is not established; comparisons against the Xiaomi-declared tag include BSP/version/later changes"
+  },
+  "limits": [
+    "Byte equality is not hardware validation",
+    "A changed file is not automatically a device patch or a crDroid-authored fix",
+    "Linux version-matched controls are not ancestry proofs",
+    "No target HAL/vendor ABI is selected by this inventory"
+  ]
+}

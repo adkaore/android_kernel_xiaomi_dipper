@@ -30,6 +30,42 @@
       "url": "https://github.com/taygoth/dipper-mainline-port.git",
       "branch": "master",
       "commit": "e6d1be1464e25a2bad68aa81641c0b7438edea78"
+    },
+    {
+      "name": "xiaomi",
+      "url": "https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git",
+      "branch": "dipper-q-oss",
+      "commit": "dcfb1676925aec83b06ae04fd8ca989ced75067c",
+      "linux_version": "4.9.186",
+      "role": "Official Xiaomi hardware/settings comparison; not target userspace",
+      "declared_qualcomm_tag": "LA.UM.8.3.r1-05800-sdm845.0"
+    },
+    {
+      "name": "xiaomi_declared_caf",
+      "url": "https://git.codelinaro.org/clo/la/kernel/msm-4.9.git",
+      "tag": "LA.UM.8.3.r1-05800-sdm845.0",
+      "tag_object": "f7efeaeb0d4fd6b4ce3d73e4999095ce6e530869",
+      "commit": "1f01db5a42ccd3123517a9d5730024719abf095d",
+      "role": "Qualcomm tag declared by MiCode README, not a proven exact crDroid merge base"
+    },
+    {
+      "name": "linux_4_9_186",
+      "url": "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git",
+      "tag": "v4.9.186",
+      "tag_object": "8f0b0531289574ff1dd17632ed1e5df568886c7b",
+      "commit": "35c308d7828de5c5784bb75efcf848996b3a82d1",
+      "role": "Version-matched Linux control for Xiaomi, not ancestry proof"
+    },
+    {
+      "name": "linux_4_9_337",
+      "url": "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git",
+      "tag": "v4.9.337",
+      "tag_object": "20dca3b3c3093f9d1abc11b133f74b2bb817be7b",
+      "commit": "87a72e81764d2fc5411706c551462d61cdb97660",
+      "role": "Version-matched Linux control for old crDroid comparison, not ancestry proof"
     }
-  ]
+  ],
+  "last_updated": "2026-11-09",
+  "target": "crDroid 13.1 / Android 17",
+  "comparison_policy": "Legacy and official Xiaomi are hardware references, not target HAL/vendor specifications. Version-wide or BSP-wide differences are not device patch sets."
 }

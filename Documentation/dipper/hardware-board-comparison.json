@@ -1,0 +1,20 @@
+{
+  "target": "crDroid 13.1 / Android 17",
+  "hardware_accessed": false,
+  "same_root_sources_and_selectors": true,
+  "xiaomi_roots": 15,
+  "crdroid_roots": 15,
+  "only_xiaomi_memory_regions": [],
+  "only_crdroid_memory_regions": [
+    {
+      "path": "/reserved-memory/ramoops@b0000000",
+      "start": "0xb0000000",
+      "size": "0x400000",
+      "no_map": false,
+      "compatible": [
+        "ramoops"
+      ]
+    }
+  ],
+  "note": "Only selectors/listed-target status and resolved fixed reservations are compared here. Raw cross-source phandle numbers are not an electrical diff. No overlay application or hardware test is implied."
+}

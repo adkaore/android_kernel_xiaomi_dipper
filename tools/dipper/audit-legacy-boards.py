@@ -52,20 +52,32 @@ def main():
     parser.add_argument('--output-dir', required=True, type=Path)
     parser.add_argument('--clang', required=True)
     parser.add_argument('--dtc', required=True)
+    parser.add_argument('--source', choices=['legacy', 'xiaomi'], default='legacy',
+                        help='Use the pinned crDroid or official Xiaomi comparison source')
     args = parser.parse_args()
+    revision = LEGACY
+    if args.source == 'xiaomi':
+        pins = json.loads((ROOT / 'Documentation/dipper/sources.json').read_text())
+        revision = next(s['commit'] for s in pins['sources'] if s['name'] == 'xiaomi')
+    if not re.fullmatch(r'[0-9a-f]{40}', revision):
+        parser.error('Source must be pinned to a full commit ID')
     if not args.output_dir.is_absolute():
         parser.error('--output-dir must be absolute and outside the source tree')
     out = args.output_dir.resolve()
     if out == ROOT or ROOT in out.parents:
         parser.error('Output must be outside the source tree')
     out.mkdir(parents=True, exist_ok=True)
-    source = out / 'source'
+    source = out / ('source' if args.source == 'legacy' else 'source-xiaomi')
+    stamp = out / (args.source + '-source-commit')
+    if stamp.exists() and stamp.read_text().strip() != revision:
+        parser.error('Output contains another source revision; use a fresh output directory')
     source.mkdir(exist_ok=True)
-    archive = out / 'legacy-dts.tar'
+    archive = out / (args.source + '-dts.tar')
     subprocess.run(['git', 'archive', '--format=tar', f'--output={archive}',
-                    LEGACY, DTS, 'include/dt-bindings'], cwd=ROOT, check=True)
+                    revision, DTS, 'include/dt-bindings'], cwd=ROOT, check=True)
     with tarfile.open(archive) as files:
         files.extractall(source, filter='data')
+    stamp.write_text(revision + '\n')
     makefile = (source / DTS / 'Makefile').read_text()
     paths = sorted((source / DTS).glob('dipper*.dts'))
     rows, flattened, layouts = [], {}, {}
@@ -138,7 +150,7 @@ def main():
             for p, k in sorted(current.keys() | previous.keys())
             if current.get((p, k)) != previous.get((p, k))]
     report = {
-        'legacy_commit': LEGACY,
+        'legacy_commit': revision,
         'method': 'clang preprocessing and dtc -@; no forced compilation',
         'scope': 'Source definitions; no phone accessed and no physical compatibility inferred.',
         'comparison_note': 'Same-SoC-revision P0 reference; root identity and generated phandles '
@@ -148,7 +160,10 @@ def main():
         'fixed_memory_layouts': layouts,
         'variants': rows,
     }
-    result = out / 'legacy-resolved-boards.json'
+    if args.source == 'xiaomi':
+        report['source_commit'] = report.pop('legacy_commit')
+        report['source_name'] = 'official Xiaomi dipper-q-oss'
+    result = out / (args.source + '-resolved-boards.json')
     result.write_text(json.dumps(report, indent=2) + '\n')
     print(f'{len(rows)} definitions, '
           f'{sum(v["listed_build_target"] and v["kind"] == "standalone" for v in rows)} '

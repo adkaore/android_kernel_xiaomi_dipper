@@ -1,0 +1,26 @@
+{
+  "checked_date": "2026-11-09",
+  "target": "crDroid 13.1 / Android 17",
+  "official_declaration": {
+    "repository": "https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git",
+    "branch": "README",
+    "commit": "76ab390d9bcd85e505ae33043621095084d56ac8",
+    "file": "README.md",
+    "sha256": "dd3e7f35ab197a4c00901803edcb7ee13fe498bece2cc58a69a4fdb6b5d694ec",
+    "declared_tag": "LA.UM.8.3.r1-05800-sdm845.0"
+  },
+  "signatures_verified": false,
+  "history_scope": "crDroid source pin deepened by 64 levels; 139 commits reachable in this bounded local view, not full lineage",
+  "later_fix": {
+    "commit": "139347ae71d25ca04d0d249d97d71cb476a6c544",
+    "author": "awkoo <awkooox@gmail.com>",
+    "subject": "power: supply: qcom: smb-lib: Cap requested ICL to hardware maximum",
+    "source_files": [
+      "drivers/power/supply/qcom/smb-lib.c",
+      "drivers/power/supply/qcom/smb5-lib.c"
+    ],
+    "decision": "Retain the safety requirement; adapt only the applicable native charger code, not downstream voter semantics or SMB5",
+    "current_port_status": "reviewed; native adaptation not yet committed"
+  },
+  "hardware_accessed": false
+}

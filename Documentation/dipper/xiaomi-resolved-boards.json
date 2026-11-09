@@ -1,0 +1,429 @@
+{
+  "method": "clang preprocessing and dtc -@; no forced compilation",
+  "scope": "Source definitions; no phone accessed and no physical compatibility inferred.",
+  "comparison_note": "Same-SoC-revision P0 reference; root identity and generated phandles excluded. Reference-valued properties remain raw; not an electrical diff.",
+  "overlay_note": "Old plugins are compiled with unresolved external fixups, not applied to a legacy base and not claimed compatible with the new base.",
+  "fixed_memory_layouts": {
+    "8240363657f0b067": [
+      {
+        "path": "/reserved-memory/adsp_region@0x8c500000",
+        "start": "0x8c500000",
+        "size": "0x1e00000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/camera_region@0x8bf00000",
+        "start": "0x8bf00000",
+        "size": "0x500000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/cdsp_region@0x96100000",
+        "start": "0x96100000",
+        "size": "0x800000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/cont_splash_region@9d400000",
+        "start": "0x9d400000",
+        "size": "0x2400000",
+        "no_map": false
+      },
+      {
+        "path": "/reserved-memory/gpu_region@0x8c415000",
+        "start": "0x8c415000",
+        "size": "0x2000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/hyp_region@85700000",
+        "start": "0x85700000",
+        "size": "0x600000",
+        "no_map": true
+      },
+      {
+        "path": "/reserved-memory/ipa_gsi_region@0x8c410000",
+        "start": "0x8c410000",
+        "size": "0x5000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/ips_fw_region@0x8c400000",
+        "start": "0x8c400000",
+        "size": "0x10000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/mba_region@0x96900000",
+        "start": "0x96900000",
+        "size": "0x200000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/modem_region@0x8e400000",
+        "start": "0x8e400000",
+        "size": "0x7800000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/pil_spss_region@0x97f00000",
+        "start": "0x97f00000",
+        "size": "0x100000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/qseecom_region@0x8ab00000",
+        "start": "0x8ab00000",
+        "size": "0x1400000",
+        "no_map": true,
+        "compatible": [
+          "shared-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/ramdump_fb_region@af000000",
+        "start": "0xaf000000",
+        "size": "0x1000000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/removed_region@85fc0000",
+        "start": "0x85fc0000",
+        "size": "0x4940000",
+        "no_map": true
+      },
+      {
+        "path": "/reserved-memory/slpi_region@0x96b00000",
+        "start": "0x96b00000",
+        "size": "0x1400000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/video_region@0x95c00000",
+        "start": "0x95c00000",
+        "size": "0x500000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/wlan_fw_region@0x8e300000",
+        "start": "0x8e300000",
+        "size": "0x100000",
+        "no_map": true,
+        "compatible": [
+          "removed-dma-pool"
+        ]
+      },
+      {
+        "path": "/reserved-memory/xbl_region@85e00000",
+        "start": "0x85d00000",
+        "size": "0x200000",
+        "no_map": true
+      }
+    ]
+  },
+  "variants": [
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new MP v2.1",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        55,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new MP v2",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        55,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+      "kind": "overlay",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        50,
+        0
+      ],
+      "legacy_base": "sdm845-v2.dtb"
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+      "kind": "overlay",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2.1",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        50,
+        0
+      ],
+      "legacy_base": "sdm845-v2.1.dtb"
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2.1",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        50,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P0 v2",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        50,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+      "kind": "standalone",
+      "listed_build_target": false,
+      "model": "Xiaomi Technologies, Inc. Dipper P0",
+      "msm_id": [
+        321,
+        65536
+      ],
+      "board_id": [
+        30,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2 cn",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        51,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2 gb",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        52,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": [
+        {
+          "path": "/soc/spi@890000",
+          "property": "status",
+          "reference": "6f6b00",
+          "variant": "64697361626c656400"
+        }
+      ]
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2.1 cn",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        51,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1 v2.1 gb",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        52,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": [
+        {
+          "path": "/soc/spi@890000",
+          "property": "status",
+          "reference": "6f6b00",
+          "variant": "64697361626c656400"
+        }
+      ]
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1.1 v2.1",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        53,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P1.1 v2",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        53,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P2 v2.1",
+      "msm_id": [
+        321,
+        131073
+      ],
+      "board_id": [
+        54,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "raw_property_differences": []
+    },
+    {
+      "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+      "kind": "standalone",
+      "listed_build_target": true,
+      "model": "Xiaomi Technologies, Inc. Dipper new P2 v2",
+      "msm_id": [
+        321,
+        131072
+      ],
+      "board_id": [
+        54,
+        0
+      ],
+      "fixed_memory_layout": "8240363657f0b067",
+      "raw_comparison_base": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "raw_property_differences": []
+    }
+  ],
+  "source_commit": "dcfb1676925aec83b06ae04fd8ca989ced75067c",
+  "source_name": "official Xiaomi dipper-q-oss"
+}

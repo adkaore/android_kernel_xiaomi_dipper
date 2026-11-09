@@ -1,0 +1,58 @@
+{
+  "policy": "This is a per-file evidence inventory, never a ready-to-apply device patch set. Presence, byte equality and diff size do not decide relevance or authorship.",
+  "groups": {
+    "power_suspend": [
+      "drivers/cpuidle/lpm-levels*.c",
+      "drivers/cpuidle/lpm-workarounds.c",
+      "drivers/soc/qcom/msm-pm.c",
+      "drivers/soc/qcom/msm-spm.c",
+      "drivers/soc/qcom/rpmh.c",
+      "drivers/soc/qcom/system_pm.c",
+      "drivers/soc/qcom/lpm-stats.c"
+    ],
+    "charging_gauge": [
+      "drivers/power/supply/qcom/qpnp-smb2.c",
+      "drivers/power/supply/qcom/smb-lib.c",
+      "drivers/power/supply/qcom/smb-lib.h",
+      "drivers/power/supply/qcom/smb-reg.h",
+      "drivers/power/supply/qcom/qpnp-fg-gen3.c",
+      "drivers/power/supply/qcom/fg-reg.h",
+      "drivers/power/supply/qcom/step-chg-jeita.c"
+    ],
+    "typec_pd": [
+      "drivers/usb/pd/qpnp-pdphy.c",
+      "drivers/usb/pd/policy_engine.c",
+      "drivers/power/supply/qcom/qpnp-typec.c"
+    ],
+    "camera": [
+      "arch/arm64/boot/dts/qcom/dipper*camera*.dtsi",
+      "drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c",
+      "drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c",
+      "drivers/media/platform/msm/camera_v2/sensor/actuator/msm_actuator.c",
+      "drivers/media/platform/msm/camera_v2/sensor/eeprom/msm_eeprom.c",
+      "drivers/media/platform/msm/camera_v2/sensor/ois/msm_ois.c"
+    ],
+    "board_variants": [
+      "arch/arm64/boot/dts/qcom/dipper*.dts",
+      "arch/arm64/boot/dts/qcom/dipper*pinctrl*.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1-gb.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p1.1.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-p2.dtsi",
+      "arch/arm64/boot/dts/qcom/dipper-mp.dtsi",
+      "arch/arm64/boot/dts/qcom/pmi8998.dtsi"
+    ],
+    "nfc_hardware_only": [
+      "drivers/nfc/nq-nci.c",
+      "drivers/nfc/nq-nci.h"
+    ],
+    "generic_version_controls": [
+      "kernel/power/suspend.c",
+      "drivers/base/power/wakeup.c",
+      "drivers/regulator/core.c",
+      "drivers/cpuidle/cpuidle.c",
+      "drivers/usb/dwc3/core.c"
+    ]
+  }
+}
