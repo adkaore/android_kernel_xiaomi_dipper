@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Build helper for modern selection overlays, not a boot-selection target. */
+
+/dts-v1/;
+
+#include "sdm845-xiaomi-dipper-common.dtsi"
+
+/ {
+	model = "Xiaomi Mi 8 (common overlay base)";
+	compatible = "xiaomi,dipper-common-base", "xiaomi,dipper", "qcom,sdm845";
+};

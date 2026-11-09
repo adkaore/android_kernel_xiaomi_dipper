@@ -42,3 +42,59 @@ The new TZ node plus inherited AOP/cmd-db/SMEM cover the old removed_region
 without overlapping each other. Splash remains reserved, not a live framebuffer.
 Ramoops constants come from the pinned old board, not someone else's runtime
 device dump. Runtime preservation across bootloaders/reboots is still untested.
+
+## New ACK candidate targets
+
+The shared description is now `sdm845-xiaomi-dipper-common.dtsi`. Twelve small
+standalone wrappers preserve the old selector pairs rather than duplicating the
+hardware description. The mapping is explicit in board-targets.json:
+
+| Board | board-id | msm-id revision choices |
+| --- | --- | --- |
+| P0 | 50, 0 | 0x20000 and 0x20001 |
+| P1 CN | 51, 0 | 0x20000 and 0x20001 |
+| P1 GB | 52, 0 | 0x20000 and 0x20001 |
+| P1.1 | 53, 0 | 0x20000 and 0x20001 |
+| P2 | 54, 0 | 0x20000 and 0x20001 |
+| MP | 55, 0 | 0x20000 and 0x20001 |
+
+The common msm-id SoC value is 321. The unlisted revision-1 P0 definition
+(board-id 30, revision 0x10000) is recorded, not newly advertised as supported:
+its older SoC description/workarounds need a separate audit.
+
+GB's explicit spi4 exclusion is retained in a dedicated include. The GNSS
+interface remains disabled on the other candidates too until its driver/power
+protocol is ported. This is an **open compatibility gap**, not a claim that
+GNSS already works on every board. The downstream v2.1 audio overlay is also
+not replaced by a fabricated audio node. The modern generic SDM845 clock/SMMU
+drivers are reused; the old v2/v2.1 workaround properties are not silently
+treated as modern bindings. Per-revision runtime validation remains necessary.
+
+### Two modern selection plugins, not old MTP replacements
+
+The old plugins contain downstream board/display/audio fragments. Copying them
+onto the modern SoC tree would not preserve their ABI. Instead, the full common
+modern board is in an explicitly named `dipper-common-base` DTB, with **no**
+qcom boot selectors. Two small P0 selection plugins supply the original v2/v2.1
+selector pairs, both in their headers and in the applied root. Kbuild produces
+two composed DTBs from this matching base. The resulting trees are tested
+byte-for-byte against their standalone P0 counterparts, excluding only generated
+phandle IDs and metadata (referenced values are still compared).
+
+These are deliberately named `*-select.dtbo`; they are **not** drop-in plugins
+for the old sdm845-v2/sdm845-v2.1 MTP bases. Android DTBO packaging and bootloader
+selection have not been tested. No build helper creates or flashes a boot image.
+
+### Verification scope
+
+The core builder builds all 12 standalone and two composed targets, plus their
+helper base/plugins. It hashes them all, and lists modules from modules.order,
+not a glob that could count stale .ko files. Composite top-level make goals run
+sequentially to avoid independent recursive builds racing on the shared base.
+
+The verifier validates all 14 final trees and the helper base against applicable
+schemas, and runs the board safety checks for **each** final tree. Additional
+tests check complete legacy target mapping, selector uniqueness, retained plugin
+headers, shared-hardware drift and composed/standalone equivalence. Missing
+artifacts fail rather than silently skipping a board. This establishes offline
+source/selector consistency, not legacy hardware-feature or vendor-ABI parity.

@@ -1,6 +1,8 @@
-# Mi 8 / crDroid: initial source audit
+# Mi 8 / crDroid kernel development
 
-Status: source inspection only. No kernel build or hardware test has passed yet.
+Status: offline development builds and tests pass; no hardware boot has been tested.
+See integration-status.md for current results and remaining compatibility gaps.
+The initial-audit findings below are historical, not a statement that no code was ported.
 Target: Xiaomi Mi 8 (dipper), Android 17 / crDroid 13, ACK android17-6.18.
 No Mobian/postmarketOS userspace target, flashing scripts or firmware redistribution.
 
@@ -45,7 +47,10 @@ Checked with git apply --check against the clean Google tree (nothing applied):
 - TAS2557 patch: applies textually; binding/firmware and code review still needed.
 - Dipper DTS patch: applies textually but references missing companion nodes/drivers.
 Its own kernel/README.md identifies missing bindings and downstream dependencies.
-A clean patch application is not a build or hardware test. No candidate imported yet.
+This was the initial apply-only review. Since then panel, constrained IMX363,
+FTM5 runtime input and shared board candidates have been implemented and tested
+offline on topic branches. Their current status is in integration-status.md; a
+clean application or compilation is still not a hardware test.
 
 ## Integration rules
 
@@ -56,12 +61,12 @@ Preserve authorship and licenses when importing reviewed third-party patches.
 Full device validation will be with crDroid, not an alternative distro.
 No phone operations until the owner explicitly agrees to a specific test.
 
-## Next gates
+## Project gates (not all completed)
 
-1. Install host build tools and pin an appropriate LLVM / ACK build toolchain.
-2. Establish a reproducible unmodified baseline build before importing board changes.
-3. Map legacy board variants and Android driver interfaces; resolve missing prerequisites.
-4. Port bindings, board description and individual drivers on separate work branches.
+1. Done: install/pin the ACK host toolchains.
+2. Done offline: establish a pinned unmodified baseline development build.
+3. Source map done for listed v2/v2.1 targets; hardware/controller identification remains open.
+4. In progress: port bindings, shared board description and individual drivers on topic branches.
 5. Integrate Android-side components in separate device/vendor repositories.
 6. Build crDroid boot/system artifacts, then plan recovery and hardware tests.
 

@@ -1,0 +1,112 @@
+{
+  "hardware_tested": false,
+  "status": "Compile-only candidates; selector coverage is not hardware/Android ABI parity.",
+  "overlay_contract": "New selection plugins require the matching modern common base. They are not drop-in replacements for downstream MTP plugins.",
+  "unlisted_legacy_source": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+  "targets": [
+    {
+      "dtb": "sdm845-xiaomi-dipper-mp-v2.1.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-mp-v2.1",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-mp-v2.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-mp-v2",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p0-v2.1.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p0-v2.1",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p0-v2.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p0-v2",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1-v2-cn.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1-v2-cn",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1-v2-gb.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1-v2-gb",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1-v2.1-cn.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1-v2.1-cn",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1-v2.1-gb.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1-v2.1-gb",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1.1-v2.1.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1.1-v2.1",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p1.1-v2.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p1.1-v2",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p2-v2.1.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p2-v2.1",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p2-v2.dtb",
+      "kind": "standalone",
+      "compatible": "xiaomi,dipper-p2-v2",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p0-v2-overlay.dtb",
+      "kind": "composed",
+      "compatible": "xiaomi,dipper-p0-v2",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+      "base": "sdm845-xiaomi-dipper-common-base.dtb",
+      "overlay": "sdm845-xiaomi-dipper-p0-v2-select.dtbo",
+      "equivalent_dtb": "sdm845-xiaomi-dipper-p0-v2.dtb"
+    },
+    {
+      "dtb": "sdm845-xiaomi-dipper-p0-v2.1-overlay.dtb",
+      "kind": "composed",
+      "compatible": "xiaomi,dipper-p0-v2.1",
+      "legacy_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+      "legacy_board_source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+      "base": "sdm845-xiaomi-dipper-common-base.dtb",
+      "overlay": "sdm845-xiaomi-dipper-p0-v2.1-select.dtbo",
+      "equivalent_dtb": "sdm845-xiaomi-dipper-p0-v2.1.dtb"
+    }
+  ]
+}

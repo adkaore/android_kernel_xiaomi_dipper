@@ -22,8 +22,17 @@ scripts/kconfig/merge_config.sh -m -O "$out" \
     arch/arm64/configs/gki_defconfig arch/arm64/configs/dipper/core.config
 make O="$out" ARCH=arm64 LLVM=1 olddefconfig
 python3 tools/dipper/check-config.py arch/arm64/configs/dipper/core.config "$out/.config"
+standalone=$(python3 tools/dipper/list-board-targets.py --kind standalone --prefix qcom/)
+composed=$(python3 tools/dipper/list-board-targets.py --kind composed --prefix qcom/)
+mapfile -t dtbs <<< "$standalone"
 make O="$out" ARCH=arm64 LLVM=1 -j"$jobs" \
-    Image modules qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb
+    Image modules "${dtbs[@]}"
+# Top-level *.dtb goals recurse independently. Parallel composite goals sharing
+# a base race on the base's depfile, so invoke these sequentially (jobs inside
+# each invocation still run in parallel).
+while IFS= read -r dtb; do
+    make O="$out" ARCH=arm64 LLVM=1 -j"$jobs" "$dtb"
+done <<< "$composed"
 python3 - "$root" "$out" <<'PY'
 import datetime,hashlib,json,pathlib,subprocess,sys
 root,out=map(pathlib.Path,sys.argv[1:])
@@ -33,15 +42,23 @@ def digest(path):
         for data in iter(lambda:source.read(1048576),b''):
             h.update(data)
     return h.hexdigest()
-files=['.config','arch/arm64/boot/Image',
-       'arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb']
-modules=sorted(str(p.relative_to(out)) for p in out.rglob('*.ko'))
+targets=json.loads((root/'Documentation/dipper/board-targets.json').read_text())['targets']
+dt_files=[v['dtb'] for v in targets]
+dt_files += [v[key] for v in targets if v['kind']=='composed' for key in ['base','overlay']]
+files=['.config','arch/arm64/boot/Image'] + [
+    'arch/arm64/boot/dts/qcom/'+name for name in dict.fromkeys(dt_files)]
+modules=sorted(str(pathlib.Path(name).with_suffix('.ko'))
+               for name in (out/'modules.order').read_text().splitlines())
+missing=[name for name in modules if not (out/name).is_file()]
+if missing:
+    raise SystemExit(f'Missing current-build modules: {missing}')
 report={'kind':'dipper-core-development-build','hardware_tested':False,
         'flashable_boot_image':False,'hermetic_kleaf_build':False,
         'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
         'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()),
+        'board_targets':[v['dtb'] for v in targets],
         'sha256':{name:digest(out/name) for name in files},'modules':modules}
 (out/'dipper-build-report.json').write_text(json.dumps(report,indent=2)+'\n')
-print(f"Build passed: Image, DTB, {len(modules)} modules")
+print(f"Build passed: Image, {len(targets)} DTB targets, {len(modules)} modules")
 PY

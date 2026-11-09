@@ -1,0 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Keep the explicit downstream P1 GB GNSS/SPI exclusion. */
+&spi4 {
+	status = "disabled";
+};

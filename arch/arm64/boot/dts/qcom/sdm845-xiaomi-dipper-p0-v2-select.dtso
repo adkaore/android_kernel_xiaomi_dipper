@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Selection only: requires the matching dipper-common-base, NOT an old MTP DTB. */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/arm/qcom,ids.h>
+
+/ {
+	/* Retain selectors in the plugin header as well as the applied root. */
+	model = "Xiaomi Mi 8 (P0 v2)";
+	compatible = "xiaomi,dipper-p0-v2", "xiaomi,dipper", "qcom,sdm845";
+	qcom,msm-id = <QCOM_ID_SDM845 0x20000>;
+	qcom,board-id = <50 0>;
+};
+
+&{/} {
+	model = "Xiaomi Mi 8 (P0 v2)";
+	compatible = "xiaomi,dipper-p0-v2", "xiaomi,dipper", "qcom,sdm845";
+	qcom,msm-id = <QCOM_ID_SDM845 0x20000>;
+	qcom,board-id = <50 0>;
+};

@@ -1,10 +1,11 @@
 # MP v2.1 board integration (compile-tested only)
 
 The generic dipper DT from Max Furman's port is retained in Git history with its
-authorship. The adapted ACK target is explicitly named
-`sdm845-xiaomi-dipper-mp-v2.1.dtb`; it does not claim to cover the 14 other legacy
-board descriptions. qcom board ID 55 and SDM845 revision 0x20001 match the old
-MP v2.1 DTS. The active device's actual board revision is not yet known.
+authorship. The initial adapted ACK target was explicitly named
+`sdm845-xiaomi-dipper-mp-v2.1.dtb`. Its hardware description now lives in a common
+include used by the audited v2/v2.1 wrappers; see board-variants.md for precise
+coverage and the new overlay-base contract. qcom board ID 55 and SDM845 revision
+0x20001 still identify MP v2.1. The active phone's revision is not yet known.
 
 ## Described using existing ACK drivers
 

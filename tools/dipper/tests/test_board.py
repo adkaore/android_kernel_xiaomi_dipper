@@ -1,4 +1,4 @@
-"""Checks on the compiled MP v2.1 DTB, not evidence of bootability."""
+"""Checks on every compiled candidate DTB, not evidence of bootability."""
 import os
 import json
 from pathlib import Path
@@ -9,15 +9,21 @@ except ImportError:
     libfdt = None
 
 DTB = os.environ.get('DIPPER_DTB')
+DTB_DIR = os.environ.get('DIPPER_DTB_DIR')
 ROOT = Path(__file__).resolve().parents[3]
 LEGACY = json.loads((ROOT / 'Documentation/dipper/legacy-resolved-boards.json').read_text())
+TARGETS = json.loads((ROOT / 'Documentation/dipper/board-targets.json').read_text())['targets']
 
 
-@unittest.skipUnless(libfdt and DTB, 'use dtschema Python and set DIPPER_DTB')
+@unittest.skipUnless(libfdt and (DTB or DTB_DIR), 'use dtschema Python and set DIPPER_DTB_DIR')
 class BoardTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.tree = libfdt.Fdt(Path(DTB).read_bytes())
+        binary = Path(cls.binary) if hasattr(cls, 'binary') else Path(DTB)
+        cls.variant = next(v for v in TARGETS if v['dtb'] == binary.name)
+        cls.legacy = next(v for v in LEGACY['variants']
+                          if v['source'] == cls.variant['legacy_board_source'])
+        cls.tree = libfdt.Fdt(binary.read_bytes())
         cls.nodes = {}
         def walk(offset, path):
             cls.nodes[path] = offset
@@ -36,9 +42,9 @@ class BoardTests(unittest.TestCase):
 
     def test_board_identity(self):
         self.assertEqual(self.prop('/', 'compatible').as_stringlist(),
-                         ['xiaomi,dipper-mp-v2.1', 'xiaomi,dipper', 'qcom,sdm845'])
-        self.assertEqual(self.prop('/', 'qcom,board-id').as_uint32_list(), [55, 0])
-        self.assertEqual(self.prop('/', 'qcom,msm-id').as_uint32_list(), [321, 0x20001])
+                         [self.variant['compatible'], 'xiaomi,dipper', 'qcom,sdm845'])
+        self.assertEqual(self.prop('/', 'qcom,board-id').as_uint32_list(), self.legacy['board_id'])
+        self.assertEqual(self.prop('/', 'qcom,msm-id').as_uint32_list(), self.legacy['msm_id'])
 
     def test_fixed_reserved_regions_do_not_overlap(self):
         regions = []
@@ -68,15 +74,13 @@ class BoardTests(unittest.TestCase):
                          [0x86200000, 0x4700000])
 
     def test_every_final_legacy_fixed_region_stays_reserved(self):
-        variant = next(v for v in LEGACY['variants']
-                       if v['source'].endswith('/dipper-mp-v2.1.dts'))
         regions = []
         for path, node in self.nodes.items():
             if path.startswith('/reserved-memory/') and self.tree.hasprop(node, 'reg'):
                 reg = self.prop(path, 'reg').as_uint64_list()
                 for start, size in zip(reg[::2], reg[1::2]):
                     regions.append((start, start + size, self.tree.hasprop(node, 'no-map')))
-        for old in LEGACY['fixed_memory_layouts'][variant['fixed_memory_layout']]:
+        for old in LEGACY['fixed_memory_layouts'][self.legacy['fixed_memory_layout']]:
             with self.subTest(legacy_region=old['path']):
                 cursor = int(old['start'], 0)
                 end = cursor + int(old['size'], 0)
@@ -131,13 +135,32 @@ class BoardTests(unittest.TestCase):
                 self.assertFalse(self.tree.hasprop(node, prop))
 
     def test_ramoops_matches_pinned_board_source(self):
-        variant = next(v for v in LEGACY['variants']
-                       if v['source'].endswith('/dipper-mp-v2.1.dts'))
         self.assertEqual(len(self.matching('ramoops')), 1)
         path = self.matching('ramoops')[0][0]
         self.assertEqual(self.prop(path, 'reg').as_uint64_list(), [0xb0000000, 0x400000])
-        for name, value in variant['ramoops'].items():
+        for name, value in self.legacy['ramoops'].items():
             self.assertEqual(self.prop(path, name).as_uint32(), value, name)
+
+    def test_unported_gnss_spi_is_not_accidentally_enabled(self):
+        # GB explicitly excludes it downstream. Other boards also keep it gated
+        # until the BCM4775 interface/power/IRQ path has actually been ported.
+        for path, node in self.matching('qcom,geni-spi'):
+            if path.endswith('/spi@890000'):
+                self.assertEqual(self.prop(path, 'status').as_str(), 'disabled')
+                break
+        else:
+            self.fail('Missing spi4 controller')
+
+
+def load_tests(loader, tests, pattern):
+    if not DTB_DIR:
+        return tests
+    suite = unittest.TestSuite()
+    for target in TARGETS:
+        board_class = type('Board_' + target['dtb'].removesuffix('.dtb'), (BoardTests,),
+                           {'binary': str(Path(DTB_DIR) / target['dtb'])})
+        suite.addTests(loader.loadTestsFromTestCase(board_class))
+    return suite
 
 
 if __name__ == '__main__':

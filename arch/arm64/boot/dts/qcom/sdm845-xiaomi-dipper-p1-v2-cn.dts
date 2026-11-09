@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Xiaomi Mi 8 P1 v2 CN; selectors match the pinned downstream board. */
+
+/dts-v1/;
+
+#include "sdm845-xiaomi-dipper-common.dtsi"
+
+/ {
+	model = "Xiaomi Mi 8 (P1 v2 CN)";
+	compatible = "xiaomi,dipper-p1-v2-cn", "xiaomi,dipper", "qcom,sdm845";
+
+	qcom,msm-id = <QCOM_ID_SDM845 0x20000>;
+	qcom,board-id = <51 0>;
+};

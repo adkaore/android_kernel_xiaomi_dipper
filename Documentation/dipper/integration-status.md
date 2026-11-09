@@ -7,18 +7,22 @@ No phone was accessed, rebooted, flashed or otherwise changed.
 
 - Hardened EA8074 panel: LP command parity with the old kernel, complete vendor
   poweroff sequence, safe power/backlight serialization and reference lifetime.
-- MP v2.1 DT: checked reservations, RPMh, storage, display, USB peripheral,
+- Shared v2/v2.1 DT: checked reservations, RPMh, storage, display, USB peripheral,
   Wi-Fi/Bluetooth, charger and video-codec descriptions. No shared calibration
   MAC or guessed live framebuffer is copied from another phone. The final
   downstream secure-memory, splash, ramdump and ramoops overrides are now
   recovered from resolved legacy DTS, with coverage regression tests.
+- Twelve standalone board-selector candidates, plus two selection plugins on a
+  matching modern common base. All listed old targets are mapped explicitly.
+  The unlisted revision-1 P0 is documented, not falsely advertised as supported.
+  See board-variants.md: old MTP plugin ABI and hardware parity are NOT implied.
 - IMX363 candidate: constrained RAW mode, cleaned control/PM handling and binding.
   No enabled camera node or claim of AF/OIS/HDR/video-mode parity.
 - New runtime-only FTM5 driver, not the firmware-updating downstream code.
   Compile-selected, with a deliberately disabled board node pending identification.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
-- Combined build produced Image, MP v2.1 DTB and 145 modules on a clean Git tree.
+- Earlier combined build produced Image, MP v2.1 DTB and 145 modules on a clean Git tree.
   Previous result records are historical; they identify the exact source revision.
 
 ## Repeat checks
@@ -36,8 +40,10 @@ DTB parsing are not emulation of Linux IRQ or regulator failure paths.
 
 ## Remaining kernel work — do not relabel it all as a vendor problem
 
-- Board/controller identification: old source contains 15 board descriptions and
-  both ST and Atmel touch options. This phone's actual revision is still unknown.
+- Board/controller identification: the 15 old root files resolve to 12 listed
+  standalone targets, two plugins and one unlisted revision-1 P0. v2/v2.1 selector
+  coverage is now mapped; physical operation and the phone's controller remain
+  unknown. Old source contains both ST and Atmel touch options.
 - PMI8998 gauge: the available downstream candidate writes IMA/DMA control and
   differs across PMIC revisions. A direct unchecked import is not a validated
   battery driver. Verify revision/byte ordering/ready state and retain calibration.

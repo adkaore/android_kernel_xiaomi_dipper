@@ -255,8 +255,26 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-sony-xperia-tama-akari.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-sony-xperia-tama-akatsuki.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-sony-xperia-tama-apollo.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-beryllium-ebbg.dtb
-dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-mp-v2.1.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-beryllium-tianma.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-mp-v2.1.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-mp-v2.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p0-v2.1.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p0-v2.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1-v2-cn.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1-v2-gb.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1-v2.1-cn.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1-v2.1-gb.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1.1-v2.1.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p1.1-v2.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p2-v2.1.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p2-v2.dtb
+
+# These plugins select a board on our common base, not on a downstream MTP DTB.
+sdm845-xiaomi-dipper-p0-v2-overlay-dtbs := sdm845-xiaomi-dipper-common-base.dtb sdm845-xiaomi-dipper-p0-v2-select.dtbo
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p0-v2-overlay.dtb
+sdm845-xiaomi-dipper-p0-v2.1-overlay-dtbs := sdm845-xiaomi-dipper-common-base.dtb sdm845-xiaomi-dipper-p0-v2.1-select.dtbo
+dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-dipper-p0-v2.1-overlay.dtb
+
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-xiaomi-polaris.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-shift-axolotl.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= sdm850-lenovo-yoga-c630.dtb

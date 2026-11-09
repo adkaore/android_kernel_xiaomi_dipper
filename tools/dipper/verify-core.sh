@@ -15,8 +15,10 @@ make O="$out" ARCH=arm64 LLVM=1 \
     dt_binding_check
 python3 tools/dipper/check-config.py arch/arm64/configs/dipper/core.config "$out/.config"
 schemas="$out/Documentation/devicetree/bindings/processed-schema.json"
-dtb="$out/arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb"
-dt-validate -s "$schemas" --json-output "$out/dipper-schema-result.json" "$dtb"
+dtb_dir="$out/arch/arm64/boot/dts/qcom"
+targets=$(python3 tools/dipper/list-board-targets.py --helpers --prefix "$dtb_dir/")
+mapfile -t dtbs <<< "$targets"
+dt-validate -s "$schemas" --json-output "$out/dipper-schema-result.json" "${dtbs[@]}"
 # dt-validate may exit zero while reporting errors: inspect the JSON explicitly.
 "$venv/bin/python" - "$out/dipper-schema-result.json" <<'PY'
 import json,sys
@@ -26,9 +28,9 @@ if diagnostics:
     raise SystemExit(f'DTB validation produced {len(diagnostics)} diagnostics')
 print('DTB schema diagnostics: 0')
 PY
-DIPPER_DTB="$dtb" PYTHONDONTWRITEBYTECODE=1 "$venv/bin/python" \
+DIPPER_DTB_DIR="$dtb_dir" PYTHONDONTWRITEBYTECODE=1 "$venv/bin/python" \
     -m unittest discover -s tools/dipper/tests -v
 "$root/tools/dipper/test-ftm5.sh" "$out/host-tests"
 git diff --check
-printf '\nPASS: build, DTB schemas, source/compiled-DT tests and decoder sanitizers.\n'
+printf '\nPASS: build, all board/composed DTB schemas, tests and decoder sanitizers.\n'
 printf 'No device boot, power, IRQ or camera hardware validation is implied.\n'
