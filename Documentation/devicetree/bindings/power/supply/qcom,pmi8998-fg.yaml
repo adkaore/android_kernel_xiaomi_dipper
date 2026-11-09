@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/supply/qcom,pmi8998-fg.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm PMI8998 GEN3 fuel gauge
+
+maintainers:
+  - adkaore <adkaore@gmail.com>
+
+description: |
+  The GEN3 hardware includes battery measurement and state-of-charge blocks.
+  The current driver reads direct registers only and depends on an already
+  running gauge algorithm with the correct battery profile. It does not
+  initialize the algorithm, load profiles, change calibration, restart the
+  gauge or change protection thresholds. PMIC digital revisions 1 and 2 have
+  different voltage/current byte order; the driver reads the PMIC revision.
+
+allOf:
+  - $ref: power-supply.yaml#
+
+properties:
+  compatible:
+    const: qcom,pmi8998-fg
+
+  reg:
+    items:
+      - const: 0x4000
+
+  interrupts:
+    items:
+      - description: SOC ready
+      - description: Monotonic SOC delta
+      - description: Battery missing state change
+      - description: Battery temperature delta
+
+  interrupt-names:
+    items:
+      - const: soc-ready
+      - const: soc-delta
+      - const: batt-missing
+      - const: batt-temp
+
+  monitored-battery: true
+
+  power-supplies:
+    maxItems: 1
+    description: Charger supplying authoritative charge status.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-names
+  - monitored-battery
+  - power-supplies
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/interrupt-controller/irq.h>
+    pmic {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        interrupt-controller;
+        #interrupt-cells = <4>;
+
+        battery@4000 {
+            compatible = "qcom,pmi8998-fg";
+            reg = <0x4000>;
+            interrupts = <2 0x40 1 IRQ_TYPE_EDGE_RISING>,
+                         <2 0x40 3 IRQ_TYPE_EDGE_RISING>,
+                         <2 0x41 3 IRQ_TYPE_EDGE_BOTH>,
+                         <2 0x41 6 IRQ_TYPE_EDGE_RISING>;
+            interrupt-names = "soc-ready", "soc-delta", "batt-missing", "batt-temp";
+            monitored-battery = <&battery>;
+            power-supplies = <&charger>;
+        };
+    };

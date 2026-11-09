@@ -23,6 +23,10 @@ No phone was accessed, rebooted, flashed or otherwise changed.
 - PMI8998 LRA rumble candidate and read-only factory RC trim provider; corrected
   callback context, voltage scaling, debounce and teardown. Board motor node
   stays disabled. Custom pattern/auto-mode parity remains open; see haptics.md.
+- Direct, read-only PMI8998 FG telemetry for PMIC digital revision 1/2, including
+  byte order, hardware presence/readiness and SOC shadow checks. The node stays
+  disabled pending profile-state validation. Full profile/learning management
+  remains kernel work; see fuel-gauge.md.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 147 current-build modules
@@ -48,12 +52,12 @@ DTB parsing are not emulation of Linux IRQ or regulator failure paths.
   standalone targets, two plugins and one unlisted revision-1 P0. v2/v2.1 selector
   coverage is now mapped; physical operation and the phone's controller remain
   unknown. Old source contains both ST and Atmel touch options.
-- PMI8998 gauge: the available downstream candidate writes IMA/DMA control and
-  differs across PMIC revisions. A direct unchecked import is not a validated
-  battery driver. Verify revision/byte ordering/ready state and retain calibration.
+- PMI8998 gauge: direct telemetry is implemented without IMA/DMA or threshold
+  writes. Profile integrity/loading, cold-boot initialization, battery ID, learning
+  and SOC maintenance are not complete. Do not treat readout as full gauge parity.
 - Type-C/PD/OTG, speaker amplifier/voice routing, full haptics effects, NFC, GNSS and sensors
   still need targeted kernel review and matching board bindings. They are NOT
-  claimed complete by the 145-module build or by a GPIO description.
+  claimed complete by a module build or by a GPIO description.
 - Camera variants/power/CSI, sensor timing/Bayer order, autofocus, OIS and EEPROM
   calibration are still kernel/hardware tasks. Unverified modes must not be
   invented to satisfy an API capability list. IR emitter control remains absent.

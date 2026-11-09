@@ -1097,4 +1097,12 @@ config FUEL_GAUGE_MM8013
 	  the state of charge, temperature, cycle count, actual and design
 	  capacity, etc.
 
+config BATTERY_QCOM_PMI8998_FG
+	tristate "Qualcomm PMI8998 fuel gauge telemetry"
+	depends on MFD_SPMI_PMIC
+	help
+	  Read live battery measurements and SOC on PMI8998 digital revision 1/2.
+	  This does not program profiles, SRAM, IMA/DMA, JEITA or charger limits.
+	  A valid profile and running gauge algorithm must already exist.
+
 endif # POWER_SUPPLY

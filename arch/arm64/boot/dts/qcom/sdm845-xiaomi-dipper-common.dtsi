@@ -657,3 +657,19 @@
 		status = "disabled";
 	};
 };
+
+&pmi8998_lsid0 {
+	battery@4000 {
+		compatible = "qcom,pmi8998-fg";
+		reg = <0x4000>;
+		interrupts = <2 0x40 1 IRQ_TYPE_EDGE_RISING>,
+			     <2 0x40 3 IRQ_TYPE_EDGE_RISING>,
+			     <2 0x41 3 IRQ_TYPE_EDGE_BOTH>,
+			     <2 0x41 6 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "soc-ready", "soc-delta", "batt-missing", "batt-temp";
+		monitored-battery = <&battery>;
+		power-supplies = <&pmi8998_charger>;
+		/* First validate existing gauge/profile state; this driver never loads one. */
+		status = "disabled";
+	};
+};

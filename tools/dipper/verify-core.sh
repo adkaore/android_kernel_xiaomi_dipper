@@ -11,7 +11,7 @@ export LIBCLANG_PATH="$TOOLCHAINS_DIR/clang-r596125/lib"
 export RUST_LIB_SRC="$TOOLCHAINS_DIR/1.91.1.p3/lib/rustlib/src/rust/library"
 cd "$root"
 make O="$out" ARCH=arm64 LLVM=1 \
-    DT_SCHEMA_FILES=arm/qcom.yaml:display/panel/samsung,ea8074.yaml:media/i2c/sony,imx363.yaml:input/touchscreen/st,stmfts-ftm5.yaml:input/qcom,spmi-haptics.yaml:nvmem/qcom,pmi8998-rc-trim.yaml:mfd/qcom,spmi-pmic.yaml \
+    DT_SCHEMA_FILES=arm/qcom.yaml:display/panel/samsung,ea8074.yaml:media/i2c/sony,imx363.yaml:input/touchscreen/st,stmfts-ftm5.yaml:input/qcom,spmi-haptics.yaml:nvmem/qcom,pmi8998-rc-trim.yaml:mfd/qcom,spmi-pmic.yaml:power/supply/qcom,pmi8998-fg.yaml \
     dt_binding_check
 python3 tools/dipper/check-config.py arch/arm64/configs/dipper/core.config "$out/.config"
 schemas="$out/Documentation/devicetree/bindings/processed-schema.json"
@@ -32,6 +32,7 @@ DIPPER_DTB_DIR="$dtb_dir" PYTHONDONTWRITEBYTECODE=1 "$venv/bin/python" \
     -m unittest discover -s tools/dipper/tests -v
 "$root/tools/dipper/test-ftm5.sh" "$out/host-tests"
 "$root/tools/dipper/test-haptics.sh" "$out/host-tests"
+"$root/tools/dipper/test-fg.sh" "$out/host-tests"
 git diff --check
 printf '\nPASS: build, all board/composed DTB schemas, tests and decoder sanitizers.\n'
 printf 'No device boot, power, IRQ or camera hardware validation is implied.\n'
