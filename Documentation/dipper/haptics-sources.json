@@ -1,0 +1,24 @@
+{
+  "package": "linux-6.12-sdm845 6.12.115-1",
+  "package_url": "https://repo.mobian.org/pool/main/l/linux-6.12-sdm845/",
+  "debian_archive_sha256": "33baddaf9083e4691f0716355fc9a893506a5defa9e061e676f444ea798b7f7a",
+  "patches": [
+    {
+      "path": "0022-dt-bindings-input-add-Qualcomm-SPMI-haptics-driver.patch",
+      "sha256": "3b18a5d95420d1aab630d76a6b3d39f80323d19a55eaa6d420b5d919ba907811",
+      "original_import": "d3fab8eff46c"
+    },
+    {
+      "path": "0023-input-add-Qualcomm-SPMI-haptics-driver.patch",
+      "sha256": "526c6dadc9981842c130ffbcb8a15f7208e4e7bac085528dcdf599c885877a03",
+      "original_import": "a46e4035c70f"
+    }
+  ],
+  "legacy_commit": "0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6",
+  "legacy_sources": [
+    "drivers/leds/leds-qpnp-haptics.c",
+    "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+    "arch/arm64/boot/dts/qcom/dipper-p0.dtsi"
+  ],
+  "note": "Archive hash matched HTTPS .dsc; no signature verification claimed. Original import is not the hardened candidate. No phone/calibration data read."
+}

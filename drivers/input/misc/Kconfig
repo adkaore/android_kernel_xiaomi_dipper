@@ -227,15 +227,15 @@ config INPUT_PMIC8XXX_PWRKEY
 
 config INPUT_QCOM_SPMI_HAPTICS
 	tristate "Qualcomm SPMI HAPTICS"
-	depends on ARCH_QCOM
-	depends on SPMI
+	depends on MFD_SPMI_PMIC && NVMEM
 	select INPUT_FF_MEMLESS
 	help
-	  This option enables support for the haptics found in pmi8998 and
-	  related PMICs. Based on the ff-memless interface.
+	  This option enables support for the haptics found in
+	  the PMI8998 PMIC, using the ff-memless interface. Only LRA buffer
+	  mode and rumble effects are implemented.
 
 	  To compile this driver as module, choose M here: the
-	  module will be called qcom_spmi_haptics.
+	  module will be called qcom-spmi-haptics.
 
 config INPUT_SPARCSPKR
 	tristate "SPARC Speaker support"

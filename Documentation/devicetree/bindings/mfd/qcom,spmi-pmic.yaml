@@ -162,7 +162,13 @@ patternProperties:
 
   "^nvram@[0-9a-f]+$":
     type: object
-    $ref: /schemas/nvmem/qcom,spmi-sdam.yaml#
+    oneOf:
+      - $ref: /schemas/nvmem/qcom,spmi-sdam.yaml#
+      - $ref: /schemas/nvmem/qcom,pmi8998-rc-trim.yaml#
+
+  "^haptics@[0-9a-f]+$":
+    type: object
+    $ref: /schemas/input/qcom,spmi-haptics.yaml#
 
   "^pbs@[0-9a-f]+$":
     type: object

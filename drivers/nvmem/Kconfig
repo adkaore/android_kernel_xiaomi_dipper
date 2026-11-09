@@ -474,4 +474,11 @@ config NVMEM_QORIQ_EFUSE
 	  This driver can also be built as a module. If so, the module
 	  will be called nvmem_qoriq_efuse.
 
+config NVMEM_QCOM_PMI8998_TRIM
+	tristate "Qualcomm PMI8998 factory RC oscillator trim"
+	depends on MFD_SPMI_PMIC
+	help
+	  Expose the single read-only RC19P2 oscillator trim byte of PMI8998.
+	  Used to correct the LRA haptics resonance period. No PMIC writes.
+
 endif

@@ -20,6 +20,9 @@ No phone was accessed, rebooted, flashed or otherwise changed.
   No enabled camera node or claim of AF/OIS/HDR/video-mode parity.
 - New runtime-only FTM5 driver, not the firmware-updating downstream code.
   Compile-selected, with a deliberately disabled board node pending identification.
+- PMI8998 LRA rumble candidate and read-only factory RC trim provider; corrected
+  callback context, voltage scaling, debounce and teardown. Board motor node
+  stays disabled. Custom pattern/auto-mode parity remains open; see haptics.md.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 145 current-build modules
@@ -48,7 +51,7 @@ DTB parsing are not emulation of Linux IRQ or regulator failure paths.
 - PMI8998 gauge: the available downstream candidate writes IMA/DMA control and
   differs across PMIC revisions. A direct unchecked import is not a validated
   battery driver. Verify revision/byte ordering/ready state and retain calibration.
-- Type-C/PD/OTG, speaker amplifier/voice routing, haptics, NFC, GNSS and sensors
+- Type-C/PD/OTG, speaker amplifier/voice routing, full haptics effects, NFC, GNSS and sensors
   still need targeted kernel review and matching board bindings. They are NOT
   claimed complete by the 145-module build or by a GPIO description.
 - Camera variants/power/CSI, sensor timing/Bayer order, autofocus, OIS and EEPROM

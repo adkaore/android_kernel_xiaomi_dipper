@@ -617,3 +617,43 @@
 		};
 	};
 };
+
+/* Factory trim is read-only; no calibration or MISC register writes. */
+&pmi8998_lsid0 {
+	nvram@9f3 {
+		compatible = "qcom,pmi8998-rc-trim";
+		reg = <0x9f3>;
+		nvmem-layout {
+			compatible = "fixed-layout";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			pmi8998_rc_trim: trim@0 {
+				reg = <0 1>;
+			};
+		};
+	};
+};
+
+&pmi8998_lsid1 {
+	haptics@c000 {
+		compatible = "qcom,pmi8998-haptics", "qcom,spmi-haptics";
+		reg = <0xc000>;
+		interrupts = <3 0xc0 0 IRQ_TYPE_EDGE_BOTH>;
+		interrupt-names = "short";
+		nvmem-cells = <&pmi8998_rc_trim>;
+		nvmem-cell-names = "rc-trim";
+		qcom,actuator-type = <0>;
+		qcom,play-mode = <1>;
+		qcom,wave-shape = <0>;
+		qcom,vmax-mv = <3100>;
+		qcom,ilim-ma = <800>;
+		qcom,sc-dbc-cycles = <8>;
+		qcom,wave-play-rate-us = <4878>;
+		qcom,lra-auto-res-mode = <2>;
+		qcom,lra-high-z = <1>;
+		qcom,lra-res-cal-period = <4>;
+		qcom,brake-pattern = <0 0 0 0>;
+		/* Controlled hardware validation before enabling this new driver. */
+		status = "disabled";
+	};
+};
