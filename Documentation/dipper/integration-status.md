@@ -33,6 +33,10 @@ no NFC ABI is selected automatically from them or from the age of an interface.
   byte order, hardware presence/readiness and SOC shadow checks. The node stays
   disabled pending profile-state validation. Full profile/learning management
   remains kernel work; see fuel-gauge.md.
+- PMI8998 Type-C/PD and distinct boost-provider candidates are compile-selected,
+  with disabled nodes and no guessed connector/role policy. CC decoding, PD RX
+  bounds, reset signaling and producer lifetimes are hardened; see typec.md.
+  Charger/PD input limits, VBUS measurement and revision workarounds remain open.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 148 current-build modules

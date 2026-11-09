@@ -1,0 +1,72 @@
+{
+  "target": "crDroid 13.1 / Android 17",
+  "hardware_tested": false,
+  "board_nodes_enabled": false,
+  "legacy_role": "hardware/behavior comparison, not target HAL specification",
+  "legacy_commit": "0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6",
+  "legacy_repository": "https://github.com/crdroidandroid/android_kernel_xiaomi_sdm845.git",
+  "legacy_files": [
+    {
+      "file": "drivers/power/supply/qcom/smb-reg.h",
+      "sha256": "cf2c56e5e0c2dbe4a3320f6e67ccd3ba2c8ff50b738cae20745930e1c9a29bd3"
+    },
+    {
+      "file": "drivers/power/supply/qcom/smb-lib.c",
+      "sha256": "f7ed52892070088a71935a9fb4e5b6fd1612a6ebe43ae3492d2c3828f8778584"
+    },
+    {
+      "file": "drivers/power/supply/qcom/qpnp-smb2.c",
+      "sha256": "93e17c758d6fc7d896aaca32d1eca5c16c040014ed147faad80ed61dba8b4d88"
+    },
+    {
+      "file": "drivers/usb/pd/qpnp-pdphy.c",
+      "sha256": "7cf201f1d7941ad3cb3748a9bb1b738b26ab9c8fe7c33752902e6fa0f3cd5689"
+    },
+    {
+      "file": "arch/arm64/boot/dts/qcom/pmi8998.dtsi",
+      "sha256": "6cb9571d880b1bdc60bf04d88c2bb9b19bfcd8c1de6241f36e4db12037a28252"
+    },
+    {
+      "file": "arch/arm64/boot/dts/qcom/dipper-p0.dtsi",
+      "sha256": "f27a6d09081d8ce3a2dc267f707e555e8696c381b0db075950e1267431b14271"
+    },
+    {
+      "file": "arch/arm64/boot/dts/qcom/sdm845-pmic-overlay.dtsi",
+      "sha256": "164cbba758dfa2c7c0c7bd5e8b564dada8882422a7eddafbf159afc57b68cf70"
+    }
+  ],
+  "reference_repository": "https://github.com/taygoth/dipper-mainline-port.git",
+  "reference_commit": "e6d1be1464e25a2bad68aa81641c0b7438edea78",
+  "reference_patches": [
+    {
+      "file": "kernel/patches/tcpm-pmi8998/0001-usb-typec-qcom-pmic-dispatch-port-backend-via-resour.patch",
+      "sha256": "1da7e0dbeb9b2e8e996f530e0b13efa612b1827eeb4402940df4690eabfcbfa8",
+      "used_as_code_import": true
+    },
+    {
+      "file": "kernel/patches/tcpm-pmi8998/0002-usb-typec-qcom-pmic-add-PMI8998-port-handler.patch",
+      "sha256": "78d392bd3363480afaa22879c1a130f44b4e57a25edb3b09a76bb1465d6e0b80",
+      "used_as_code_import": true
+    },
+    {
+      "file": "kernel/patches/tcpm-pmi8998/0003-arm64-dts-qcom-pmi8998-add-Type-C-and-VBUS-regulator.patch",
+      "sha256": "381365e34c2e68b56f251dacb501e4e38786c2990ea1d02c2b75211f41c54466",
+      "used_as_code_import": false
+    },
+    {
+      "file": "kernel/patches/tcpm-pmi8998/0004-arm64-dts-qcom-sdm845-oneplus-common-enable-Type-C.patch",
+      "sha256": "46d57a66e4e039fb20b7142b9fbf062012be0150c76b62209345d6c1252368d9",
+      "used_as_code_import": false
+    }
+  ],
+  "not_imported": [
+    "OnePlus board connector policy, PDOs, identity or supply assumptions",
+    "PM8150B VBUS fallback with incompatible current selector table"
+  ],
+  "remaining_kernel_work": [
+    "charger/TCPM negotiated sink current/voltage and input suspension",
+    "fault handling and PMIC-revision CC/PBS workarounds",
+    "measured VBUS/vSafe0V strategy",
+    "validated connector/role graph and physical timing"
+  ]
+}
