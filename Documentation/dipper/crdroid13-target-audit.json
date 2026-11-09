@@ -1,0 +1,109 @@
+{
+  "checked_date": "2026-11-09",
+  "target": {
+    "rom": "crDroid 13",
+    "android": 17,
+    "manifest_branch": "17.0",
+    "manifest_repository": "https://github.com/crdroidandroid/android",
+    "manifest_commit": "823087de2860e9fb1f1cd7ce8493693ace73e7ad"
+  },
+  "legacy_role": "crDroid 11.17 / Android 15: hardware and behavior comparison only; not target HAL requirements",
+  "sources": [
+    {
+      "repository": "https://github.com/crdroidandroid/android.git",
+      "commit": "823087de2860e9fb1f1cd7ce8493693ace73e7ad",
+      "file": "default.xml",
+      "sha256": "486471a4a849cad3d911153d1e464e27ededc1e4354c67457dd550b09f809249"
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/android.git",
+      "commit": "823087de2860e9fb1f1cd7ce8493693ace73e7ad",
+      "file": "snippets/crdroid.xml",
+      "sha256": "6a459f4f08e11b69d9f3c7f2629fb34157505ca941f100487cc49ec3c913e407"
+    },
+    {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc.git",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2",
+      "file": "snxxx/Android.bp",
+      "sha256": "d82716f109cf5e9f0ecbd886fcbf1d58164b41feb13c2b834230a0b7df2b0d30"
+    },
+    {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc.git",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2",
+      "file": "snxxx/aidl/1.0/nfc-service-nxp.xml",
+      "sha256": "9d174927508f7aed73f367626b4be90b896dbb5617fa1d9257eadcb9ffa4fd6c"
+    },
+    {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc.git",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2",
+      "file": "snxxx/halimpl/hal/phNxpNciHal.cc",
+      "sha256": "e1a030e8e7fce54df76f5adb56ba94610835030a4ea90da677f7ab16e0636477"
+    },
+    {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc.git",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2",
+      "file": "snxxx/halimpl/tml/transport/NfccI2cTransport.h",
+      "sha256": "961997f3af01c44f844a1f3345dc421800adc1aa119c3a4ed88574b8171d0fbd"
+    },
+    {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc.git",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2",
+      "file": "snxxx/halimpl/tml/transport/NfccI2cTransport.cc",
+      "sha256": "5e0d824f0c3565e7fd9645a74627e4bc6f7e03361176a0760ad2d719fde7b167"
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/android_hardware_interfaces.git",
+      "commit": "a10a565d478b24e483d495cb2736f77f72756c56",
+      "file": "compatibility_matrices/compatibility_matrix.202604.xml",
+      "sha256": "7520169c1cba424847daa97f3301a8b7bb25aba9556437f37d5eb36a9196ccc2"
+    }
+  ],
+  "target_device_selection_confirmed": false,
+  "nfc_decision": "deferred",
+  "kernel_config_changed_for_nfc": false,
+  "observed_ref_queries": [
+    {
+      "repository": "https://github.com/crdroidandroid/android_device_xiaomi_dipper",
+      "ref": "refs/heads/17.0",
+      "matching_refs": []
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/android_device_xiaomi_sdm845-common",
+      "ref": "refs/heads/17.0",
+      "matching_refs": []
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/proprietary_vendor_xiaomi_dipper",
+      "ref": "refs/heads/17.0",
+      "matching_refs": []
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/proprietary_vendor_xiaomi_sdm845-common",
+      "ref": "refs/heads/17.0",
+      "matching_refs": []
+    }
+  ],
+  "scope_note": "Empty ref query proves only absence of that public branch at the checked endpoint/time, not absence of private/unofficial trees. Platform HAL availability does not identify the dipper product selection. FCM 202604 is a platform example, not a selected launch/upgrade FCM level for dipper.",
+  "nfc_findings": {
+    "manifest_hardware_nxp_nfc": {
+      "repository": "https://github.com/LineageOS/android_hardware_nxp_nfc",
+      "ref": "refs/heads/lineage-24.0",
+      "commit": "0b8bf91ca3a41a207ccb7429a553dac771433ca2"
+    },
+    "available_services": [
+      "android.hardware.nfc-service.nxp (AIDL V1)",
+      "android.hardware.nfc2-service.nxp (AIDL V2)"
+    ],
+    "transport_in_inspected_service": "configurable character device + read/write/ioctl, not Linux AF_NFC",
+    "configured_node_key": "NXP_NFC_DEV_NODE",
+    "snxxx_fallback_node": "/dev/nxp-nci",
+    "old_nq_driver_is_not_proven_compatible": "ESE power semantics and other ioctls differ; full selected-product contract not established",
+    "missing_target_inputs": [
+      "dipper Android 17 product/device configuration",
+      "selected NFC service and transport variant",
+      "target vendor NFC configuration/firmware and VINTF declarations",
+      "matching SELinux/ueventd device permissions",
+      "target shipping API and FCM level"
+    ]
+  }
+}
