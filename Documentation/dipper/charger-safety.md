@@ -49,7 +49,8 @@ invalid ceiling encodings, and boundaries at every valid ceiling. Compiled-DTB
 tests check the 3 A ceiling across all 14 selected candidates. These are source,
 math and wiring checks, not electrical or Linux-concurrency emulation.
 
-Charger/TCPM negotiated voltage/current coordination, source-input suspension,
+Basic fixed-5-V TCPM input/current coordination is now in input-handoff.md.
+Higher-voltage policy and physical confirmation,
 JEITA/thermal/parallel charging, gauge profiles, startup/suspend/fault behavior,
 measurement and the actual crDroid 13.1 health/USB product remain separate work.
 Do not enable the new Type-C/PD nodes based on this current bound alone.

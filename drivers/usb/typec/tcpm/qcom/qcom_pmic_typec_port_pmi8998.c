@@ -16,7 +16,10 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
+#include <linux/of.h>
 #include <linux/platform_device.h>
+#include <linux/power_supply.h>
+#include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -28,6 +31,7 @@
 #include "qcom_pmic_typec.h"
 #include "qcom_pmic_typec_port.h"
 #include "qcom_pmic_typec_port_pmi8998.h"
+#include "qcom_pmic_typec_pmi8998_limits.h"
 
 /* Offsets and bits checked against the pinned PMI8998 smb-reg.h. */
 #define TYPE_C_STATUS_1_REG			0x0b
@@ -61,6 +65,8 @@ struct pmi8998_typec_port {
 	u32 base;
 	int irq;
 	struct regulator *vdd_vbus;
+	struct power_supply *charger;
+	u32 max_sink_ua;
 	/* TCPM callbacks, IRQ, lifecycle, VBUS accounting and register RMWs. */
 	struct mutex lock;
 	bool vbus_enabled;
@@ -200,28 +206,62 @@ static int pmi8998_typec_port_get_vbus(struct tcpc_dev *tcpc)
 	return ret;
 }
 
-static int pmi8998_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on,
-				       bool sink)
+static int pmi8998_set_input(struct pmi8998_typec_port *port, bool on)
+{
+	union power_supply_propval value = { .intval = on };
+
+	return power_supply_set_property(port->charger, POWER_SUPPLY_PROP_ONLINE, &value);
+}
+
+static int pmi8998_typec_port_set_current_limit(struct tcpc_dev *tcpc, u32 ma, u32 mv)
+{
+	struct pmi8998_typec_port *port = tcpc_to_tcpm(tcpc)->port_priv;
+	union power_supply_propval value;
+	int ret;
+
+	if ((mv != 5000 && (mv || ma)) || ma > port->max_sink_ua / 1000)
+		return -EOPNOTSUPP;
+	value.intval = ma * 1000;
+	mutex_lock(&port->lock);
+	ret = port->stopping ? -ESHUTDOWN :
+		power_supply_set_property(port->charger, POWER_SUPPLY_PROP_CURRENT_MAX, &value);
+	mutex_unlock(&port->lock);
+	return ret;
+}
+
+static int pmi8998_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on, bool sink)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmi8998_typec_port *port = tcpm->port_priv;
 	int ret = 0;
 
+	if (on && sink)
+		return -EINVAL;
 	mutex_lock(&port->lock);
-	if (port->stopping && on) {
+	if (port->stopping && (on || sink)) {
 		ret = -ESHUTDOWN;
 		goto out;
 	}
-	if (port->vbus_enabled == on)
-		goto out;
-
-	ret = on ? regulator_enable(port->vdd_vbus) :
-		   regulator_disable(port->vdd_vbus);
-	if (ret)
-		goto out;
-	port->vbus_enabled = on;
-	/* Settling delay is not a voltage measurement or a vSafe0V proof. */
-	usleep_range(20000, 25000);
+	/* Source: prove input suspension before enabling any boost output. */
+	if (on) {
+		ret = pmi8998_set_input(port, false);
+		if (ret)
+			goto out;
+	}
+	if (port->vbus_enabled != on) {
+		ret = on ? regulator_enable(port->vdd_vbus) : regulator_disable(port->vdd_vbus);
+		if (ret)
+			goto out;
+		port->vbus_enabled = on;
+		/* Settling delay is not a voltage measurement or a vSafe0V proof. */
+		usleep_range(20000, 25000);
+	}
+	/* Sink: a failed boost disable must never be followed by input resume. */
+	if (!on) {
+		ret = pmi8998_set_input(port, sink);
+		if (ret)
+			goto out;
+	}
 	if (port->tcpm_port && !port->stopping)
 		tcpm_vbus_change(port->tcpm_port);
 out:
@@ -360,6 +400,9 @@ static int pmi8998_typec_quiesce(struct pmi8998_typec_port *port)
 		if (!error)
 			error = ret;
 	}
+	ret = pmi8998_set_input(port, false);
+	if (!error)
+		error = ret;
 	return error;
 }
 
@@ -440,6 +483,44 @@ static void pmi8998_typec_port_stop(struct pmic_typec *tcpm)
 		dev_err(port->dev, "Type-C shutdown failed: %d\n", ret);
 }
 
+static int pmi8998_check_pdos(struct device *dev, struct pmi8998_typec_port *port)
+{
+	struct fwnode_handle *connector;
+	const char * const names[] = { "source-pdos", "sink-pdos" };
+	u32 pdos[PDO_MAX_OBJECTS];
+	int count, ret = 0, source_ua, i, j;
+
+	source_ua = regulator_get_current_limit(port->vdd_vbus);
+	if (source_ua <= 0)
+		return source_ua ? source_ua : -EINVAL;
+	connector = device_get_named_child_node(dev, "connector");
+	if (!connector)
+		return -EINVAL;
+	for (i = 0; i < ARRAY_SIZE(names); i++) {
+		if (!fwnode_property_present(connector, names[i]))
+			continue;
+		count = fwnode_property_count_u32(connector, names[i]);
+		if (count <= 0 || count > ARRAY_SIZE(pdos)) {
+			ret = -EINVAL;
+			break;
+		}
+		ret = fwnode_property_read_u32_array(connector, names[i], pdos, count);
+		if (ret)
+			break;
+		for (j = 0; j < count; j++) {
+			if (!pmi8998_pdo_supported(pdos[j],
+						   (i ? port->max_sink_ua : source_ua) / 1000)) {
+				ret = -EOPNOTSUPP;
+				break;
+			}
+		}
+		if (ret)
+			break;
+	}
+	fwnode_handle_put(connector);
+	return ret;
+}
+
 static int pmi8998_typec_port_probe(struct platform_device *pdev,
 				    struct pmic_typec *tcpm,
 				    const struct pmic_typec_port_resources *res,
@@ -449,6 +530,8 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 	struct device *dev = &pdev->dev;
 	struct pmi8998_typec_port *port;
 	const struct qcom_spmi_pmic *pmic;
+	union power_supply_propval online;
+	struct device *supplier;
 	int ret;
 
 	pmic = qcom_pmic_get(dev);
@@ -467,6 +550,29 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 	port->vdd_vbus = devm_regulator_get(dev, "vdd-vbus");
 	if (IS_ERR(port->vdd_vbus))
 		return PTR_ERR(port->vdd_vbus);
+
+	port->charger = devm_power_supply_get_by_reference(dev, "power-supplies");
+	if (IS_ERR(port->charger))
+		return dev_err_probe(dev, PTR_ERR(port->charger), "Input charger unavailable\n");
+	if (!port->charger)
+		return -ENODEV;
+	supplier = port->charger->dev.parent;
+	if (!supplier || supplier->parent != dev->parent ||
+	    !of_device_is_compatible(supplier->of_node, "qcom,pmi8998-charger"))
+		return -EINVAL;
+	ret = power_supply_get_property(port->charger, POWER_SUPPLY_PROP_ONLINE, &online);
+	if (ret)
+		return dev_err_probe(dev, ret == -EAGAIN ? -EPROBE_DEFER : ret,
+				     "Input charger not ready\n");
+	ret = device_property_read_u32(supplier, "input-current-limit-microamp",
+				       &port->max_sink_ua);
+	if (ret || !port->max_sink_ua || port->max_sink_ua > 3000000)
+		return -EINVAL;
+	if (!device_link_add(dev, supplier, DL_FLAG_AUTOREMOVE_CONSUMER))
+		return -ENOMEM;
+	ret = pmi8998_check_pdos(dev, port);
+	if (ret)
+		return dev_err_probe(dev, ret, "Only bounded fixed 5 V PDOs are implemented\n");
 
 	port->dev = dev;
 	port->regmap = regmap;
@@ -487,6 +593,7 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 
 	tcpm->tcpc.get_vbus = pmi8998_typec_port_get_vbus;
 	tcpm->tcpc.set_vbus = pmi8998_typec_port_set_vbus;
+	tcpm->tcpc.set_current_limit = pmi8998_typec_port_set_current_limit;
 	tcpm->tcpc.set_cc = pmi8998_typec_port_set_cc;
 	tcpm->tcpc.get_cc = pmi8998_typec_port_get_cc;
 	tcpm->tcpc.set_polarity = pmi8998_typec_port_set_polarity;

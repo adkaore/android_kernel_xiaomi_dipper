@@ -27,6 +27,7 @@
 struct pmic_typec_resources {
 	const struct pmic_typec_pdphy_resources	*pdphy_res;
 	const struct pmic_typec_port_resources	*port_res;
+	u32 pdphy_base;
 };
 
 static int qcom_pmic_typec_init(struct tcpc_dev *tcpc)
@@ -78,6 +79,9 @@ static int qcom_pmic_typec_probe(struct platform_device *pdev)
 		ret = of_property_read_u32_index(np, "reg", 1, &base);
 		if (ret)
 			return ret;
+
+		if (res->pdphy_base && base != res->pdphy_base)
+			return -EINVAL;
 
 		ret = qcom_pmic_typec_pdphy_probe(pdev, tcpm,
 						  res->pdphy_res, regmap, base);
@@ -166,6 +170,7 @@ static const struct pmic_typec_resources pmi632_typec_res = {
 };
 
 static const struct pmic_typec_resources pmi8998_typec_res = {
+	.pdphy_base = 0x1700,
 	/* Message/control offsets match the downstream PMI8998 PD PHY. */
 	.pdphy_res = &pm8150b_pdphy_res,
 	.port_res  = &pmi8998_port_res,

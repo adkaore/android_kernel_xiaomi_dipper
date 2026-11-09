@@ -79,9 +79,9 @@ class TypeCSourceTests(unittest.TestCase):
 
     def test_charger_does_not_overwrite_a_managed_port(self):
         init = CHARGER.split('static int smb_init_hw(')[1].split('static int smb_init_irq')[0]
-        self.assertIn('for_each_available_child_of_node_scoped', init)
-        self.assertIn('of_device_is_compatible(child, "qcom,pmi8998-typec")', init)
-        self.assertIn('if (typec_managed &&', init)
+        self.assertIn('for_each_available_child_of_node_scoped', CHARGER)
+        self.assertIn('of_device_is_compatible(child, "qcom,pmi8998-typec")', CHARGER)
+        self.assertIn('if (chip->typec_managed &&', init)
         self.assertIn('smb_init_seq[i].addr == TYPE_C_INTRPT_ENB_SOFTWARE_CTRL', init)
         self.assertIn('smb_init_seq[i].addr == TYPE_C_CFG', init)
 
@@ -89,6 +89,31 @@ class TypeCSourceTests(unittest.TestCase):
         kernel = (ROOT / 'include/linux/usb/tcpm.h').read_text().split('enum typec_cc_status {')[1].split('}')[0]
         host = (ROOT / 'tools/dipper/tests/test_typec.c').read_text().split('enum typec_cc_status {')[1].split('}')[0]
         self.assertEqual(re.findall(r'TYPEC_CC_\w+', kernel), re.findall(r'TYPEC_CC_\w+', host))
+
+    def test_source_suspends_input_before_boost_and_sink_waits_for_boost_off(self):
+        setter = PORT.split('static int pmi8998_typec_port_set_vbus(')[1].split('static int')[0]
+        self.assertIn('if (on && sink)', setter)
+        self.assertLess(setter.index('pmi8998_set_input(port, false)'), setter.index('regulator_enable('))
+        self.assertLess(setter.index('regulator_disable('), setter.index('pmi8998_set_input(port, sink)'))
+        self.assertIn('if (ret)\n\t\t\tgoto out;', setter)
+
+    def test_supplier_is_same_pmic_linked_and_ready(self):
+        for token in ['devm_power_supply_get_by_reference', 'supplier->parent != dev->parent',
+                      'DL_FLAG_AUTOREMOVE_CONSUMER', 'ret == -EAGAIN ? -EPROBE_DEFER',
+                      'pmi8998_check_pdos(dev, port)', 'tcpc.set_current_limit =']:
+            self.assertIn(token, PORT)
+        self.assertIn('res->pdphy_base && base != res->pdphy_base', GLUE)
+        self.assertIn('.pdphy_base = 0x1700', GLUE)
+
+    def test_managed_charger_does_not_compete_for_current_or_userspace_control(self):
+        worker = CHARGER.split('static void smb_status_change_work(')[1].split('static int')[0]
+        self.assertIn('if (chip->typec_managed)\n\t\tgoto notify', worker)
+        writable = CHARGER.split('static int smb_property_is_writable(')[1].split('static irqreturn_t')[0]
+        self.assertNotIn('case POWER_SUPPLY_PROP_ONLINE', writable)
+        self.assertIn('return !chip->typec_managed', writable)
+        suspend = CHARGER.split('static int smb_set_input_online(')[1].split('static int')[0]
+        self.assertIn('regmap_read_poll_timeout', suspend)
+        self.assertIn('P_PATH_USBIN_SUSPEND_STS_BIT', suspend)
 
 
 @unittest.skipUnless(libfdt and DTB_DIR, 'set DIPPER_DTB_DIR and use schema Python')
@@ -124,6 +149,8 @@ class TypeCDTTests(unittest.TestCase):
                 supply = tree.node_offset_by_phandle(tree.getprop(offset, 'vdd-pdphy-supply').as_uint32())
                 self.assertEqual(tree.getprop(supply, 'regulator-min-microvolt').as_uint32(), 3088000)
                 self.assertEqual(tree.getprop(supply, 'regulator-max-microvolt').as_uint32(), 3088000)
+                charger = tree.node_offset_by_phandle(tree.getprop(offset, 'power-supplies').as_uint32())
+                self.assertIn('qcom,pmi8998-charger', tree.getprop(charger, 'compatible').as_stringlist())
 
 
 if __name__ == '__main__':

@@ -70,10 +70,10 @@ Both drivers are compile-selected; module presence does not enable either node.
 
 ## Still kernel work, not all a vendor blocker
 
-1. Complete charger/TCPM policy coordination: negotiated sink input-current and
-   voltage limits, input suspension during boost, detach/role-swap ordering and
-   OTG fault handling. Register-ownership separation alone does not implement
-   these. The existing charger's conservative fast-charge limit remains intact.
+1. Basic native fixed-5-V input handoff now exists in input-handoff.md:
+   suspend confirmation before boost, boost OFF before input resume, current
+   callbacks and exclusive policy ownership. Higher-voltage allowance/frequency
+   control, full detach/role-swap timing and OTG fault handling are not complete. The existing charger's conservative fast-charge limit remains intact.
 2. Validate Rp encodings, disable/restart timing, CC2/PBS revision workarounds,
    VCONN limits and boost timing/protection against the exact PMIC revision.
    Offline decoder tests cannot prove analogue behavior or waveform timing.
@@ -93,7 +93,7 @@ Both drivers are compile-selected; module presence does not enable either node.
 
 The verifier includes both new bindings, all candidate DTBs, source contracts
 and the real pure CC decoder / PD length validator under ASan+UBSan. The host
-suite enumerates 33,554,432 byte/header/length combinations. This does not
+suite now enumerates 41,943,040 CC/header/length/PDO combinations. This does not
 simulate kernel IRQ, concurrency, regulator I/O failures, PD timing or hardware.
 Exact clean-build provenance/results are in latest-checked-build.json; older
 records continue to describe their own earlier source revisions.

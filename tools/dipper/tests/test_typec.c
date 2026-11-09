@@ -11,10 +11,11 @@ enum typec_cc_status {
 };
 #include "../../../drivers/usb/typec/tcpm/qcom/qcom_pmic_typec_port_pmi8998.h"
 #include "../../../drivers/usb/typec/tcpm/qcom/qcom_pmic_typec_pdphy_frame.h"
+#include "../../../drivers/usb/typec/tcpm/qcom/qcom_pmic_typec_pmi8998_limits.h"
 
 int main(void)
 {
-	unsigned int s1, s2, s4, header, size;
+	unsigned int s1, s2, s4, header, size, type, voltage, current, limit, pdo;
 	unsigned long cases = 0;
 	enum typec_cc_status cc1, cc2, active, other;
 	int ret, expected;
@@ -60,6 +61,21 @@ int main(void)
 		}
 	}
 	assert(!qcom_pdphy_frame_valid(0xffffffff, 0));
-	printf("Type-C CC and PD frame helpers: %lu exhaustive cases passed\n", cases);
+	for (limit = 500; limit <= 3000; limit += 2500) {
+		for (type = 0; type < 4; type++) {
+			for (voltage = 0; voltage < 1024; voltage++) {
+				for (current = 0; current < 1024; current++) {
+					pdo = (type << 30) | (voltage << 10) | current;
+					assert(pmi8998_pdo_supported(pdo, limit) ==
+					       (!type && voltage == 100 && current &&
+					current * 10 <= limit));
+					cases++;
+				}
+			}
+		}
+	}
+	assert(!pmi8998_pdo_supported((100 << 10) | 50 | BIT(23), 500));
+	assert(!pmi8998_pdo_supported((100 << 10) | 50 | BIT(24), 500));
+	printf("Type-C CC/PD frames and bounded PDOs: %lu exhaustive cases passed\n", cases);
 	return 0;
 }

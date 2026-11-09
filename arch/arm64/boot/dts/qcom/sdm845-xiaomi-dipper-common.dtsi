@@ -702,6 +702,7 @@
 				  "msg-rx-discarded";
 		vdd-vbus-supply = <&pmi8998_vbus>;
 		vdd-pdphy-supply = <&vreg_l24a_3p075>;
+		power-supplies = <&pmi8998_charger>;
 		/* No guessed connector PDOs/identity, role graph or PD charging policy. */
 		status = "disabled";
 	};

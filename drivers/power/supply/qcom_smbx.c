@@ -174,6 +174,9 @@
 #define TYPEC_TRYSOURCE_DETECT_STATUS_BIT		BIT(1)
 #define TYPEC_TRYSINK_DETECT_STATUS_BIT			BIT(0)
 
+#define USBIN_CMD_IL					0x340
+#define USBIN_SUSPEND_BIT				BIT(0)
+
 #define CMD_APSD					0x341
 #define ICL_OVERRIDE_BIT				BIT(1)
 #define APSD_RERUN_BIT					BIT(0)
@@ -368,6 +371,7 @@ struct smb_init_register {
  * @lock:		Serializes callbacks, detection and shutdown
  * @detection_awake:	Detection owns a bounded wakeup-source activation
  * @apsd_tries:		Bounded detection attempts for the current plug event
+ * @typec_managed:	Enabled sibling owns input and negotiated current policy
  * @ready:		Hardware initialization completed; protected by lock
  * @status_change_work: Worker to handle plug/unplug events
  * @cable_irq:		USB plugin IRQ
@@ -387,6 +391,7 @@ struct smb_chip {
 	int cable_irq;
 	struct mutex lock; /* Register/policy serialization; never held across work cancellation. */
 	bool ready;
+	bool typec_managed;
 	bool detection_awake;
 	unsigned int apsd_tries;
 
@@ -407,6 +412,25 @@ static enum power_supply_property smb_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 	POWER_SUPPLY_PROP_USB_TYPE,
 };
+
+/* ONLINE remains read-only to sysfs; this setter is the kernel TCPM handoff. */
+static int smb_set_input_online(struct smb_chip *chip, bool online)
+{
+	unsigned int status;
+	int ret;
+
+	lockdep_assert_held(&chip->lock);
+	if (!chip->typec_managed)
+		return -EOPNOTSUPP;
+	ret = regmap_update_bits(chip->regmap, chip->base + USBIN_CMD_IL,
+				 USBIN_SUSPEND_BIT, online ? 0 : USBIN_SUSPEND_BIT);
+	if (ret || online)
+		return ret;
+	/* Never authorize boost from a command write alone: confirm input suspend. */
+	return regmap_read_poll_timeout(chip->regmap, chip->base + POWER_PATH_STATUS,
+				       status, status & P_PATH_USBIN_SUSPEND_STS_BIT,
+				       1000, 100000);
+}
 
 static int smb_get_prop_usb_online(struct smb_chip *chip, int *val)
 {
@@ -589,6 +613,8 @@ static void smb_status_change_work(struct work_struct *work)
 	mutex_lock(&chip->lock);
 	if (!chip->ready)
 		goto out;
+	if (chip->typec_managed)
+		goto notify;
 	ret = smb_get_prop_usb_online(chip, &usb_online);
 	if (ret)
 		goto error;
@@ -748,6 +774,10 @@ static int smb_set_property_unlocked(struct power_supply *psy,
 	struct smb_chip *chip = power_supply_get_drvdata(psy);
 
 	switch (psp) {
+	case POWER_SUPPLY_PROP_ONLINE:
+		if (val->intval != 0 && val->intval != 1)
+			return -EINVAL;
+		return smb_set_input_online(chip, val->intval);
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		return smb_set_current_limit(chip, val->intval);
 	default:
@@ -766,15 +796,19 @@ static int smb_set_property(struct power_supply *psy,
 	mutex_lock(&chip->lock);
 	ret = chip->ready ? smb_set_property_unlocked(psy, psp, val) : -EAGAIN;
 	mutex_unlock(&chip->lock);
+	if (!ret)
+		power_supply_changed(psy);
 	return ret;
 }
 
 static int smb_property_is_writable(struct power_supply *psy,
 				     enum power_supply_property psp)
 {
+	struct smb_chip *chip = power_supply_get_drvdata(psy);
+
 	switch (psp) {
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
-		return 1;
+		return !chip->typec_managed;
 	default:
 		return 0;
 	}
@@ -806,7 +840,7 @@ static irqreturn_t smb_handle_usb_plugin(int irq, void *data)
 	int ret;
 
 	mutex_lock(&chip->lock);
-	if (chip->ready) {
+	if (chip->ready && !chip->typec_managed) {
 		smb_detection_hold(chip);
 		chip->apsd_tries = 0;
 		ret = smb_lower_input_current(chip);
@@ -957,19 +991,21 @@ static const struct smb_init_register smb_init_seq[] = {
 	  .val = 1000000 / CURRENT_SCALE_FACTOR },
 };
 
-static int smb_init_hw(struct smb_chip *chip)
+static bool smb_has_typec_owner(struct smb_chip *chip)
 {
-	bool typec_managed = false;
-	int rc, i;
-
-	/* An enabled sibling owns CC/VCONN regardless of driver probe order. */
 	for_each_available_child_of_node_scoped(chip->dev->parent->of_node, child) {
 		if (of_device_is_compatible(child, "qcom,pmi8998-typec"))
-			typec_managed = true;
+			return true;
 	}
+	return false;
+}
+
+static int smb_init_hw(struct smb_chip *chip)
+{
+	int rc, i;
 
 	for (i = 0; i < ARRAY_SIZE(smb_init_seq); i++) {
-		if (typec_managed &&
+		if (chip->typec_managed &&
 		    (smb_init_seq[i].addr == TYPE_C_INTRPT_ENB_SOFTWARE_CTRL ||
 		     smb_init_seq[i].addr == TYPE_C_CFG))
 			continue;
@@ -1081,6 +1117,7 @@ static int smb_probe(struct platform_device *pdev)
 				     "Couldn't get usbin_i IIO channel\n");
 	}
 
+	chip->typec_managed = smb_has_typec_owner(chip);
 	supply_config.drv_data = chip;
 	supply_config.fwnode = dev_fwnode(&pdev->dev);
 
@@ -1131,6 +1168,14 @@ static int smb_probe(struct platform_device *pdev)
 	if (rc)
 		return rc;
 
+	if (chip->typec_managed) {
+		mutex_lock(&chip->lock);
+		rc = smb_set_input_online(chip, false);
+		mutex_unlock(&chip->lock);
+		if (rc)
+			return dev_err_probe(chip->dev, rc, "Couldn't suspend TCPM-owned input\n");
+	}
+
 	rc = smb_init_irq(chip, &irq, "bat-ov", smb_handle_batt_overvoltage);
 	if (rc < 0)
 		return rc;
@@ -1171,8 +1216,10 @@ static int smb_probe(struct platform_device *pdev)
 
 	/* Keep the CPU available until bounded initial detection completes. */
 	mutex_lock(&chip->lock);
-	smb_detection_hold(chip);
-	mod_delayed_work(system_wq, &chip->status_change_work, 0);
+	if (!chip->typec_managed) {
+		smb_detection_hold(chip);
+		mod_delayed_work(system_wq, &chip->status_change_work, 0);
+	}
 	mutex_unlock(&chip->lock);
 
 	return 0;
