@@ -40,6 +40,17 @@ properties:
 
   monitored-battery: true
 
+  input-current-limit-microamp:
+    description: |
+      Board ceiling for USB input-current configuration. Charger detection and
+      consumer requests are bounded by this value; it is not authorization to
+      draw that current from a connected source and does not raise fast-charge
+      current. When absent the existing register-configuration ceiling is used.
+    minimum: 25000
+    maximum: 4800000
+    multipleOf: 25000
+    default: 4800000
+
 required:
   - compatible
   - reg
