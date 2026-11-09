@@ -1,5 +1,6 @@
 """Checks on the compiled MP v2.1 DTB, not evidence of bootability."""
 import os
+import json
 from pathlib import Path
 import unittest
 try:
@@ -8,6 +9,8 @@ except ImportError:
     libfdt = None
 
 DTB = os.environ.get('DIPPER_DTB')
+ROOT = Path(__file__).resolve().parents[3]
+LEGACY = json.loads((ROOT / 'Documentation/dipper/legacy-resolved-boards.json').read_text())
 
 
 @unittest.skipUnless(libfdt and DTB, 'use dtschema Python and set DIPPER_DTB')
@@ -60,9 +63,30 @@ class BoardTests(unittest.TestCase):
         for node, region in expected.items():
             self.assertEqual(tuple(self.prop('/reserved-memory/' + node, 'reg').as_uint64_list()), region)
 
-    def test_trustzone_reservation_retained(self):
+    def test_board_override_of_secure_reservation_retained(self):
         self.assertEqual(self.prop('/reserved-memory/tz@86200000', 'reg').as_uint64_list(),
-                         [0x86200000, 0x2d00000])
+                         [0x86200000, 0x4700000])
+
+    def test_every_final_legacy_fixed_region_stays_reserved(self):
+        variant = next(v for v in LEGACY['variants']
+                       if v['source'].endswith('/dipper-mp-v2.1.dts'))
+        regions = []
+        for path, node in self.nodes.items():
+            if path.startswith('/reserved-memory/') and self.tree.hasprop(node, 'reg'):
+                reg = self.prop(path, 'reg').as_uint64_list()
+                for start, size in zip(reg[::2], reg[1::2]):
+                    regions.append((start, start + size, self.tree.hasprop(node, 'no-map')))
+        for old in LEGACY['fixed_memory_layouts'][variant['fixed_memory_layout']]:
+            with self.subTest(legacy_region=old['path']):
+                cursor = int(old['start'], 0)
+                end = cursor + int(old['size'], 0)
+                for start, stop, no_map in sorted(regions):
+                    if old['no_map'] and not no_map:
+                        continue
+                    if start <= cursor < stop:
+                        cursor = stop
+                self.assertGreaterEqual(cursor, end,
+                                        f'Unreserved legacy memory starts at {cursor:#x}')
 
     def test_rmtfs_is_dynamic_and_guarded(self):
         path = self.matching('qcom,rmtfs-mem')[0][0]
@@ -101,11 +125,19 @@ class BoardTests(unittest.TestCase):
             regulator = self.tree.node_offset_by_phandle(self.prop(path, supply).as_uint32())
             self.assertFalse(self.tree.hasprop(regulator, 'regulator-always-on'))
 
-    def test_no_fabricated_pd_identity_or_ramoops(self):
+    def test_no_fabricated_pd_identity(self):
         for node in self.nodes.values():
             for prop in ['sink-vdos', 'sink-vdos-v1', 'source-pdos']:
                 self.assertFalse(self.tree.hasprop(node, prop))
-        self.assertFalse(self.matching('ramoops'))
+
+    def test_ramoops_matches_pinned_board_source(self):
+        variant = next(v for v in LEGACY['variants']
+                       if v['source'].endswith('/dipper-mp-v2.1.dts'))
+        self.assertEqual(len(self.matching('ramoops')), 1)
+        path = self.matching('ramoops')[0][0]
+        self.assertEqual(self.prop(path, 'reg').as_uint64_list(), [0xb0000000, 0x400000])
+        for name, value in variant['ramoops'].items():
+            self.assertEqual(self.prop(path, name).as_uint32(), value, name)
 
 
 if __name__ == '__main__':

@@ -18,13 +18,16 @@ no device-specific MAC, calibration or proprietary blobs are committed.
 
 ## Deliberate changes relative to the reference
 
-- Retain the TrustZone carveout rather than reclaiming it for Linux.
+- Retain the final downstream secure-memory exclusion through 0x8a900000,
+  including the larger override in dipper-p0.dtsi (not just generic SDM845 TZ).
 - Reserve the full two-megabyte XBL area from the old kernel, not just the last MB.
 - Preserve the old ADSP/WLAN/modem/video/CDSP/MBA/SLPI/SPSS addresses and sizes.
 - Allocate a guarded RMTFS pool through reserved-memory instead of hardcoding the
   reference author's runtime address. RMTFS userspace/protocol still needs review.
-- Do not introduce an unverified ramoops buffer at 0xb0000000 or a live
-  simple-framebuffer with assumptions about bootloader ownership/format.
+- Reserve the old splash and ramdump framebuffer areas without creating a live
+  simple-framebuffer. Restore ramoops at 0xb0000000 with the exact downstream
+  sizes; the resolved old board source, not another phone's runtime DT, proves
+  these constants. The earlier description incorrectly called ramoops unverified.
 - No hard-coded MAC, foreign USB VID/PID, or forced always-on camera rails.
 - No unsupported q6voice, FTM5, TAS2557 or fuel-gauge nodes without their drivers.
 - USB is peripheral-only; do not advertise PD, OTG or source VBUS before the
@@ -45,8 +48,11 @@ these are not suppressed in source or claimed as fixed here.
 
 Run the compiled DT tests with the dtschema venv Python, setting DIPPER_DTB to
 the compiled file, followed by `-m unittest discover -s tools/dipper/tests -v`.
-Nineteen panel/board source and DT tests passed. They verify region overlap,
-identity, guarded RMTFS allocation and absence of known unsafe carryovers, not
+The reserved-memory regression test checks the union of new regions against
+**every final fixed carveout** in the preprocessed old tree, including no-map.
+Before the correction it failed for secure memory, splash, ramdump and ramoops.
+These tests verify region overlap, identity, guarded RMTFS allocation and absence
+of known unsafe carryovers, not
 physical operation, modem compatibility, charging safety or suspend current.
 
 The charger uses the reference board's 4.4V design maximum. Hardware battery

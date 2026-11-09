@@ -123,10 +123,24 @@
 			no-map;
 		};
 
-		/* Preserve the reference board's bootloader exclusion. */
-		bootloader_mem: memory@88f00000 {
-			reg = <0 0x88f00000 0 0x200000>;
+		/* Final dipper-p0.dtsi reservations, not a live framebuffer. */
+		cont_splash_mem: splash@9d400000 {
+			reg = <0 0x9d400000 0 0x2400000>;
+		};
+
+		ramdump_fb_mem: ramdump-fb@af000000 {
+			reg = <0 0xaf000000 0 0x1000000>;
 			no-map;
+		};
+
+		ramoops@b0000000 {
+			compatible = "ramoops";
+			reg = <0 0xb0000000 0 0x400000>;
+			record-size = <0x40000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
+			pmsg-size = <0x200000>;
+			ecc-size = <0>;
 		};
 
 		/* Allocate guarded RMTFS buffers, not a guessed fixed address. */
@@ -166,6 +180,11 @@
 		regulator-boot-on;
 		vin-supply = <&vph_pwr>;
 	};
+};
+
+&tz_mem {
+	/* AOP/cmd-db/SMEM + this region cover the old removed_region. */
+	reg = <0 0x86200000 0 0x4700000>;
 };
 
 &apps_rsc {

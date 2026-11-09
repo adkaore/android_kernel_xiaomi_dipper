@@ -1,4 +1,4 @@
-# Integration status — 2026-11-08
+# Integration status — 2026-11-09
 
 This is a development kernel, not a stable or flashable crDroid release.
 No phone was accessed, rebooted, flashed or otherwise changed.
@@ -9,7 +9,9 @@ No phone was accessed, rebooted, flashed or otherwise changed.
   poweroff sequence, safe power/backlight serialization and reference lifetime.
 - MP v2.1 DT: checked reservations, RPMh, storage, display, USB peripheral,
   Wi-Fi/Bluetooth, charger and video-codec descriptions. No shared calibration
-  MAC or guessed live framebuffer/ramoops is copied from another phone.
+  MAC or guessed live framebuffer is copied from another phone. The final
+  downstream secure-memory, splash, ramdump and ramoops overrides are now
+  recovered from resolved legacy DTS, with coverage regression tests.
 - IMX363 candidate: constrained RAW mode, cleaned control/PM handling and binding.
   No enabled camera node or claim of AF/OIS/HDR/video-mode parity.
 - New runtime-only FTM5 driver, not the firmware-updating downstream code.
