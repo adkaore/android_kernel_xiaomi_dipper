@@ -8,8 +8,8 @@ generic vendor/hardware blockers. Finished source work still needs real tests.
 | ID | Work package | Source deliverable / acceptance | State |
 |---|---|---|---|
 | P1 | PMI8998 watchdog | Check all three BSPs; ordered start/stop/pet and wake handling; real-callback error tests | Implemented; final clean verification pending; physical wake unvalidated |
-| P2 | JEITA/thermal | Resolve public battery/charger policies per board; identify valid ranges and suspicious values before porting | Pending source work |
-| G1 | Gauge profiles | Inventory exact profile payload/hash, battery-ID ranges, algorithm and persistence dependencies | Pending source work |
+| P2 | JEITA/thermal | Resolve public battery/charger policies per board; identify valid ranges and suspicious values before porting | Source deliverable done in battery-profiles.md/json; native policy is still implementation work |
+| G1 | Gauge profiles | Inventory exact profile payload/hash, battery-ID ranges, algorithm and persistence dependencies | Source deliverable done; no loaded-profile validation/programming claimed |
 | G2 | Gauge runtime | Execute real direct-register callbacks with read errors, readiness loss, mixed SOC copies and both revisions | Pending source work |
 | U1 | Type-C revision errata | Map raw revision to CC2/PBS/QC workarounds; implement only reviewed ownership-safe steps | Pending source work |
 | C1 | Camera/lens/IR | Map source nodes, rails, addresses, reset and emitter controls across revisions; identify absent sensor programs/calibration | Pending source work |

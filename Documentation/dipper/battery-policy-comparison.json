@@ -1,0 +1,1476 @@
+{
+  "target": "crDroid 13.1 / Android 17",
+  "hardware_accessed": false,
+  "profile_loaded": false,
+  "source_commits": {
+    "xiaomi": "dcfb1676925aec83b06ae04fd8ca989ced75067c",
+    "legacy": "0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6",
+    "caf": "1f01db5a42ccd3123517a9d5730024719abf095d"
+  },
+  "definitions": {
+    "xiaomi": [
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "f9f579dc9a0f70a508ab9ca052fe072e4e94ec655f860d4f3177c038432765a3",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "e5363dd97cf2188faf72d2e4b254a2b28cfad8e2c8ce0f1d6145b8045d80729e",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "kind": "overlay",
+        "listed": true,
+        "blob_sha256": "7b7aedcd7ee8eec30ff85e02ccc82a18b4961aeb595f1dd9ee389f2be40930dc",
+        "policy_group": "d185cc65cdb269bcbb7448ea908024e41a3b2fa7a193aa4786dc385e555f73c9"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "kind": "overlay",
+        "listed": true,
+        "blob_sha256": "292f61a3654a6763f7b0fbba0b7b3a098f844c2b324d61d82b151c80dcaeec5e",
+        "policy_group": "a701ba3a9f9235c15335391474f9c41da2ffe33044a1b768f9769ef1090482b9"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "9b20f703ef31da3a4954c50b0889d3a005ec447ba05861da44c2ca41eac157b5",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "1d43403917d460ab13b56a352dadacc0538b3f7580f8a10f718786fc6013cbc7",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "kind": "standalone",
+        "listed": false,
+        "blob_sha256": "fbdf523fbe4d1ff5ceede69e18d75f5620d24168510430b2573e4023c54221ea",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "261d493c241d5eba24118235479938253a45803f90d1492a136d2f8a4ff67732",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "e0ec9f621442a06e4aa4559913bbefe0e56dbcbd1c2fb6df4f1dd3de4b5ff061",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "4ab4f6996eeebe21adfedca4c01758427d4afacb2ec08be53817e5c5fc41ad5c",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "5c52a8955910ad68ddad5c1b5b71e39ab9aba1e700d623b7429e13f04ec6c2aa",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "39caa7d8f264e9d2214fd4daadb8383764d69c5f03bc450d4c14a9e109b65137",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "1f3bd01f66c2d1d3ad13bd54c37d0d646bbaf8a5e65d827c48830efe69f5782a",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "e431923bc01479d7621d8debed79c57055fedcb82209708df3b408c059e5519a",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "c576fc393ddd5b188b8df348511eef2af2eb8279267932f0a3693352adf57219",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      }
+    ],
+    "legacy": [
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "15aaeb1a86aad0fb73a66a01a877c8ebb1bb00f32f08ab6c663e9371f1ae8567",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-mp-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "95c640dd58bb1056e49fea0d64f63099d7ec30fa7abba990e18db07c9f3f1249",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2-overlay.dts",
+        "kind": "overlay",
+        "listed": true,
+        "blob_sha256": "8f99fa9b608ac0612fc2e84672835bcb706f1e463a2194eb02fac79d98b8e309",
+        "policy_group": "d185cc65cdb269bcbb7448ea908024e41a3b2fa7a193aa4786dc385e555f73c9"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1-overlay.dts",
+        "kind": "overlay",
+        "listed": true,
+        "blob_sha256": "b9a35bca62a40d40ee6c051ad09622a5ac81c2d242620a53d8df1163336bd9ce",
+        "policy_group": "a701ba3a9f9235c15335391474f9c41da2ffe33044a1b768f9769ef1090482b9"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "5af7a24d2fc48b63c183aaa69254523cc4dfc9df7027b247dee7d4423a8fb99c",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "bef5e4fab4611475d815677357e8f093d517688168ed25aa7a991ea414239c51",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p0.dts",
+        "kind": "standalone",
+        "listed": false,
+        "blob_sha256": "789fe944a3c775af88fa2512e72fa1e10ff17f72a9fecf2e18a81c91803fc843",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-cn.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "628079e6e849adc8648b6b5c1c90aaa28173cfb6f43d14c020725ff8d8fbc980",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2-gb.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "a8f9cf74e7186db1c8ea6874119b47f65c1b27e5abf84a406dec5fabd983119d",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-cn.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "e0d068e206e43d8a728165ae3823aba74ae0135c87889c640a805bec6b071c63",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1-v2.1-gb.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "da3c7a2e0b202c943947a5d49fdd00ad15e00bbd302fb94cdf01bb9ddbd6cb86",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "ca9136665fb990ccae50654a2ddf6773733039b4cb1e88f3e34adeebc3d86d3b",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p1.1-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "a6056bb1e9400cbd1825377ceb127fa9a2e43858607e9ea6696c1af6cb8284ee",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.1.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "5c5385528934894dc6d99cc3eda4c8223c705d7b372f5d58dcc7280cfae32dae",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      },
+      {
+        "source": "arch/arm64/boot/dts/qcom/dipper-p2-v2.dts",
+        "kind": "standalone",
+        "listed": true,
+        "blob_sha256": "569c3c2f7d63f117edd5344307bba5beeebca8124a6c2354d47685ab49d5e553",
+        "policy_group": "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee"
+      }
+    ]
+  },
+  "policy_groups": {
+    "a725b4e4b0d5b8f640a7d5a93dbfe51a3588d79f3f348b7fca133859fe158fee": {
+      "profiles": [
+        {
+          "battery_type": "e1_atl_3400mAh",
+          "id_kohm": [
+            68
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              58,
+              78
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "6b2025cc0ddeb131a13dc1b22c884042ffa47c0c1aa6640ba0b6275b73ca0b43",
+          "declared_checksum": "0xc3c7",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        },
+        {
+          "battery_type": "e1_coslight_3400mAh",
+          "id_kohm": [
+            100
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              85,
+              115
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "85eac085f24042ca0cfa201ecea3b8dff2d645d74b8b60b434e20892d879b8f0",
+          "declared_checksum": "0xf35d",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        }
+      ],
+      "policies": [
+        {
+          "path": "/soc/qcom,spmi@c440000/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "properties": {
+            "qcom,dynamic-fv-enable": true,
+            "qcom,fcc-cool-temp-delta": [
+              2310000
+            ],
+            "qcom,fcc-hot-temp-delta": [
+              1650000
+            ],
+            "qcom,fcc-low-temp-delta": [
+              2970000
+            ],
+            "qcom,fcc-max-ua": [
+              3300000
+            ],
+            "qcom,sw-jeita-enable": true,
+            "qcom,thermal-mitigation": [
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000,
+              1000000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-dcp": [
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-pd-base": [
+              3000000,
+              2800000,
+              2600000,
+              2400000,
+              2200000,
+              2000000,
+              1800000,
+              1600000,
+              1600000,
+              1400000,
+              1200000,
+              1100000,
+              1000000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc2": [
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1525000,
+              1425000,
+              1325000,
+              1225000,
+              1125000,
+              10255000,
+              925000,
+              825000,
+              725000,
+              625000,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc3": [
+              2800000,
+              2725000,
+              2575000,
+              2425000,
+              2275000,
+              2125000,
+              2000000,
+              1800000,
+              1650000,
+              1500000,
+              1360000,
+              1200000,
+              1060000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,usb-icl-ua": [
+              2800000
+            ]
+          }
+        },
+        {
+          "path": "/soc/qcom,spmi@c440000/qcom,pmi8998@2/qpnp,fg",
+          "properties": {
+            "qcom,fg-auto-recharge-soc": true,
+            "qcom,fg-batt-temp-delta": [
+              6
+            ],
+            "qcom,fg-chg-term-current": [
+              200
+            ],
+            "qcom,fg-cutoff-current": [
+              200
+            ],
+            "qcom,fg-cutoff-voltage": [
+              3400
+            ],
+            "qcom,fg-empty-voltage": [
+              3100
+            ],
+            "qcom,fg-esr-clamp-mohms": [
+              60
+            ],
+            "qcom,fg-esr-timer-asleep": [
+              256,
+              256
+            ],
+            "qcom,fg-esr-timer-awake": [
+              96,
+              96
+            ],
+            "qcom,fg-esr-timer-charging": [
+              0,
+              96
+            ],
+            "qcom,fg-force-load-profile": true,
+            "qcom,fg-jeita-hyst-temp": [
+              2
+            ],
+            "qcom,fg-jeita-thresholds": [
+              0,
+              15,
+              45,
+              60
+            ],
+            "qcom,fg-recharge-soc-thr": [
+              99
+            ],
+            "qcom,fg-sys-term-current": [
+              -300
+            ]
+          }
+        }
+      ],
+      "findings": [
+        {
+          "path": "/soc/qcom,spmi@c440000/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "exceeds_both_3A_ICL_and_3.3A_FCC"
+        },
+        {
+          "path": "/soc/qcom,spmi@c440000/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "increases_with_cooling_state"
+        }
+      ]
+    },
+    "d185cc65cdb269bcbb7448ea908024e41a3b2fa7a193aa4786dc385e555f73c9": {
+      "profiles": [
+        {
+          "battery_type": "e1_atl_3400mAh",
+          "id_kohm": [
+            68
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              58,
+              78
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "6b2025cc0ddeb131a13dc1b22c884042ffa47c0c1aa6640ba0b6275b73ca0b43",
+          "declared_checksum": "0xc3c7",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        },
+        {
+          "battery_type": "e1_coslight_3400mAh",
+          "id_kohm": [
+            100
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              85,
+              115
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "85eac085f24042ca0cfa201ecea3b8dff2d645d74b8b60b434e20892d879b8f0",
+          "declared_checksum": "0xf35d",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        }
+      ],
+      "policies": [
+        {
+          "path": "/fragment@23/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "properties": {
+            "qcom,dynamic-fv-enable": true,
+            "qcom,fcc-cool-temp-delta": [
+              2310000
+            ],
+            "qcom,fcc-hot-temp-delta": [
+              1650000
+            ],
+            "qcom,fcc-low-temp-delta": [
+              2970000
+            ],
+            "qcom,fcc-max-ua": [
+              3300000
+            ],
+            "qcom,sw-jeita-enable": true,
+            "qcom,thermal-mitigation": [
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000,
+              1000000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-dcp": [
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-pd-base": [
+              3000000,
+              2800000,
+              2600000,
+              2400000,
+              2200000,
+              2000000,
+              1800000,
+              1600000,
+              1600000,
+              1400000,
+              1200000,
+              1100000,
+              1000000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc2": [
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1525000,
+              1425000,
+              1325000,
+              1225000,
+              1125000,
+              10255000,
+              925000,
+              825000,
+              725000,
+              625000,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc3": [
+              2800000,
+              2725000,
+              2575000,
+              2425000,
+              2275000,
+              2125000,
+              2000000,
+              1800000,
+              1650000,
+              1500000,
+              1360000,
+              1200000,
+              1060000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,usb-icl-ua": [
+              2800000
+            ]
+          }
+        },
+        {
+          "path": "/fragment@23/__overlay__/qcom,pmi8998@2/qpnp,fg",
+          "properties": {
+            "qcom,fg-auto-recharge-soc": true,
+            "qcom,fg-batt-temp-delta": [
+              6
+            ],
+            "qcom,fg-chg-term-current": [
+              200
+            ],
+            "qcom,fg-cutoff-current": [
+              200
+            ],
+            "qcom,fg-cutoff-voltage": [
+              3400
+            ],
+            "qcom,fg-empty-voltage": [
+              3100
+            ],
+            "qcom,fg-esr-clamp-mohms": [
+              60
+            ],
+            "qcom,fg-esr-timer-asleep": [
+              256,
+              256
+            ],
+            "qcom,fg-esr-timer-awake": [
+              96,
+              96
+            ],
+            "qcom,fg-esr-timer-charging": [
+              0,
+              96
+            ],
+            "qcom,fg-force-load-profile": true,
+            "qcom,fg-jeita-hyst-temp": [
+              2
+            ],
+            "qcom,fg-jeita-thresholds": [
+              0,
+              15,
+              45,
+              60
+            ],
+            "qcom,fg-recharge-soc-thr": [
+              99
+            ],
+            "qcom,fg-sys-term-current": [
+              -300
+            ]
+          }
+        }
+      ],
+      "findings": [
+        {
+          "path": "/fragment@23/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "exceeds_both_3A_ICL_and_3.3A_FCC"
+        },
+        {
+          "path": "/fragment@23/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "increases_with_cooling_state"
+        }
+      ]
+    },
+    "a701ba3a9f9235c15335391474f9c41da2ffe33044a1b768f9769ef1090482b9": {
+      "profiles": [
+        {
+          "battery_type": "e1_atl_3400mAh",
+          "id_kohm": [
+            68
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              58,
+              78
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "6b2025cc0ddeb131a13dc1b22c884042ffa47c0c1aa6640ba0b6275b73ca0b43",
+          "declared_checksum": "0xc3c7",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        },
+        {
+          "battery_type": "e1_coslight_3400mAh",
+          "id_kohm": [
+            100
+          ],
+          "tolerance_percent": 15,
+          "accepted_integer_kohm": [
+            [
+              85,
+              115
+            ]
+          ],
+          "payload_bytes": 224,
+          "payload_sha256": "85eac085f24042ca0cfa201ecea3b8dff2d645d74b8b60b434e20892d879b8f0",
+          "declared_checksum": "0xf35d",
+          "declared_checksum_verified": false,
+          "max_voltage_uv": 4400000,
+          "max_fcc_ua": 3300000,
+          "capacity_mah": 3400,
+          "jeita_fcc": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 330000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 990000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 3300000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 1650000
+            }
+          ],
+          "jeita_fv": [
+            {
+              "low": 0,
+              "high": 50,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 51,
+              "high": 100,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 150,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 151,
+              "high": 450,
+              "threshold_unit": "decicelsius",
+              "value": 4400000
+            },
+            {
+              "low": 451,
+              "high": 600,
+              "threshold_unit": "decicelsius",
+              "value": 4100000
+            }
+          ],
+          "dynamic_fv": [
+            {
+              "low": 0,
+              "high": 100,
+              "threshold_unit": "cycles",
+              "value": 4400000
+            },
+            {
+              "low": 101,
+              "high": 200,
+              "threshold_unit": "cycles",
+              "value": 4380000
+            },
+            {
+              "low": 201,
+              "high": 300,
+              "threshold_unit": "cycles",
+              "value": 4360000
+            },
+            {
+              "low": 301,
+              "high": 400,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            },
+            {
+              "low": 401,
+              "high": 500,
+              "threshold_unit": "cycles",
+              "value": 4340000
+            }
+          ]
+        }
+      ],
+      "policies": [
+        {
+          "path": "/fragment@41/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "properties": {
+            "qcom,dynamic-fv-enable": true,
+            "qcom,fcc-cool-temp-delta": [
+              2310000
+            ],
+            "qcom,fcc-hot-temp-delta": [
+              1650000
+            ],
+            "qcom,fcc-low-temp-delta": [
+              2970000
+            ],
+            "qcom,fcc-max-ua": [
+              3300000
+            ],
+            "qcom,sw-jeita-enable": true,
+            "qcom,thermal-mitigation": [
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000,
+              1000000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-dcp": [
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1800000,
+              1600000,
+              1400000,
+              1200000,
+              1000000
+            ],
+            "qcom,thermal-mitigation-pd-base": [
+              3000000,
+              2800000,
+              2600000,
+              2400000,
+              2200000,
+              2000000,
+              1800000,
+              1600000,
+              1600000,
+              1400000,
+              1200000,
+              1100000,
+              1000000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc2": [
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1625000,
+              1525000,
+              1425000,
+              1325000,
+              1225000,
+              1125000,
+              10255000,
+              925000,
+              825000,
+              725000,
+              625000,
+              525000
+            ],
+            "qcom,thermal-mitigation-qc3": [
+              2800000,
+              2725000,
+              2575000,
+              2425000,
+              2275000,
+              2125000,
+              2000000,
+              1800000,
+              1650000,
+              1500000,
+              1360000,
+              1200000,
+              1060000,
+              900000,
+              752500,
+              525000
+            ],
+            "qcom,usb-icl-ua": [
+              2800000
+            ]
+          }
+        },
+        {
+          "path": "/fragment@41/__overlay__/qcom,pmi8998@2/qpnp,fg",
+          "properties": {
+            "qcom,fg-auto-recharge-soc": true,
+            "qcom,fg-batt-temp-delta": [
+              6
+            ],
+            "qcom,fg-chg-term-current": [
+              200
+            ],
+            "qcom,fg-cutoff-current": [
+              200
+            ],
+            "qcom,fg-cutoff-voltage": [
+              3400
+            ],
+            "qcom,fg-empty-voltage": [
+              3100
+            ],
+            "qcom,fg-esr-clamp-mohms": [
+              60
+            ],
+            "qcom,fg-esr-timer-asleep": [
+              256,
+              256
+            ],
+            "qcom,fg-esr-timer-awake": [
+              96,
+              96
+            ],
+            "qcom,fg-esr-timer-charging": [
+              0,
+              96
+            ],
+            "qcom,fg-force-load-profile": true,
+            "qcom,fg-jeita-hyst-temp": [
+              2
+            ],
+            "qcom,fg-jeita-thresholds": [
+              0,
+              15,
+              45,
+              60
+            ],
+            "qcom,fg-recharge-soc-thr": [
+              99
+            ],
+            "qcom,fg-sys-term-current": [
+              -300
+            ]
+          }
+        }
+      ],
+      "findings": [
+        {
+          "path": "/fragment@41/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "exceeds_both_3A_ICL_and_3.3A_FCC"
+        },
+        {
+          "path": "/fragment@41/__overlay__/qcom,pmi8998@2/qcom,qpnp-smb2",
+          "property": "qcom,thermal-mitigation-qc2",
+          "index": 10,
+          "value": 10255000,
+          "issue": "increases_with_cooling_state"
+        }
+      ]
+    }
+  },
+  "profile_file_controls": {
+    "xiaomi": {
+      "arch/arm64/boot/dts/qcom/batterydata-e1-coslight-3400mAh.dtsi": "ad4a52c510aa6c23017348fbb2e5d7bf78b6fae44c5804a0bc1503780d9183d8",
+      "arch/arm64/boot/dts/qcom/batterydata-e1-atl-3400mAh.dtsi": "0bff994f5a6ccbc5a7ee2f69a37cb8a8494da7bcc04fd2b3b05388db54cf6437"
+    },
+    "legacy": {
+      "arch/arm64/boot/dts/qcom/batterydata-e1-coslight-3400mAh.dtsi": "ad4a52c510aa6c23017348fbb2e5d7bf78b6fae44c5804a0bc1503780d9183d8",
+      "arch/arm64/boot/dts/qcom/batterydata-e1-atl-3400mAh.dtsi": "0bff994f5a6ccbc5a7ee2f69a37cb8a8494da7bcc04fd2b3b05388db54cf6437"
+    },
+    "caf": {
+      "arch/arm64/boot/dts/qcom/batterydata-e1-coslight-3400mAh.dtsi": null,
+      "arch/arm64/boot/dts/qcom/batterydata-e1-atl-3400mAh.dtsi": null
+    }
+  },
+  "limitations": [
+    "Compiled source properties, not actual battery identity or loaded SRAM.",
+    "Plugins retain external fixups and are not applied to a legacy base.",
+    "Declared profile checksum algorithm is unverified; SHA256 is a file/payload identity only.",
+    "QC2 outlier is preserved as evidence, not imported, clamped or guessed corrected.",
+    "Native profile loading, SRAM/IMA protocol, learning/persistence and software JEITA are not implemented by this audit."
+  ]
+}
