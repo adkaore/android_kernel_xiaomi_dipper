@@ -4,6 +4,8 @@
 #include <limits.h>
 #include <stdio.h>
 #define BIT(n) (1U << (n))
+#define GENMASK(h, l) (((1U << ((h) + 1)) - 1) & ~((1U << (l)) - 1))
+#include "../../../drivers/power/supply/qcom_smbx_apsd.h"
 #include "../../../drivers/power/supply/qcom_smbx_limits.h"
 #include "../../../drivers/power/supply/qcom_smbx_status.h"
 
@@ -14,6 +16,7 @@ int main(void)
 	int request, code, previous;
 	unsigned int status;
 	enum smb2_health expected;
+	enum smb2_apsd_type source;
 
 	assert(smb2_float_voltage_code(INT_MIN) == -EINVAL);
 	assert(smb2_float_voltage_code(INT_MAX) == -EINVAL);
@@ -28,6 +31,11 @@ int main(void)
 	}
 	assert(smb2_float_voltage_code(4400000) == 121);
 	for (status = 0; status <= 255; status++) {
+		i = status % 128;
+		source = i == 1 ? SMB2_APSD_SDP : i == 4 ? SMB2_APSD_CDP :
+			 i == 2 || i == 8 || i == 40 || i == 72 ? SMB2_APSD_DCP :
+			 SMB2_APSD_UNKNOWN;
+		assert(smb2_decode_apsd(status) == source);
 		if (status & 0x20)
 			expected = SMB2_HEALTH_OVERVOLTAGE;
 		else if ((status & 3) == 3)
@@ -76,7 +84,6 @@ int main(void)
 		assert(smb2_input_current_code(ceiling + 1, ceiling) == (int)ceiling / 25000);
 	}
 	assert(smb2_input_current_code(5000000, 3000000) == 120);
-	puts("SMB2: ICL bounds, all valid FV ceilings, invalid signed limits "
-	     "and all 256 status bytes passed");
+	puts("SMB2: ICL/FV bounds, signed limits and all fault/APSD bytes passed");
 	return 0;
 }

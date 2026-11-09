@@ -91,4 +91,30 @@ work drain, then power_supply unregister. A setup failure after hardware changes
 also runs the OFF action. Both command-disable and source-selection writes are
 attempted even if one fails; shutdown I/O errors are logged, not relabeled proof
 that hardware stopped. Software sequencing/source assertions are not injected
-hardware-failure or concurrency tests. Hardware charge protection remains active.
+hardware-failure or concurrency tests. The OV/thermal protections are not bypassed. The inherited watchdog-disable
+init entries are NOT factory watchdog parity; supervision/timeouts and bark
+wakeup need a separate policy review. The earlier pet-address fix alone does
+not complete that work.
+
+## Bounded detection instead of an indefinite wake/poll loop
+
+APSD now recognizes exact documented result combinations. Zero, floating and
+conflicting results remain USB_TYPE_UNKNOWN instead of being mislabeled SDP or
+DCP. A DCP result with QC bits is not a negotiated high-voltage contract; HVDCP
+still stays disabled. Unknown/unready sources only lower an existing input
+configuration toward 100 mA (or the lower board ceiling), preserving a lower or
+zero programmed limit instead of raising it. I/O failures are propagated/logged,
+not used as synthetic ADC measurements or successful current writes.
+
+A new plug event resets a bounded eight-read budget. Detection is rerun once,
+not on every poll. Subsequent checks are delayed work, with no polling sleeps
+while holding the policy mutex. Completion, timeout, disconnect, I/O error and
+teardown release the detection wakeup activation; only a queued retry retains
+it. This prevents suspend from silently interrupting the bounded detection work
+without leaving a perpetual wake lock on an unrecognized charger. A new plug
+reschedules the debounce rather than inheriting an old delayed-work deadline.
+
+The eight-read/one-second polling policy is a development bound, not proof of
+an electrical timing requirement. Exact source classification, input limits,
+suspend/wake and fault paths still need controlled hardware validation. Full
+TCPM negotiation/input suspension and arbitration with userspace are not claimed.

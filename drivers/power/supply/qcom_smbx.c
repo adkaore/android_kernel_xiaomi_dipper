@@ -18,6 +18,7 @@
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
 #include <linux/pm_wakeirq.h>
+#include <linux/pm_wakeup.h>
 #include <linux/of.h>
 #include <linux/power_supply.h>
 #include <linux/property.h>
@@ -25,6 +26,7 @@
 #include <linux/types.h>
 #include <linux/workqueue.h>
 
+#include "qcom_smbx_apsd.h"
 #include "qcom_smbx_limits.h"
 #include "qcom_smbx_status.h"
 
@@ -120,14 +122,6 @@
 
 #define APSD_RESULT_STATUS				0x308
 #define ICL_OVERRIDE_LATCH_BIT				BIT(7)
-#define APSD_RESULT_STATUS_MASK				GENMASK(6, 0)
-#define QC_3P0_BIT					BIT(6)
-#define QC_2P0_BIT					BIT(5)
-#define FLOAT_CHARGER_BIT				BIT(4)
-#define DCP_CHARGER_BIT					BIT(3)
-#define CDP_CHARGER_BIT					BIT(2)
-#define OCP_CHARGER_BIT					BIT(1)
-#define SDP_CHARGER_BIT					BIT(0)
 
 #define TYPE_C_STATUS_1					0x30B
 #define UFP_TYPEC_MASK					GENMASK(7, 5)
@@ -372,6 +366,8 @@ struct smb_init_register {
  * @batt_info:		Battery data from DT
  * @input_current_limit_max_ua: Immutable board ceiling for USB input programming
  * @lock:		Serializes callbacks, detection and shutdown
+ * @detection_awake:	Detection owns a bounded wakeup-source activation
+ * @apsd_tries:		Bounded detection attempts for the current plug event
  * @ready:		Hardware initialization completed; protected by lock
  * @status_change_work: Worker to handle plug/unplug events
  * @cable_irq:		USB plugin IRQ
@@ -391,6 +387,8 @@ struct smb_chip {
 	int cable_irq;
 	struct mutex lock; /* Register/policy serialization; never held across work cancellation. */
 	bool ready;
+	bool detection_awake;
+	unsigned int apsd_tries;
 
 	struct iio_channel *usb_in_i_chan;
 	struct iio_channel *usb_in_v_chan;
@@ -458,15 +456,20 @@ static int smb_apsd_get_charger_type(struct smb_chip *chip, int *val)
 		return rc;
 	}
 
-	stat &= APSD_RESULT_STATUS_MASK;
-
-	if (stat & CDP_CHARGER_BIT)
-		*val = POWER_SUPPLY_USB_TYPE_CDP;
-	else if (stat & (DCP_CHARGER_BIT | OCP_CHARGER_BIT | FLOAT_CHARGER_BIT))
-		*val = POWER_SUPPLY_USB_TYPE_DCP;
-	else /* SDP_CHARGER_BIT (or others) */
+	switch (smb2_decode_apsd(stat)) {
+	case SMB2_APSD_SDP:
 		*val = POWER_SUPPLY_USB_TYPE_SDP;
-
+		break;
+	case SMB2_APSD_CDP:
+		*val = POWER_SUPPLY_USB_TYPE_CDP;
+		break;
+	case SMB2_APSD_DCP:
+		*val = POWER_SUPPLY_USB_TYPE_DCP;
+		break;
+	default:
+		*val = POWER_SUPPLY_USB_TYPE_UNKNOWN;
+		break;
+	}
 	return 0;
 }
 
@@ -541,46 +544,89 @@ static int smb_set_current_limit(struct smb_chip *chip, int val)
 			    val_raw);
 }
 
+static void smb_detection_hold(struct smb_chip *chip)
+{
+	lockdep_assert_held(&chip->lock);
+	if (!chip->detection_awake) {
+		pm_stay_awake(chip->dev);
+		chip->detection_awake = true;
+	}
+}
+
+static void smb_detection_relax(struct smb_chip *chip)
+{
+	lockdep_assert_held(&chip->lock);
+	if (chip->detection_awake) {
+		pm_relax(chip->dev);
+		chip->detection_awake = false;
+	}
+}
+
+/* Only lower an existing configuration; do not unsuspend a zero-current request. */
+static int smb_lower_input_current(struct smb_chip *chip)
+{
+	unsigned int configured;
+	int code, ret;
+
+	lockdep_assert_held(&chip->lock);
+	code = smb2_input_current_code(100000, chip->input_current_limit_max_ua);
+	if (code < 0)
+		return code;
+	ret = regmap_read(chip->regmap, chip->base + USBIN_CURRENT_LIMIT_CFG, &configured);
+	if (ret)
+		return ret;
+	if (configured <= (unsigned int)code)
+		return 0;
+	return smb_set_current_limit(chip, 100000);
+}
+
 static void smb_status_change_work(struct work_struct *work)
 {
-	unsigned int charger_type, current_ua;
-	int usb_online = 0;
-	int count, rc;
-	struct smb_chip *chip;
-
-	chip = container_of(work, struct smb_chip, status_change_work.work);
+	struct smb_chip *chip = container_of(work, struct smb_chip, status_change_work.work);
+	int charger_type, current_ua, usb_online, ret;
+	bool pending = false;
 
 	mutex_lock(&chip->lock);
 	if (!chip->ready)
 		goto out;
-	rc = smb_get_prop_usb_online(chip, &usb_online);
-	if (rc)
+	ret = smb_get_prop_usb_online(chip, &usb_online);
+	if (ret)
+		goto error;
+	if (!usb_online) {
+		chip->apsd_tries = 0;
 		goto out;
+	}
+	ret = smb_apsd_get_charger_type(chip, &charger_type);
+	if (ret == -EAGAIN) {
+		ret = smb_lower_input_current(chip);
+		if (ret)
+			goto error;
+		if (chip->apsd_tries < SMB2_APSD_MAX_TRIES)
+			chip->apsd_tries++;
+		if (chip->apsd_tries == SMB2_APSD_MAX_TRIES) {
+			dev_warn_ratelimited(chip->dev, "APSD incomplete; waiting for a new plug event\n");
+			goto notify;
+		}
+		/* Rerun once, not every poll: repeated resets can starve detection. */
+		if (chip->apsd_tries == 1) {
+			ret = regmap_update_bits(chip->regmap, chip->base + CMD_APSD,
+						 APSD_RERUN_BIT, APSD_RERUN_BIT);
+			if (ret)
+				goto error;
+		}
+		pending = true;
+		mod_delayed_work(system_wq, &chip->status_change_work, msecs_to_jiffies(1000));
+		goto notify;
+	}
+	if (ret)
+		goto error;
+	chip->apsd_tries = 0;
+	/* Recheck before writing a result sampled while the cable was attached. */
+	ret = smb_get_prop_usb_online(chip, &usb_online);
+	if (ret)
+		goto error;
 	if (!usb_online)
 		goto out;
-
-	for (count = 0; count < 3; count++) {
-		dev_dbg(chip->dev, "get charger type retry %d\n", count);
-		rc = smb_apsd_get_charger_type(chip, &charger_type);
-		if (rc != -EAGAIN)
-			break;
-		msleep(100);
-	}
-
-	if (rc < 0 && rc != -EAGAIN) {
-		dev_err(chip->dev, "get charger type failed: %d\n", rc);
-		goto out;
-	}
-
-	if (rc < 0) {
-		rc = regmap_update_bits(chip->regmap, chip->base + CMD_APSD,
-					APSD_RERUN_BIT, APSD_RERUN_BIT);
-		schedule_delayed_work(&chip->status_change_work,
-				      msecs_to_jiffies(1000));
-		dev_dbg(chip->dev, "get charger type failed, rerun apsd\n");
-		goto out;
-	}
-
 	switch (charger_type) {
 	case POWER_SUPPLY_USB_TYPE_CDP:
 		current_ua = CDP_CURRENT_UA;
@@ -589,14 +635,24 @@ static void smb_status_change_work(struct work_struct *work)
 		current_ua = DCP_CURRENT_UA;
 		break;
 	case POWER_SUPPLY_USB_TYPE_SDP:
-	default:
 		current_ua = SDP_CURRENT_UA;
 		break;
+	default:
+		ret = smb_lower_input_current(chip);
+		goto result;
 	}
-
-	smb_set_current_limit(chip, current_ua);
+	ret = smb_set_current_limit(chip, current_ua);
+result:
+	if (ret)
+		goto error;
+	goto notify;
+error:
+	dev_err_ratelimited(chip->dev, "Charger detection/configuration failed: %d\n", ret);
+notify:
 	power_supply_changed(chip->chg_psy);
 out:
+	if (!pending)
+		smb_detection_relax(chip);
 	mutex_unlock(&chip->lock);
 }
 
@@ -747,12 +803,19 @@ static irqreturn_t smb_handle_batt_overvoltage(int irq, void *data)
 static irqreturn_t smb_handle_usb_plugin(int irq, void *data)
 {
 	struct smb_chip *chip = data;
+	int ret;
 
+	mutex_lock(&chip->lock);
+	if (chip->ready) {
+		smb_detection_hold(chip);
+		chip->apsd_tries = 0;
+		ret = smb_lower_input_current(chip);
+		if (ret)
+			dev_err_ratelimited(chip->dev, "Couldn't lower plug-event ICL: %d\n", ret);
+		mod_delayed_work(system_wq, &chip->status_change_work, msecs_to_jiffies(1500));
+	}
+	mutex_unlock(&chip->lock);
 	power_supply_changed(chip->chg_psy);
-
-	schedule_delayed_work(&chip->status_change_work,
-			      msecs_to_jiffies(1500));
-
 	return IRQ_HANDLED;
 }
 
@@ -966,6 +1029,7 @@ static void smb_stop(void *data)
 	mutex_lock(&chip->lock);
 	chip->ready = false;
 	ret = smb_disable_charging(chip);
+	smb_detection_relax(chip);
 	mutex_unlock(&chip->lock);
 	if (ret)
 		dev_err(chip->dev, "Charging shutdown failed: %d\n", ret);
@@ -1105,8 +1169,11 @@ static int smb_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, rc, "Couldn't enable configured charging\n");
 	power_supply_changed(chip->chg_psy);
 
-	/* Initialise charger state */
-	schedule_delayed_work(&chip->status_change_work, 0);
+	/* Keep the CPU available until bounded initial detection completes. */
+	mutex_lock(&chip->lock);
+	smb_detection_hold(chip);
+	mod_delayed_work(system_wq, &chip->status_change_work, 0);
+	mutex_unlock(&chip->lock);
 
 	return 0;
 }

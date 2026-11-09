@@ -45,6 +45,11 @@ in hardware-comparison.md. This does not change the target HAL uncertainty.
   adapting the later crDroid ICL safeguard with original authorship preserved.
   Negative requests remain invalid and quantization never rounds up. The
   watchdog pet uses the charger-relative address; see charger-safety.md.
+- Native charger startup validates/rounds float voltage down before reconfiguration,
+  enables only after IRQ/wake setup, and gates/serializes callbacks on teardown.
+  Fault flags and ADC errors are no longer converted to healthy/zero guesses.
+  APSD uses exact classifications and a bounded wake-aware retry path; see
+  charger-safety.md. This is not complete watchdog/PD/JEITA parity.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 151 current-build modules

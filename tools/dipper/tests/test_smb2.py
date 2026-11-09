@@ -20,7 +20,7 @@ class SMB2SourceTests(unittest.TestCase):
         setter = SOURCE.split('static int smb_set_current_limit(')[1].split('static void')[0]
         self.assertIn('smb2_input_current_code(val, chip->input_current_limit_max_ua)', setter)
         self.assertIn('if (val_raw < 0)', setter)
-        self.assertEqual(SOURCE.count('chip->base + USBIN_CURRENT_LIMIT_CFG'), 1)
+        self.assertEqual(SOURCE.count('return regmap_write(chip->regmap, chip->base + USBIN_CURRENT_LIMIT_CFG'), 1)
         self.assertIn('struct smb_chip *chip, int val)', SOURCE)
 
     def test_ceiling_validated_before_hardware_init_and_publication(self):
@@ -90,6 +90,49 @@ class SMB2SourceTests(unittest.TestCase):
             self.assertIn('mutex_lock(&chip->lock)', wrapper)
             self.assertIn('chip->ready ?', wrapper)
             self.assertIn(': -EAGAIN', wrapper)
+
+    def test_apsd_has_a_finite_poll_budget_and_no_repeated_resets(self):
+        worker = SOURCE.split('static void smb_status_change_work(')[1].split('static int smb_get_iio_chan')[0]
+        self.assertIn('chip->apsd_tries < SMB2_APSD_MAX_TRIES', worker)
+        self.assertIn('chip->apsd_tries == SMB2_APSD_MAX_TRIES', worker)
+        self.assertIn('chip->apsd_tries == 1', worker)
+        self.assertNotIn('msleep(', worker)
+        self.assertNotIn('schedule_delayed_work(', worker)
+        self.assertIn('ret = smb_set_current_limit(chip, current_ua)', worker)
+        plug = SOURCE.split('static irqreturn_t smb_handle_usb_plugin(')[1].split('static irqreturn_t')[0]
+        self.assertIn('chip->apsd_tries = 0', plug)
+        self.assertIn('mod_delayed_work(', plug)
+
+    def test_unknown_source_only_lowers_existing_config(self):
+        lower = SOURCE.split('static int smb_lower_input_current(')[1].split('static void')[0]
+        self.assertIn('regmap_read(', lower)
+        self.assertIn('if (configured <= (unsigned int)code)', lower)
+        self.assertIn('return smb_set_current_limit(chip, 100000)', lower)
+
+    def test_detection_wakeup_is_released_on_every_terminal_exit_and_stop(self):
+        worker = SOURCE.split('static void smb_status_change_work(')[1].split('static int smb_get_iio_chan')[0]
+        self.assertIn('bool pending = false', worker)
+        self.assertIn('pending = true', worker)
+        self.assertIn('if (!pending)\n\t\tsmb_detection_relax(chip)', worker)
+        stop = SOURCE.split('static void smb_stop(')[1].split('static int smb_probe')[0]
+        self.assertIn('smb_detection_relax(chip)', stop)
+        plug = SOURCE.split('static irqreturn_t smb_handle_usb_plugin(')[1].split('static irqreturn_t')[0]
+        self.assertIn('smb_detection_hold(chip)', plug)
+
+    def test_apsd_result_bits_match_pinned_references(self):
+        header = (ROOT / 'drivers/power/supply/qcom_smbx_apsd.h').read_text()
+        fields = dict(re.findall(r'^#define\s+(\w+)\s+BIT\((\d+)\)', header, re.M))
+        self.assertEqual(len(fields), 7)
+        for revision in ['dcfb1676925aec83b06ae04fd8ca989ced75067c',
+                         '0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6',
+                         '1f01db5a42ccd3123517a9d5730024719abf095d']:
+            result = subprocess.run(['git', 'show', revision + ':drivers/power/supply/qcom/smb-reg.h'],
+                                    cwd=ROOT, capture_output=True, text=True)
+            if result.returncode:
+                self.skipTest('fetch pinned hardware references for the APSD bit audit')
+            reference = dict(re.findall(r'^#define\s+(\w+)\s+BIT\((\d+)\)', result.stdout, re.M))
+            for field, bit in fields.items():
+                self.assertEqual(reference[field], bit, (revision, field))
 
 
 @unittest.skipUnless(libfdt and DTB_DIR, 'set DIPPER_DTB_DIR and use schema Python')
