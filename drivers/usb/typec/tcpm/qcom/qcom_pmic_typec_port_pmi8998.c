@@ -610,3 +610,7 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 const struct pmic_typec_port_resources pmi8998_port_res = {
 	.probe = pmi8998_typec_port_probe,
 };
+
+#if IS_ENABLED(CONFIG_TYPEC_QCOM_PMIC_KUNIT_TEST)
+#include "qcom_pmic_typec_port_pmi8998_test.c"
+#endif

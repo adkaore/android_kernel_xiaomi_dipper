@@ -90,4 +90,11 @@ config TYPEC_QCOM_PMIC
 	  This driver enables Type-C role switching, orientation, Alternate
 	  mode and Power Delivery support both for VBUS and VCONN.
 
+config TYPEC_QCOM_PMIC_KUNIT_TEST
+	bool "KUnit tests for PMI8998 input handoff"
+	depends on KUNIT=y && TYPEC_QCOM_PMIC=y
+	help
+	  Execute the actual PMI8998 input/boost callbacks with a synthetic power
+	  supply and regulator. No physical PMIC or phone is accessed.
+
 endif # TYPEC_TCPM

@@ -62,3 +62,9 @@ ceilings. Additional boundary cases reject unsupported capability flags. The
 combined Type-C helper suite covers 41,943,040 combinations; this is NOT TCPM,
 regmap-failure, electrical or hardware emulation. Compiled-DTB tests check the
 supplier link and preserve disabled status on all 14 selected board candidates.
+
+An additional ARM64 QEMU/KUnit runner executes the real handoff callbacks
+through kernel regulator and power_supply APIs, including injected provider
+failures and repeated requests. See kernel-api-tests.md for the exact scope,
+boot regression and remaining exclusions. It does not replace physical tests
+or establish the SMB2 hardware input-suspend acknowledgement.

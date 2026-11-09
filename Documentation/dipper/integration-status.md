@@ -55,6 +55,11 @@ in hardware-comparison.md. This does not change the target HAL uncertainty.
   bounded fixed-5-V PDOs; higher-voltage policy is not implemented. The Type-C
   and boost nodes remain disabled without a connector/role graph. See
   input-handoff.md; no physical or target-HAL compatibility is inferred.
+- ARM64 QEMU/KUnit tests execute real Type-C input/boost callbacks through
+  kernel frameworks with injected provider failures and stop/retry cases.
+  Booting this test kernel exposed a separate uninitialized optional ACK
+  allocator-hook result; it was fixed without disabling stack hardening.
+  See kernel-api-tests.md; no PMIC/electrical or Android emulation is claimed.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 151 current-build modules
