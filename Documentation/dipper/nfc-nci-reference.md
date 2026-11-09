@@ -1,11 +1,12 @@
 # Generic Linux NCI reference topic — not the crDroid NFC target
 
-Local crDroid 15.0 device sources explicitly configure NXP_NFC_DEV_NODE as
-/dev/nq-nci and install android.hardware.nfc-service.nxp. Replacing this ABI
-with the Linux NCI networking stack would unnecessarily require an NFC HAL
-rewrite. Therefore this generic-NCI topic is separate and does not select a
-new driver or enable any board node in the core fragment. The Android target
-must preserve the real nq-nci transport ABI, not create a dummy device file.
+The target is crDroid 13 / Android 17. The old 15.0 dipper source uses nq-nci,
+but that alone does not establish the target NFC HAL or kernel transport.
+The target manifest and available NXP HAL were inspected and pinned separately;
+see crdroid13-target-audit.md/json. The exact dipper Android 17 product/vendor
+selection remains unconfirmed. Neither nq-nci nor Linux NCI is selected for the
+phone based on age, an old pathname, or the existence of this reference code.
+This topic remains isolated and adds no NFC option/node to the core target.
 
 During reference review, optional reference-clock handling and existing generic
 NCI lifecycle/firmware defects were addressed: transport start before device
