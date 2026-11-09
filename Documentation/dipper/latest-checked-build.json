@@ -3,8 +3,8 @@
   "hardware_tested": false,
   "flashable_boot_image": false,
   "hermetic_kleaf_build": false,
-  "utc": "2026-11-09T12:51:43.162574+00:00",
-  "commit": "54a42078118a4f24668e46ab40e703abca8f2fa9",
+  "utc": "2026-11-09T13:13:49.490020+00:00",
+  "commit": "cbbb65fb5cf58bdefaaf1f4d7d888f12f335c928",
   "source_dirty": false,
   "board_targets": [
     "sdm845-xiaomi-dipper-mp-v2.1.dtb",
@@ -24,7 +24,7 @@
   ],
   "sha256": {
     ".config": "ed63072f2e1ba1d5c80962f08076b4bcdd4d26685dc9d28d971b9b6664e9d97e",
-    "arch/arm64/boot/Image": "7a27ffc9c14c02d29a7f1813cb0d8f29ce15c159a21872bae5ae2252a91957f9",
+    "arch/arm64/boot/Image": "b5c64c2076c2bb380b538cecd15a6971eb81038e49607978d2f420c36f341cee",
     "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.1.dtb": "f58e9a853485a03d0b13139f055f96808d3f9d8c5239993595e7d041b8dd95f1",
     "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-mp-v2.dtb": "27cf7cb79d7ee3ef958b9760e9ec18b2b5568c636dc0cb3a3134ed0e61612f4a",
     "arch/arm64/boot/dts/qcom/sdm845-xiaomi-dipper-p0-v2.1.dtb": "a2d241076769a5a13c518f440b8457129fe53d61881c5bf123cc1566377469ad",
@@ -199,18 +199,17 @@
   "checks": {
     "runner": "tools/dipper/verify-core.sh",
     "result": "pass",
-    "python_tests": 262,
+    "python_tests": 273,
     "dt_schema_diagnostics": 0,
     "dtbs_checked": 15,
     "host_sanitizers": [
-      "FTM5 decoder: targeted cases and 1000000 fuzz packets",
-      "Haptics encoders: exhaustive magnitude/period/trim bounds",
-      "FG readout: raw words/revision/SOC/sign/temperature bounds",
-      "Type-C/PD helpers: 33554432 exhaustive cases",
-      "SMB2 ICL: 10000002 requests at two ceilings, signed extremes and valid/invalid ceiling boundaries"
+      "FTM5: targeted and 1000000 fuzz packets",
+      "Haptics: exhaustive encoding bounds",
+      "FG: raw-word/revision/SOC bounds",
+      "Type-C/PD: 33554432 cases",
+      "SMB2: ICL/FV signed bounds and all fault/APSD bytes"
     ],
-    "strict_compile": "Final qcom_smbx object: LLVM W=1 KCFLAGS=-Werror; no diagnostics",
     "hardware_tested": false,
-    "log": "/home/adkaore/android/work/logs/smb2-icl-clean-verify.log"
+    "log": "/home/adkaore/android/work/logs/smb2-voltage-clean-verify.log"
   }
 }
