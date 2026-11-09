@@ -92,10 +92,10 @@ work drain, then power_supply unregister. A setup failure after hardware changes
 also runs the OFF action. Both command-disable and source-selection writes are
 attempted even if one fails; shutdown I/O errors are logged, not relabeled proof
 that hardware stopped. Software sequencing/source assertions are not injected
-hardware-failure or concurrency tests. The OV/thermal protections are not bypassed. The inherited watchdog-disable
-init entries are NOT factory watchdog parity; supervision/timeouts and bark
-wakeup need a separate policy review. The earlier pet-address fix alone does
-not complete that work.
+hardware-failure or concurrency tests. The OV/thermal protections are not bypassed.
+The inherited watchdog-disable entries are now skipped for verified PMI8998;
+the separately ordered supervision and wake path is in watchdog.md. It has
+error-injected kernel tests, not a proof of physical wake or automatic cutoff.
 
 ## Bounded detection instead of an indefinite wake/poll loop
 

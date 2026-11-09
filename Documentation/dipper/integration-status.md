@@ -50,6 +50,10 @@ in hardware-comparison.md. This does not change the target HAL uncertainty.
   Fault flags and ADC errors are no longer converted to healthy/zero guesses.
   APSD uses exact classifications and a bounded wake-aware retry path; see
   charger-safety.md. This is not complete watchdog/PD/JEITA parity.
+- Verified PMI8998 now has ordered watchdog configure/start/stop and bark
+  supervision, with latched pet failure and a separate system-sleep wake path.
+  Native error paths are tested in QEMU; real wake/timing/cutoff are not proven.
+  See watchdog.md. No higher charging or battery voltage cap was enabled.
 - A same-PMIC SMB2/Type-C link now sequences input suspend before boost and
   boost OFF before sink resume, with exclusive current policy. It accepts only
   bounded fixed-5-V PDOs; higher-voltage policy is not implemented. The Type-C

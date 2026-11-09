@@ -16,11 +16,11 @@ class KUnitResultsTests(unittest.TestCase):
         groups = [dict(name=suite, misc=results.counts(len(cases)), sub_groups=[],
                        test_cases=[dict(name=name, status='PASS') for name in sorted(cases)])
                   for suite, cases in results.SUITES.items()]
-        self.result = dict(arch='arm64', misc=results.counts(31),
+        self.result = dict(arch='arm64', misc=results.counts(43),
                            test_cases=[], sub_groups=groups)
 
     def test_accept_complete_run(self):
-        self.assertEqual(sum(map(len, results.checked_cases(self.result).values())), 31)
+        self.assertEqual(sum(map(len, results.checked_cases(self.result).values())), 43)
 
     def test_zero_tests_and_error_do_not_pass(self):
         for change in [dict(tests=0, passed=0), dict(errors=1), dict(skipped=1),

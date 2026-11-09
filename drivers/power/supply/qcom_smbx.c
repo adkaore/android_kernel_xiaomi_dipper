@@ -17,14 +17,17 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
+#include <linux/pm.h>
 #include <linux/pm_wakeirq.h>
 #include <linux/pm_wakeup.h>
 #include <linux/of.h>
 #include <linux/power_supply.h>
 #include <linux/property.h>
 #include <linux/regmap.h>
+#include <linux/spmi.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
+#include <soc/qcom/qcom-spmi-pmic.h>
 
 #include "qcom_smbx_apsd.h"
 #include "qcom_smbx_limits.h"
@@ -322,6 +325,12 @@
 #define BARK_WDOG_TIMEOUT_MASK				GENMASK(3, 2)
 #define BITE_WDOG_TIMEOUT_MASK				GENMASK(1, 0)
 
+/* PMI8998: pinned Qualcomm/Xiaomi default bark 64 s, bite 8 s. */
+#define PMI8998_WDOG_TIMEOUTS				((2 << 2) | 3)
+#define PMI8998_WDOG_CONTROL_MASK			(WATCHDOG_TRIGGER_AFP_EN_BIT | \
+						 BARK_WDOG_INT_EN_BIT | \
+						 WDOG_TIMER_EN_ON_PLUGIN_BIT | WDOG_TIMER_EN_BIT)
+
 #define AICL_RERUN_TIME_CFG				0x661
 #define AICL_RERUN_TIME_MASK				GENMASK(1, 0)
 
@@ -375,6 +384,11 @@ struct smb_init_register {
  * @ready:		Hardware initialization completed; protected by lock
  * @status_change_work: Worker to handle plug/unplug events
  * @cable_irq:		USB plugin IRQ
+ * @bark_irq:		Watchdog supervision IRQ
+ * @pmi8998:		Verified PMI8998 identity, selects the native supervision policy
+ * @watchdog_enabled:	Plugin watchdog configured and started
+ * @watchdog_fault:	Failed pet latches charging OFF until reprobe
+ * @bark_wake_armed:	Extra system-suspend wake reference for the bark IRQ
  * @usb_in_i_chan:	USB_IN current measurement channel
  * @usb_in_v_chan:	USB_IN voltage measurement channel
  * @chg_psy:		Charger power supply instance
@@ -389,10 +403,15 @@ struct smb_chip {
 
 	struct delayed_work status_change_work;
 	int cable_irq;
+	int bark_irq;
 	struct mutex lock; /* Register/policy serialization; never held across work cancellation. */
 	bool ready;
 	bool typec_managed;
 	bool detection_awake;
+	bool pmi8998;
+	bool watchdog_enabled;
+	bool watchdog_fault;
+	bool bark_wake_armed;
 	unsigned int apsd_tries;
 
 	struct iio_channel *usb_in_i_chan;
@@ -762,7 +781,12 @@ static int smb_get_property(struct power_supply *psy,
 	int ret;
 
 	mutex_lock(&chip->lock);
-	ret = chip->ready ? smb_get_property_unlocked(psy, psp, val) : -EAGAIN;
+	if (chip->watchdog_fault && psp == POWER_SUPPLY_PROP_HEALTH) {
+		val->intval = POWER_SUPPLY_HEALTH_UNSPEC_FAILURE;
+		ret = 0;
+	} else {
+		ret = chip->ready ? smb_get_property_unlocked(psy, psp, val) : -EAGAIN;
+	}
 	mutex_unlock(&chip->lock);
 	return ret;
 }
@@ -862,15 +886,96 @@ static irqreturn_t smb_handle_usb_icl_change(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+static int smb_disable_charging(struct smb_chip *chip);
+
+static int smb_watchdog_stop(struct smb_chip *chip)
+{
+	int ret;
+
+	if (!chip->pmi8998)
+		return 0;
+	ret = regmap_update_bits(chip->regmap, chip->base + WD_CFG,
+				 PMI8998_WDOG_CONTROL_MASK, 0);
+	if (!ret)
+		chip->watchdog_enabled = false;
+	return ret;
+}
+
+static int smb_watchdog_configure(struct smb_chip *chip)
+{
+	int ret;
+
+	if (!chip->pmi8998)
+		return 0;
+	ret = smb_watchdog_stop(chip);
+	if (ret)
+		return ret;
+	/* Preserve the independent SNARL field, just as the pinned BSP does. */
+	return regmap_update_bits(chip->regmap, chip->base + SNARL_BARK_BITE_WD_CFG,
+				 BITE_WDOG_DISABLE_CHARGING_CFG_BIT |
+				 BARK_WDOG_TIMEOUT_MASK | BITE_WDOG_TIMEOUT_MASK,
+				 PMI8998_WDOG_TIMEOUTS);
+}
+
+/* Called under policy lock only after IRQ/wakeup setup, before charging ON. */
+static int smb_watchdog_start(struct smb_chip *chip)
+{
+	int ret;
+
+	lockdep_assert_held(&chip->lock);
+	if (!chip->pmi8998)
+		return 0;
+	if (chip->watchdog_fault)
+		return -EIO;
+	ret = regmap_write(chip->regmap, chip->base + BARK_BITE_WDOG_PET,
+			   BARK_BITE_WDOG_PET_BIT);
+	if (ret)
+		return ret;
+	ret = regmap_update_bits(chip->regmap, chip->base + WD_CFG,
+				 PMI8998_WDOG_CONTROL_MASK,
+				 WDOG_TIMER_EN_ON_PLUGIN_BIT | BARK_WDOG_INT_EN_BIT);
+	if (!ret)
+		chip->watchdog_enabled = true;
+	return ret;
+}
+
+static int smb_watchdog_service(struct smb_chip *chip)
+{
+	int ret, cleanup;
+
+	lockdep_assert_held(&chip->lock);
+	if (chip->pmi8998 && !chip->ready)
+		return -ESHUTDOWN;
+	ret = regmap_write(chip->regmap, chip->base + BARK_BITE_WDOG_PET,
+			   BARK_BITE_WDOG_PET_BIT);
+	if (ret && chip->pmi8998) {
+		/* Failed supervision is a latched fault, never a successful pet. */
+		chip->watchdog_fault = true;
+		chip->ready = false;
+		cleanup = smb_disable_charging(chip);
+		if (cleanup) {
+			dev_err(chip->dev, "Watchdog fault: charging OFF failed: %d\n", cleanup);
+		} else {
+			/* Once OFF is acknowledged, avoid repeated fault wakeups. */
+			cleanup = smb_watchdog_stop(chip);
+			if (cleanup)
+				dev_err(chip->dev, "Watchdog fault: timer OFF failed: %d\n",
+					cleanup);
+		}
+		smb_detection_relax(chip);
+	}
+	return ret;
+}
+
 static irqreturn_t smb_handle_wdog_bark(int irq, void *data)
 {
 	struct smb_chip *chip = data;
 	int rc;
 
+	mutex_lock(&chip->lock);
+	rc = smb_watchdog_service(chip);
+	mutex_unlock(&chip->lock);
 	power_supply_changed(chip->chg_psy);
-
-	rc = regmap_write(chip->regmap, chip->base + BARK_BITE_WDOG_PET,
-			  BARK_BITE_WDOG_PET_BIT);
 	if (rc < 0)
 		dev_err(chip->dev, "Couldn't pet the dog rc=%d\n", rc);
 
@@ -1005,6 +1110,11 @@ static int smb_init_hw(struct smb_chip *chip)
 	int rc, i;
 
 	for (i = 0; i < ARRAY_SIZE(smb_init_seq); i++) {
+		/* PMI8998 has a separately ordered, supervised watchdog policy. */
+		if (chip->pmi8998 &&
+		    (smb_init_seq[i].addr == WD_CFG ||
+		     smb_init_seq[i].addr == SNARL_BARK_BITE_WD_CFG))
+			continue;
 		if (chip->typec_managed &&
 		    (smb_init_seq[i].addr == TYPE_C_INTRPT_ENB_SOFTWARE_CTRL ||
 		     smb_init_seq[i].addr == TYPE_C_CFG))
@@ -1060,22 +1170,75 @@ static int smb_disable_charging(struct smb_chip *chip)
 static void smb_stop(void *data)
 {
 	struct smb_chip *chip = data;
-	int ret;
+	int ret, watchdog_ret;
 
 	mutex_lock(&chip->lock);
 	chip->ready = false;
 	ret = smb_disable_charging(chip);
+	watchdog_ret = smb_watchdog_stop(chip);
 	smb_detection_relax(chip);
 	mutex_unlock(&chip->lock);
 	if (ret)
 		dev_err(chip->dev, "Charging shutdown failed: %d\n", ret);
+	if (watchdog_ret)
+		dev_err(chip->dev, "Watchdog shutdown failed: %d\n", watchdog_ret);
 }
+
+static void smb_bark_wake_cleanup(void *data)
+{
+	struct smb_chip *chip = data;
+	int ret;
+
+	if (!chip->bark_wake_armed)
+		return;
+	ret = disable_irq_wake(chip->bark_irq);
+	if (ret)
+		dev_err(chip->dev, "Couldn't disarm watchdog wake: %d\n", ret);
+	else
+		chip->bark_wake_armed = false;
+}
+
+static int smb_suspend(struct device *dev)
+{
+	struct smb_chip *chip = dev_get_drvdata(dev);
+	int ret = 0;
+
+	mutex_lock(&chip->lock);
+	if (!chip->pmi8998 || !chip->watchdog_enabled)
+		goto out;
+	if (chip->bark_wake_armed) {
+		ret = -EIO;
+		goto out;
+	}
+	/* Never silence supervision merely to allow suspend without a wake path. */
+	if (!device_may_wakeup(dev)) {
+		ret = -EBUSY;
+		goto out;
+	}
+	ret = enable_irq_wake(chip->bark_irq);
+	if (!ret)
+		chip->bark_wake_armed = true;
+out:
+	mutex_unlock(&chip->lock);
+	return ret;
+}
+
+static int smb_resume(struct device *dev)
+{
+	struct smb_chip *chip = dev_get_drvdata(dev);
+
+	smb_bark_wake_cleanup(chip);
+	return chip->bark_wake_armed ? -EIO : 0;
+}
+
+static DEFINE_SIMPLE_DEV_PM_OPS(smb_pm_ops, smb_suspend, smb_resume);
 
 static int smb_probe(struct platform_device *pdev)
 {
 	struct power_supply_config supply_config = {};
 	struct power_supply_desc *desc;
 	struct smb_chip *chip;
+	const struct qcom_spmi_pmic *pmic;
 	int rc, irq, fv_code;
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
@@ -1105,6 +1268,15 @@ static int smb_probe(struct platform_device *pdev)
 	if (rc < 0)
 		return dev_err_probe(chip->dev, rc,
 				     "Couldn't read base address\n");
+	if (device_is_compatible(chip->dev, "qcom,pmi8998-charger")) {
+		pmic = qcom_pmic_get(chip->dev);
+		if (IS_ERR(pmic))
+			return PTR_ERR(pmic);
+		if (pmic->subtype != PMI8998_SUBTYPE || chip->base != 0x1000 ||
+		    (to_spmi_device(chip->dev->parent)->usid & 1))
+			return -ENODEV;
+		chip->pmi8998 = true;
+	}
 
 	chip->usb_in_v_chan = devm_iio_channel_get(chip->dev, "usbin_v");
 	if (IS_ERR(chip->usb_in_v_chan))
@@ -1160,6 +1332,9 @@ static int smb_probe(struct platform_device *pdev)
 	rc = smb_disable_charging(chip);
 	if (rc)
 		return dev_err_probe(chip->dev, rc, "Couldn't disable charging for setup\n");
+	rc = smb_watchdog_configure(chip);
+	if (rc)
+		return dev_err_probe(chip->dev, rc, "Couldn't configure watchdog\n");
 	rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
 				FLOAT_VOLTAGE_SETTING_MASK, fv_code);
 	if (rc < 0)
@@ -1189,7 +1364,7 @@ static int smb_probe(struct platform_device *pdev)
 			   smb_handle_usb_icl_change);
 	if (rc < 0)
 		return rc;
-	rc = smb_init_irq(chip, &irq, "wdog-bark", smb_handle_wdog_bark);
+	rc = smb_init_irq(chip, &chip->bark_irq, "wdog-bark", smb_handle_wdog_bark);
 	if (rc < 0)
 		return rc;
 
@@ -1200,13 +1375,18 @@ static int smb_probe(struct platform_device *pdev)
 	rc = devm_pm_set_wake_irq(chip->dev, chip->cable_irq);
 	if (rc < 0)
 		return dev_err_probe(chip->dev, rc, "Couldn't set wake irq\n");
+	rc = devm_add_action_or_reset(chip->dev, smb_bark_wake_cleanup, chip);
+	if (rc)
+		return rc;
 
 	platform_set_drvdata(pdev, chip);
 
 	/* Last fallible setup operation: enable only fully configured charging. */
 	mutex_lock(&chip->lock);
-	rc = regmap_update_bits(chip->regmap, chip->base + CHARGING_ENABLE_CMD,
-				CHARGING_ENABLE_CMD_BIT, CHARGING_ENABLE_CMD_BIT);
+	rc = smb_watchdog_start(chip);
+	if (!rc)
+		rc = regmap_update_bits(chip->regmap, chip->base + CHARGING_ENABLE_CMD,
+					CHARGING_ENABLE_CMD_BIT, CHARGING_ENABLE_CMD_BIT);
 	if (!rc)
 		chip->ready = true;
 	mutex_unlock(&chip->lock);
@@ -1237,6 +1417,7 @@ static struct platform_driver qcom_spmi_smb = {
 	.driver = {
 		.name = "qcom-smbx-charger",
 		.of_match_table = smb_match_id_table,
+		.pm = pm_sleep_ptr(&smb_pm_ops),
 		},
 };
 

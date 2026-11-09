@@ -84,6 +84,7 @@ static int smb2_test_init(struct kunit *test)
 	ctx->chip.base = SMB2_TEST_BASE;
 	ctx->chip.ready = true;
 	ctx->chip.typec_managed = true;
+	ctx->chip.pmi8998 = true;
 	ctx->chip.input_current_limit_max_ua = 3000000;
 	mutex_init(&ctx->chip.lock);
 	ctx->supply.desc = &smb_psy_desc;
@@ -321,6 +322,189 @@ static void smb2_sysfs_policy(struct kunit *test)
 						       POWER_SUPPLY_PROP_ONLINE), 0);
 }
 
+static void smb2_watchdog_config(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+
+	ctx->regs[WD_CFG] = 0xff;
+	ctx->regs[SNARL_BARK_BITE_WD_CFG] = 0xff;
+	KUNIT_ASSERT_EQ(test, smb_watchdog_configure(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[WD_CFG] & PMI8998_WDOG_CONTROL_MASK, 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[SNARL_BARK_BITE_WD_CFG], 0x70 | PMI8998_WDOG_TIMEOUTS);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.watchdog_enabled);
+}
+
+static void smb2_watchdog_start_stop(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_start(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_ASSERT_EQ(test, ret, 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[BARK_BITE_WDOG_PET], BARK_BITE_WDOG_PET_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[WD_CFG],
+			WDOG_TIMER_EN_ON_PLUGIN_BIT | BARK_WDOG_INT_EN_BIT);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.watchdog_enabled);
+	KUNIT_EXPECT_EQ(test, smb_watchdog_stop(&ctx->chip), 0);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.watchdog_enabled);
+	KUNIT_EXPECT_EQ(test, ctx->regs[WD_CFG], 0);
+}
+
+static void smb2_watchdog_start_pet_error(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	ctx->fail_write = SMB2_TEST_BASE + BARK_BITE_WDOG_PET;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_start(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -EREMOTEIO);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 1);
+	KUNIT_EXPECT_EQ(test, ctx->regs[WD_CFG], 0);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.watchdog_enabled);
+}
+
+static void smb2_watchdog_start_enable_error(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	ctx->fail_write = SMB2_TEST_BASE + WD_CFG;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_start(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -EREMOTEIO);
+	KUNIT_EXPECT_EQ(test, ctx->regs[BARK_BITE_WDOG_PET], BARK_BITE_WDOG_PET_BIT);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.watchdog_enabled);
+}
+
+static void smb2_watchdog_pet_fault(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	union power_supply_propval value;
+	int ret;
+
+	ctx->regs[CHARGING_ENABLE_CMD] = CHARGING_ENABLE_CMD_BIT;
+	ctx->regs[CHGR_CFG2] = CHG_EN_SRC_BIT;
+	ctx->fail_write = SMB2_TEST_BASE + BARK_BITE_WDOG_PET;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_service(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -EREMOTEIO);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.watchdog_fault);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.ready);
+	KUNIT_EXPECT_EQ(test, ctx->regs[CHARGING_ENABLE_CMD], 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[CHGR_CFG2], 0);
+	ret = power_supply_get_property(&ctx->supply, POWER_SUPPLY_PROP_HEALTH, &value);
+	KUNIT_ASSERT_EQ(test, ret, 0);
+	KUNIT_EXPECT_EQ(test, value.intval, POWER_SUPPLY_HEALTH_UNSPEC_FAILURE);
+	/* A later successful bus access must not silently restart charging. */
+	ctx->fail_write = U32_MAX;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_start(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -EIO);
+}
+
+static void smb2_watchdog_not_ready(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	ctx->chip.ready = false;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_service(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -ESHUTDOWN);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 0);
+}
+
+static void smb2_watchdog_other_pmic(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	ctx->chip.pmi8998 = false;
+	KUNIT_EXPECT_EQ(test, smb_watchdog_configure(&ctx->chip), 0);
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_start(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, 0);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 0);
+}
+
+static void smb2_watchdog_suspend_no_wake(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+
+	dev_set_drvdata(ctx->chip.dev, &ctx->chip);
+	ctx->chip.watchdog_enabled = true;
+	KUNIT_ASSERT_FALSE(test, device_may_wakeup(ctx->chip.dev));
+	KUNIT_EXPECT_EQ(test, smb_suspend(ctx->chip.dev), -EBUSY);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.bark_wake_armed);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 0);
+}
+
+static void smb2_watchdog_config_error(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+
+	ctx->regs[WD_CFG] = 0xff;
+	ctx->fail_write = SMB2_TEST_BASE + WD_CFG;
+	KUNIT_EXPECT_EQ(test, smb_watchdog_configure(&ctx->chip), -EREMOTEIO);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 1);
+	KUNIT_EXPECT_EQ(test, ctx->regs[SNARL_BARK_BITE_WD_CFG], 0);
+}
+
+static void smb2_watchdog_stop_error(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+
+	ctx->regs[WD_CFG] = BARK_WDOG_INT_EN_BIT | WDOG_TIMER_EN_ON_PLUGIN_BIT;
+	ctx->chip.watchdog_enabled = true;
+	ctx->fail_write = SMB2_TEST_BASE + WD_CFG;
+	KUNIT_EXPECT_EQ(test, smb_watchdog_stop(&ctx->chip), -EREMOTEIO);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.watchdog_enabled);
+}
+
+static void smb2_watchdog_service_ok(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_service(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, 0);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.ready);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.watchdog_fault);
+	KUNIT_EXPECT_EQ(test, ctx->writes, 1);
+	KUNIT_EXPECT_EQ(test, ctx->last_write, SMB2_TEST_BASE + BARK_BITE_WDOG_PET);
+}
+
+static void smb2_watchdog_cleanup_error(struct kunit *test)
+{
+	struct smb2_policy_test *ctx = test->priv;
+	int ret;
+
+	ctx->regs[CHARGING_ENABLE_CMD] = CHARGING_ENABLE_CMD_BIT;
+	ctx->regs[CHGR_CFG2] = CHG_EN_SRC_BIT;
+	ctx->fail_write = SMB2_TEST_BASE + BARK_BITE_WDOG_PET;
+	ctx->fail_read = SMB2_TEST_BASE + CHGR_CFG2;
+	mutex_lock(&ctx->chip.lock);
+	ret = smb_watchdog_service(&ctx->chip);
+	mutex_unlock(&ctx->chip.lock);
+	KUNIT_EXPECT_EQ(test, ret, -EREMOTEIO);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.watchdog_fault);
+	KUNIT_EXPECT_FALSE(test, ctx->chip.ready);
+	KUNIT_EXPECT_EQ(test, ctx->regs[CHARGING_ENABLE_CMD], 0);
+	/* Failed source cleanup is not recorded as proof that the bit cleared. */
+	KUNIT_EXPECT_EQ(test, ctx->regs[CHGR_CFG2], CHG_EN_SRC_BIT);
+}
+
 static struct kunit_case smb2_policy_cases[] = {
 	KUNIT_CASE(smb2_suspend_ack),
 	KUNIT_CASE(smb2_suspend_delayed_ack),
@@ -339,6 +523,18 @@ static struct kunit_case smb2_policy_cases[] = {
 	KUNIT_CASE(smb2_health_read_error),
 	KUNIT_CASE(smb2_stop_gate),
 	KUNIT_CASE(smb2_sysfs_policy),
+	KUNIT_CASE(smb2_watchdog_config),
+	KUNIT_CASE(smb2_watchdog_start_stop),
+	KUNIT_CASE(smb2_watchdog_start_pet_error),
+	KUNIT_CASE(smb2_watchdog_start_enable_error),
+	KUNIT_CASE(smb2_watchdog_pet_fault),
+	KUNIT_CASE(smb2_watchdog_not_ready),
+	KUNIT_CASE(smb2_watchdog_other_pmic),
+	KUNIT_CASE(smb2_watchdog_suspend_no_wake),
+	KUNIT_CASE(smb2_watchdog_config_error),
+	KUNIT_CASE(smb2_watchdog_stop_error),
+	KUNIT_CASE(smb2_watchdog_service_ok),
+	KUNIT_CASE(smb2_watchdog_cleanup_error),
 	{}
 };
 

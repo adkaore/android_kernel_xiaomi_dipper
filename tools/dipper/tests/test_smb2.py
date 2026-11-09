@@ -33,8 +33,43 @@ class SMB2SourceTests(unittest.TestCase):
         self.assertNotIn('INT_MAX', SOURCE)
 
     def test_watchdog_pet_is_relative_to_the_charger_base(self):
-        handler = SOURCE.split('static irqreturn_t smb_handle_wdog_bark(')[1].split('static const')[0]
+        handler = SOURCE.split('static int smb_watchdog_service(')[1].split('static irqreturn_t')[0]
         self.assertIn('regmap_write(chip->regmap, chip->base + BARK_BITE_WDOG_PET,', handler)
+
+    def test_watchdog_starts_only_after_irqs_and_before_charge_enable(self):
+        probe = SOURCE.split('static int smb_probe(')[1]
+        self.assertLess(probe.index('smb_watchdog_configure(chip)'), probe.index('smb_init_irq('))
+        self.assertLess(probe.index('devm_pm_set_wake_irq('), probe.index('smb_watchdog_start(chip)'))
+        self.assertLess(probe.index('smb_watchdog_start(chip)'), probe.index('chip->base + CHARGING_ENABLE_CMD'))
+        self.assertIn('(smb_init_seq[i].addr == WD_CFG ||', SOURCE)
+
+    def test_watchdog_failure_latches_off_without_faking_health(self):
+        handler = SOURCE.split('static int smb_watchdog_service(')[1].split('static irqreturn_t')[0]
+        self.assertIn('chip->watchdog_fault = true', handler)
+        self.assertIn('chip->ready = false', handler)
+        self.assertIn('smb_disable_charging(chip)', handler)
+        self.assertIn('chip->watchdog_fault && psp == POWER_SUPPLY_PROP_HEALTH', SOURCE)
+
+    def test_watchdog_bits_and_defaults_match_three_sources(self):
+        fields = dict(re.findall(r'^#define\s+(\w+)\s+BIT\((\d+)\)', SOURCE, re.M))
+        wanted = ['WATCHDOG_TRIGGER_AFP_EN_BIT', 'BARK_WDOG_INT_EN_BIT',
+                  'WDOG_TIMER_EN_ON_PLUGIN_BIT', 'WDOG_TIMER_EN_BIT',
+                  'BITE_WDOG_DISABLE_CHARGING_CFG_BIT', 'BARK_BITE_WDOG_PET_BIT']
+        for revision in ['dcfb1676925aec83b06ae04fd8ca989ced75067c',
+                         '0b3e38ef6c40e0a346dfa0241aeceaf5540e91f6',
+                         '1f01db5a42ccd3123517a9d5730024719abf095d']:
+            result = subprocess.run(['git', 'show', revision + ':drivers/power/supply/qcom/smb-reg.h'],
+                                    cwd=ROOT, capture_output=True, text=True)
+            if result.returncode:
+                self.skipTest('fetch pinned references for watchdog evidence')
+            reference = dict(re.findall(r'^#define\s+(\w+)\s+BIT\((\d+)\)', result.stdout, re.M))
+            for field in wanted:
+                self.assertEqual(reference[field], fields[field])
+            reference = subprocess.check_output(
+                ['git', 'show', revision + ':drivers/power/supply/qcom/qpnp-smb2.c'],
+                cwd=ROOT, text=True)
+            self.assertRegex(reference, r'#define DEFAULT_WD_BARK_TIME\s+64\b')
+            self.assertRegex(reference, r'#define BITE_WDOG_TIMEOUT_8S\s+0x3\b')
 
     def test_voltage_ceiling_is_validated_without_upward_bias(self):
         self.assertIn('smb2_float_voltage_code(chip->batt_info->voltage_max_design_uv)', SOURCE)

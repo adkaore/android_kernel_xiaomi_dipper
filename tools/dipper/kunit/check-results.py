@@ -20,6 +20,12 @@ SUITES = {'qcom-pmi8998-input-handoff': {
     'smb2_current_limits', 'smb2_lower_never_raises', 'smb2_not_ready',
     'smb2_disable_fallback', 'smb2_disable_source_error', 'smb2_health_read_error',
     'smb2_stop_gate', 'smb2_sysfs_policy',
+    'smb2_watchdog_config', 'smb2_watchdog_start_stop',
+    'smb2_watchdog_start_pet_error', 'smb2_watchdog_start_enable_error',
+    'smb2_watchdog_pet_fault', 'smb2_watchdog_not_ready',
+    'smb2_watchdog_other_pmic', 'smb2_watchdog_suspend_no_wake',
+    'smb2_watchdog_config_error', 'smb2_watchdog_stop_error',
+    'smb2_watchdog_service_ok', 'smb2_watchdog_cleanup_error',
 }}
 
 

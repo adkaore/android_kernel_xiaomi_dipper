@@ -48,7 +48,7 @@ the callback still goes through the real `power_supply_set_property()` path.
 In this suite the synthetic input setter confirms isolation immediately; it
 does not prove the physical input suspended.
 
-## Seventeen SMB2 cases, real regmap and driver methods
+## SMB2 register and watchdog cases, real regmap and driver methods
 
 A second default-off suite is privately included in the native SMB2 driver.
 It uses a real, uncached regmap with a bounded synthetic register bus. All
@@ -66,6 +66,9 @@ errors and sysfs policy are checked too. The valid/invalid public getter/setter
 paths used here run through power_supply; successful input/current programming
 is tested through the real internal methods under their required mutex. This
 does not exercise successful property-change notification work or all of probe.
+Additional watchdog cases execute configuration, start/stop, failed pets,
+latched failure and cleanup, with PM/suspend compiled in. The latest checked
+report lists every expected case; see watchdog.md for the distinct wake scope.
 
 Both suites keep lockdep, atomic-sleep checking, stack-pattern initialization
 and RANDSTRUCT enabled. They are separate tests, not a complete connected
