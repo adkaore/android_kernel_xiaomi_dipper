@@ -134,15 +134,17 @@ identity missing from internet sources; it is not itself a hardware driver test.
 ## Latest end-to-end check
 
 latest-checked-build.json identifies the checked source revision, configuration,
-Image/DTB/plugin hashes and 148 module paths. At source revision
-`e4a67475027dc832958db6258321c153945a3a2f` the final verifier completed with
-zero applicable schema diagnostics for all 14 final trees and the helper base,
-242 source/compiled-DT tests and one million ASan/UBSan decoder cases. It also
-rechecked all 97 explicit fragment requests after schema generation. Haptics register encoders also passed ASan/UBSan
-coverage of all supported periods and all trim bytes, voltage ceilings and
-debounce cases. FG conversion helpers passed all raw-word, revision-byte-order,
-SOC and temperature cases under ASan/UBSan. The unchanged legacy manifest was reproduced in the earlier
-variant audit; that result is historical, not a new hardware test.
+Image/DTB/plugin hashes, module paths and exact check counts. The clean verifier
+rechecks every explicit fragment request, all 14 final trees and the helper
+base, source/compiled-DT tests and five host ASan/UBSan suites. The host suites
+cover one million touch packets, exhaustive haptics and FG encoders, Type-C
+CC/PD/PDO guards and SMB2 current/voltage/status/APSD helpers.
+
+latest-checked-kunit.json separately records the actual clean source revision,
+kernel/config/log hashes and fourteen ARM64 callback cases. Kernel execution
+is stronger evidence than source assertions but is still not PMIC emulation.
+The unchanged legacy manifest was reproduced in the earlier variant audit;
+that result is historical, not a new hardware test.
 No Android/vendor files were changed, and no phone command has been executed.
 
 The work is published on topic branches. It does NOT mean that every independent
