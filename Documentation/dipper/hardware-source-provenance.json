@@ -20,7 +20,8 @@
       "drivers/power/supply/qcom/smb5-lib.c"
     ],
     "decision": "Retain the safety requirement; adapt only the applicable native charger code, not downstream voter semantics or SMB5",
-    "current_port_status": "reviewed; native adaptation not yet committed"
+    "current_port_status": "adapted to native signed/ceiling-bounded encoder, original author retained",
+    "native_commit": "fc4189328965d33dfcb454eeec462c20b26e5c06"
   },
   "hardware_accessed": false
 }

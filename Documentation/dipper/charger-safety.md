@@ -1,0 +1,55 @@
+# Native SMB2 safety corrections from the source comparison
+
+Target remains crDroid 13.1 / Android 17. No phone was accessed or flashed.
+This is not full downstream charger, JEITA, parallel-charge or PD policy parity.
+
+## Input programming ceiling, not permission to draw more
+
+Official Xiaomi dcfb1676925aec83b06ae04fd8ca989ced75067c reduces the Qualcomm
+base's usb_icl configuration ceiling from 4.8 A to 3 A in v1_params. The old
+crDroid comparison retains this. Its later fix by awkoo,
+139347ae71d25ca04d0d249d97d71cb476a6c544, bounds requested ICL before programming.
+The native adaptation fc4189328965d33dfcb454eeec462c20b26e5c06 preserves awkoo's
+authorship and identifies the original commit. It does not copy SMB5 or voters.
+
+The native driver accepts an immutable input-current-limit-microamp constraint,
+validated before hardware init and power-supply publication. All dipper candidates
+set 3000000. The old 4800000 register ceiling remains the default for descriptions
+without a board constraint; we do not call that default a Mi 8 factory limit.
+Negative signed power_supply requests stay invalid rather than becoming a large
+unsigned request which would clamp to a dangerously positive value. Valid requests
+are capped to the board limit and quantized downward to 25 mA steps. Invalid
+ceiling ranges/steps fail probe instead of being silently ignored.
+
+This ceiling does not set the initial current to 3 A, increase the existing 1 A
+fast-charge cap, negotiate a source contract, or control USB input suspension.
+It bounds writes requested through the native setter, including charger detection
+and power_supply. It does not implement the old <=25 mA suspend policy or its
+INT_MAX/unlimited-vote convention. Raw ICL status is still hardware telemetry,
+not a value clamped to make the displayed status look like the configured limit.
+
+The source comparison also identified factory float/fast-charge/OTG limits;
+those need their own parameter/revision and startup-policy review. In particular,
+no higher Qualcomm limit is accepted merely because it exists in the base tree.
+
+## Correct watchdog register address
+
+The native driver formerly wrote the relative offset 0x643 without adding the
+charger base. Xiaomi and the declared Qualcomm smb-reg.h define the pet register
+as MISC_BASE + 0x43: on this PMIC, 0x1643. The driver now uses its actual base
+plus the existing offset, just as its other charger register accesses do.
+This corrects an address calculation; it does not disable the watchdog, extend
+its safety timers, prove a pet reached hardware or alter fault-recovery policy.
+
+## Checks and open work
+
+The shared real ICL encoder is executed under ASan/UBSan: every integer request
+from 0 to 5000000 at both the factory and default ceilings, negative extremes,
+invalid ceiling encodings, and boundaries at every valid ceiling. Compiled-DTB
+tests check the 3 A ceiling across all 14 selected candidates. These are source,
+math and wiring checks, not electrical or Linux-concurrency emulation.
+
+Charger/TCPM negotiated voltage/current coordination, source-input suspension,
+JEITA/thermal/parallel charging, gauge profiles, startup/suspend/fault behavior,
+measurement and the actual crDroid 13.1 health/USB product remain separate work.
+Do not enable the new Type-C/PD nodes based on this current bound alone.

@@ -41,6 +41,10 @@ in hardware-comparison.md. This does not change the target HAL uncertainty.
   with disabled nodes and no guessed connector/role policy. CC decoding, PD RX
   bounds, reset signaling and producer lifetimes are hardened; see typec.md.
   Charger/PD input limits, VBUS measurement and revision workarounds remain open.
+- Native charger input programming now respects the factory 3 A board ceiling,
+  adapting the later crDroid ICL safeguard with original authorship preserved.
+  Negative requests remain invalid and quantization never rounds up. The
+  watchdog pet uses the charger-relative address; see charger-safety.md.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
 - Combined build produced Image, 14 final DTB targets and 151 current-build modules

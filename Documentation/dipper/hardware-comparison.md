@@ -63,11 +63,14 @@ own review, not transplantation as one battery/performance diff.
 
 The bounded crDroid history contains a real later fix by awkoo:
 139347ae71d25ca04d0d249d97d71cb476a6c544, capping requested input current to the
-configured hardware maximum. It is absent from Xiaomi Q but relevant: preserve
-its safety requirement when adapting the native charger, including signed-input
-validation and quantization. Its downstream INT_MAX/unlimited-vote convention
+configured hardware maximum. It is absent from Xiaomi Q but relevant. Its safety requirement is now adapted
+in fc4189328965d33dfcb454eeec462c20b26e5c06 with awkoo retained as author,
+signed-input validation, a board ceiling and downward quantization. Its downstream INT_MAX/unlimited-vote convention
 is NOT automatically a valid native power_supply interface. Do not copy the
 unrelated SMB5 half or claim an Android 17 charging policy from this fix.
+All new dipper candidates declare the factory 3 A programming ceiling. This
+is a maximum for requests, not an initial 3 A draw or a PD contract; the
+existing conservative 1 A fast-charge cap is unchanged. See charger-safety.md.
 
 ### Type-C: shared registers, revision workarounds still required
 
