@@ -76,3 +76,19 @@ USBIN IIO voltage/current reads no longer return a synthetic zero merely because
 charging stopped or a separate status read failed. They return the ADC result
 or its error. The OV IRQ path checks register-read success before inspecting the
 status word, and notifies power_supply even when the read is unavailable.
+
+## Startup and teardown are part of the safety path
+
+Battery float validation now precedes any charger reconfiguration. The published
+power_supply returns EAGAIN until setup completes; a mutex serializes public
+properties and detection against shutdown. Valid setup first commands charging
+OFF and selects software control, then applies the float ceiling and remaining
+limits. The init table no longer enables charging halfway through. IRQs and
+wakeup are prepared before the final enable; wakeup-setup failures are checked.
+
+Managed release order is IRQ/wake producers, ready gate and charging OFF, delayed
+work drain, then power_supply unregister. A setup failure after hardware changes
+also runs the OFF action. Both command-disable and source-selection writes are
+attempted even if one fails; shutdown I/O errors are logged, not relabeled proof
+that hardware stopped. Software sequencing/source assertions are not injected
+hardware-failure or concurrency tests. Hardware charge protection remains active.

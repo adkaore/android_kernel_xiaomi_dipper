@@ -15,6 +15,7 @@
 #include <linux/kernel.h>
 #include <linux/minmax.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/platform_device.h>
 #include <linux/pm_wakeirq.h>
 #include <linux/of.h>
@@ -370,9 +371,10 @@ struct smb_init_register {
  * @regmap:		Register map
  * @batt_info:		Battery data from DT
  * @input_current_limit_max_ua: Immutable board ceiling for USB input programming
+ * @lock:		Serializes callbacks, detection and shutdown
+ * @ready:		Hardware initialization completed; protected by lock
  * @status_change_work: Worker to handle plug/unplug events
  * @cable_irq:		USB plugin IRQ
- * @wakeup_enabled:	If the cable IRQ will cause a wakeup
  * @usb_in_i_chan:	USB_IN current measurement channel
  * @usb_in_v_chan:	USB_IN voltage measurement channel
  * @chg_psy:		Charger power supply instance
@@ -387,7 +389,8 @@ struct smb_chip {
 
 	struct delayed_work status_change_work;
 	int cable_irq;
-	bool wakeup_enabled;
+	struct mutex lock; /* Register/policy serialization; never held across work cancellation. */
+	bool ready;
 
 	struct iio_channel *usb_in_i_chan;
 	struct iio_channel *usb_in_v_chan;
@@ -529,6 +532,7 @@ static int smb_set_current_limit(struct smb_chip *chip, int val)
 {
 	int val_raw;
 
+	lockdep_assert_held(&chip->lock);
 	val_raw = smb2_input_current_code(val, chip->input_current_limit_max_ua);
 	if (val_raw < 0)
 		return val_raw;
@@ -546,9 +550,14 @@ static void smb_status_change_work(struct work_struct *work)
 
 	chip = container_of(work, struct smb_chip, status_change_work.work);
 
-	smb_get_prop_usb_online(chip, &usb_online);
+	mutex_lock(&chip->lock);
+	if (!chip->ready)
+		goto out;
+	rc = smb_get_prop_usb_online(chip, &usb_online);
+	if (rc)
+		goto out;
 	if (!usb_online)
-		return;
+		goto out;
 
 	for (count = 0; count < 3; count++) {
 		dev_dbg(chip->dev, "get charger type retry %d\n", count);
@@ -560,7 +569,7 @@ static void smb_status_change_work(struct work_struct *work)
 
 	if (rc < 0 && rc != -EAGAIN) {
 		dev_err(chip->dev, "get charger type failed: %d\n", rc);
-		return;
+		goto out;
 	}
 
 	if (rc < 0) {
@@ -569,7 +578,7 @@ static void smb_status_change_work(struct work_struct *work)
 		schedule_delayed_work(&chip->status_change_work,
 				      msecs_to_jiffies(1000));
 		dev_dbg(chip->dev, "get charger type failed, rerun apsd\n");
-		return;
+		goto out;
 	}
 
 	switch (charger_type) {
@@ -587,6 +596,8 @@ static void smb_status_change_work(struct work_struct *work)
 
 	smb_set_current_limit(chip, current_ua);
 	power_supply_changed(chip->chg_psy);
+out:
+	mutex_unlock(&chip->lock);
 }
 
 static int smb_get_iio_chan(struct smb_chip *chip, struct iio_channel *chan,
@@ -626,9 +637,9 @@ static int smb_get_prop_health(struct smb_chip *chip, int *val)
 	return 0;
 }
 
-static int smb_get_property(struct power_supply *psy,
-			     enum power_supply_property psp,
-			     union power_supply_propval *val)
+static int smb_get_property_unlocked(struct power_supply *psy,
+				     enum power_supply_property psp,
+				     union power_supply_propval *val)
 {
 	struct smb_chip *chip = power_supply_get_drvdata(psy);
 
@@ -661,9 +672,22 @@ static int smb_get_property(struct power_supply *psy,
 	}
 }
 
-static int smb_set_property(struct power_supply *psy,
-			     enum power_supply_property psp,
-			     const union power_supply_propval *val)
+static int smb_get_property(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    union power_supply_propval *val)
+{
+	struct smb_chip *chip = power_supply_get_drvdata(psy);
+	int ret;
+
+	mutex_lock(&chip->lock);
+	ret = chip->ready ? smb_get_property_unlocked(psy, psp, val) : -EAGAIN;
+	mutex_unlock(&chip->lock);
+	return ret;
+}
+
+static int smb_set_property_unlocked(struct power_supply *psy,
+				     enum power_supply_property psp,
+				     const union power_supply_propval *val)
 {
 	struct smb_chip *chip = power_supply_get_drvdata(psy);
 
@@ -674,6 +698,19 @@ static int smb_set_property(struct power_supply *psy,
 		dev_err(chip->dev, "No setter for property: %d\n", psp);
 		return -EINVAL;
 	}
+}
+
+static int smb_set_property(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    const union power_supply_propval *val)
+{
+	struct smb_chip *chip = power_supply_get_drvdata(psy);
+	int ret;
+
+	mutex_lock(&chip->lock);
+	ret = chip->ready ? smb_set_property_unlocked(psy, psp, val) : -EAGAIN;
+	mutex_unlock(&chip->lock);
+	return ret;
 }
 
 static int smb_property_is_writable(struct power_supply *psy,
@@ -785,11 +822,8 @@ static const struct smb_init_register smb_init_seq[] = {
 	  .mask = SOC_LT_CHG_RECHARGE_THRESH_SEL_BIT |
 		  VBT_LT_CHG_RECHARGE_THRESH_SEL_BIT,
 	  .val = VBT_LT_CHG_RECHARGE_THRESH_SEL_BIT },
-	/* Enable charging */
+	/* Disable proprietary HVDCP detection; this does not enable charging. */
 	{ .addr = USBIN_OPTIONS_1_CFG, .mask = HVDCP_EN_BIT, .val = 0 },
-	{ .addr = CHARGING_ENABLE_CMD,
-	  .mask = CHARGING_ENABLE_CMD_BIT,
-	  .val = CHARGING_ENABLE_CMD_BIT },
 	/*
 	 * Match downstream defaults
 	 * CHG_EN_SRC_BIT - charger enable is controlled by software
@@ -913,17 +947,42 @@ static int smb_init_irq(struct smb_chip *chip, int *irq, const char *name,
 	return 0;
 }
 
+static int smb_disable_charging(struct smb_chip *chip)
+{
+	int ret, source_ret;
+
+	ret = regmap_update_bits(chip->regmap, chip->base + CHARGING_ENABLE_CMD,
+				 CHARGING_ENABLE_CMD_BIT, 0);
+	source_ret = regmap_update_bits(chip->regmap, chip->base + CHGR_CFG2,
+					CHG_EN_SRC_BIT, 0);
+	return ret ? ret : source_ret;
+}
+
+static void smb_stop(void *data)
+{
+	struct smb_chip *chip = data;
+	int ret;
+
+	mutex_lock(&chip->lock);
+	chip->ready = false;
+	ret = smb_disable_charging(chip);
+	mutex_unlock(&chip->lock);
+	if (ret)
+		dev_err(chip->dev, "Charging shutdown failed: %d\n", ret);
+}
+
 static int smb_probe(struct platform_device *pdev)
 {
 	struct power_supply_config supply_config = {};
 	struct power_supply_desc *desc;
 	struct smb_chip *chip;
-	int rc, irq;
+	int rc, irq, fv_code;
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
 
+	mutex_init(&chip->lock);
 	chip->dev = &pdev->dev;
 	chip->name = pdev->name;
 	chip->input_current_limit_max_ua = SMB2_ICL_REGISTER_MAX_UA;
@@ -958,10 +1017,6 @@ static int smb_probe(struct platform_device *pdev)
 				     "Couldn't get usbin_i IIO channel\n");
 	}
 
-	rc = smb_init_hw(chip);
-	if (rc < 0)
-		return rc;
-
 	supply_config.drv_data = chip;
 	supply_config.fwnode = dev_fwnode(&pdev->dev);
 
@@ -986,19 +1041,31 @@ static int smb_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to get battery info\n");
 
+	fv_code = smb2_float_voltage_code(chip->batt_info->voltage_max_design_uv);
+	if (fv_code < 0)
+		return dev_err_probe(chip->dev, fv_code, "Battery float ceiling out of range\n");
+
 	rc = devm_delayed_work_autocancel(chip->dev, &chip->status_change_work,
 					  smb_status_change_work);
 	if (rc)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to init status change work\n");
 
-	rc = smb2_float_voltage_code(chip->batt_info->voltage_max_design_uv);
-	if (rc < 0)
-		return dev_err_probe(chip->dev, rc, "Battery float ceiling out of range\n");
+	/* LIFO: IRQ producers -> stop/gate -> drain work -> unregister supply. */
+	rc = devm_add_action_or_reset(chip->dev, smb_stop, chip);
+	if (rc)
+		return rc;
+	/* Enter software-controlled OFF before changing voltage or charger policy. */
+	rc = smb_disable_charging(chip);
+	if (rc)
+		return dev_err_probe(chip->dev, rc, "Couldn't disable charging for setup\n");
 	rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
-				FLOAT_VOLTAGE_SETTING_MASK, rc);
+				FLOAT_VOLTAGE_SETTING_MASK, fv_code);
 	if (rc < 0)
 		return dev_err_probe(chip->dev, rc, "Couldn't set vbat max\n");
+	rc = smb_init_hw(chip);
+	if (rc)
+		return rc;
 
 	rc = smb_init_irq(chip, &irq, "bat-ov", smb_handle_batt_overvoltage);
 	if (rc < 0)
@@ -1017,13 +1084,26 @@ static int smb_probe(struct platform_device *pdev)
 	if (rc < 0)
 		return rc;
 
-	devm_device_init_wakeup(chip->dev);
+	rc = devm_device_init_wakeup(chip->dev);
+	if (rc)
+		return dev_err_probe(chip->dev, rc, "Couldn't initialize wakeup\n");
 
 	rc = devm_pm_set_wake_irq(chip->dev, chip->cable_irq);
 	if (rc < 0)
 		return dev_err_probe(chip->dev, rc, "Couldn't set wake irq\n");
 
 	platform_set_drvdata(pdev, chip);
+
+	/* Last fallible setup operation: enable only fully configured charging. */
+	mutex_lock(&chip->lock);
+	rc = regmap_update_bits(chip->regmap, chip->base + CHARGING_ENABLE_CMD,
+				CHARGING_ENABLE_CMD_BIT, CHARGING_ENABLE_CMD_BIT);
+	if (!rc)
+		chip->ready = true;
+	mutex_unlock(&chip->lock);
+	if (rc)
+		return dev_err_probe(chip->dev, rc, "Couldn't enable configured charging\n");
+	power_supply_changed(chip->chg_psy);
 
 	/* Initialise charger state */
 	schedule_delayed_work(&chip->status_change_work, 0);

@@ -66,6 +66,31 @@ class SMB2SourceTests(unittest.TestCase):
             for field, bit in fields.items():
                 self.assertEqual(reference[field], bit, (revision, field))
 
+    def test_charge_enable_is_last_not_in_init_table(self):
+        table = SOURCE.split('static const struct smb_init_register smb_init_seq[]')[1].split('static int smb_init_hw')[0]
+        self.assertNotIn('.addr = CHARGING_ENABLE_CMD', table)
+        probe = SOURCE.split('static int smb_probe(')[1]
+        self.assertLess(probe.index('fv_code = smb2_float_voltage_code('), probe.index('smb_disable_charging(chip)'))
+        self.assertLess(probe.index('smb_disable_charging(chip)'), probe.index('chip->base + FLOAT_VOLTAGE_CFG'))
+        self.assertLess(probe.index('devm_pm_set_wake_irq('), probe.index('chip->ready = true'))
+        self.assertLess(probe.index('smb_init_hw(chip)'), probe.index('chip->ready = true'))
+
+    def test_lifo_stops_producers_and_hardware_before_work_and_supply_release(self):
+        probe = SOURCE.split('static int smb_probe(')[1]
+        self.assertLess(probe.index('devm_power_supply_register('), probe.index('devm_delayed_work_autocancel('))
+        self.assertLess(probe.index('devm_delayed_work_autocancel('), probe.index('devm_add_action_or_reset('))
+        self.assertLess(probe.index('devm_add_action_or_reset('), probe.index('smb_init_irq('))
+        stop = SOURCE.split('static void smb_stop(')[1].split('static int smb_probe')[0]
+        self.assertLess(stop.index('chip->ready = false'), stop.index('smb_disable_charging('))
+        self.assertIn('mutex_lock(&chip->lock)', stop)
+
+    def test_public_properties_are_gated_and_serialized(self):
+        for name in ['smb_get_property', 'smb_set_property']:
+            wrapper = SOURCE.split('static int ' + name + '(')[1].split('\n}\n')[0]
+            self.assertIn('mutex_lock(&chip->lock)', wrapper)
+            self.assertIn('chip->ready ?', wrapper)
+            self.assertIn(': -EAGAIN', wrapper)
+
 
 @unittest.skipUnless(libfdt and DTB_DIR, 'set DIPPER_DTB_DIR and use schema Python')
 class SMB2DTTests(unittest.TestCase):
