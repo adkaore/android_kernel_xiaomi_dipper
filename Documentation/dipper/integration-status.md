@@ -3,6 +3,11 @@
 This is a development kernel, not a stable or flashable crDroid release.
 No phone was accessed, rebooted, flashed or otherwise changed.
 
+Target requirements are tracked in crdroid13-target-audit.md/json. The platform
+17.0 source is available, but a matching dipper Android 17 device/vendor
+selection is not confirmed. The old 15.0 trees are comparison references only;
+no NFC ABI is selected automatically from them or from the age of an interface.
+
 ## Completed offline work
 
 - Hardened EA8074 panel: LP command parity with the old kernel, complete vendor
