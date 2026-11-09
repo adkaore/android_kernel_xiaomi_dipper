@@ -1,0 +1,64 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* BATTERY_CHARGER_STATUS_2, checked against the pinned Qualcomm/Xiaomi headers. */
+#ifndef _QCOM_SMBX_STATUS_H
+#define _QCOM_SMBX_STATUS_H
+
+#define INPUT_CURRENT_LIMITED_BIT			BIT(7)
+#define CHARGER_ERROR_STATUS_SFT_EXPIRE_BIT		BIT(6)
+#define CHARGER_ERROR_STATUS_BAT_OV_BIT			BIT(5)
+#define CHARGER_ERROR_STATUS_BAT_TERM_MISSING_BIT	BIT(4)
+#define BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT		BIT(3)
+#define BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT		BIT(2)
+#define BAT_TEMP_STATUS_TOO_HOT_BIT			BIT(1)
+#define BAT_TEMP_STATUS_TOO_COLD_BIT			BIT(0)
+
+enum smb2_health {
+	SMB2_HEALTH_GOOD,
+	SMB2_HEALTH_OVERVOLTAGE,
+	SMB2_HEALTH_COLD,
+	SMB2_HEALTH_OVERHEAT,
+	SMB2_HEALTH_COOL,
+	SMB2_HEALTH_WARM,
+	SMB2_HEALTH_TIMER_EXPIRED,
+	SMB2_HEALTH_FAILURE,
+	SMB2_HEALTH_COUNT,
+};
+
+static inline enum smb2_health smb2_health_from_status(unsigned int status)
+{
+	unsigned int hard = status & (BAT_TEMP_STATUS_TOO_COLD_BIT |
+				      BAT_TEMP_STATUS_TOO_HOT_BIT);
+	unsigned int soft = status & (BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT |
+				      BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT);
+
+	if (status & CHARGER_ERROR_STATUS_BAT_OV_BIT)
+		return SMB2_HEALTH_OVERVOLTAGE;
+	/* Conflicting temperature comparators are not a healthy measurement. */
+	if (hard == (BAT_TEMP_STATUS_TOO_COLD_BIT | BAT_TEMP_STATUS_TOO_HOT_BIT))
+		return SMB2_HEALTH_FAILURE;
+	if (hard & BAT_TEMP_STATUS_TOO_COLD_BIT)
+		return SMB2_HEALTH_COLD;
+	if (hard & BAT_TEMP_STATUS_TOO_HOT_BIT)
+		return SMB2_HEALTH_OVERHEAT;
+	if (status & CHARGER_ERROR_STATUS_SFT_EXPIRE_BIT)
+		return SMB2_HEALTH_TIMER_EXPIRED;
+	if (status & CHARGER_ERROR_STATUS_BAT_TERM_MISSING_BIT)
+		return SMB2_HEALTH_FAILURE;
+	if (soft == (BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT | BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT))
+		return SMB2_HEALTH_FAILURE;
+	if (soft & BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT)
+		return SMB2_HEALTH_COOL;
+	if (soft & BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT)
+		return SMB2_HEALTH_WARM;
+	return SMB2_HEALTH_GOOD;
+}
+
+static inline int smb2_charge_blocked(unsigned int status)
+{
+	return !!(status & (CHARGER_ERROR_STATUS_SFT_EXPIRE_BIT |
+			    CHARGER_ERROR_STATUS_BAT_OV_BIT |
+			    CHARGER_ERROR_STATUS_BAT_TERM_MISSING_BIT |
+			    BAT_TEMP_STATUS_TOO_HOT_BIT | BAT_TEMP_STATUS_TOO_COLD_BIT));
+}
+
+#endif

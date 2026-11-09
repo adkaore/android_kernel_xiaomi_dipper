@@ -25,6 +25,7 @@
 #include <linux/workqueue.h>
 
 #include "qcom_smbx_limits.h"
+#include "qcom_smbx_status.h"
 
 /* clang-format off */
 #define BATTERY_CHARGER_STATUS_1			0x06
@@ -35,16 +36,6 @@
 #define BATTERY_CHARGER_STATUS_MASK			GENMASK(2, 0)
 
 #define BATTERY_CHARGER_STATUS_2			0x07
-#define INPUT_CURRENT_LIMITED_BIT			BIT(7)
-#define CHARGER_ERROR_STATUS_SFT_EXPIRE_BIT		BIT(6)
-#define CHARGER_ERROR_STATUS_BAT_OV_BIT			BIT(5)
-#define CHARGER_ERROR_STATUS_BAT_TERM_MISSING_BIT	BIT(4)
-#define BAT_TEMP_STATUS_MASK				GENMASK(3, 0)
-#define BAT_TEMP_STATUS_SOFT_LIMIT_MASK			GENMASK(3, 2)
-#define BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT		BIT(3)
-#define BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT		BIT(2)
-#define BAT_TEMP_STATUS_TOO_HOT_BIT			BIT(1)
-#define BAT_TEMP_STATUS_TOO_COLD_BIT			BIT(0)
 
 #define BATTERY_CHARGER_STATUS_4			0x0A
 #define CHARGE_CURRENT_POST_JEITA_MASK			GENMASK(7, 0)
@@ -496,7 +487,7 @@ static int smb_get_prop_status(struct smb_chip *chip, int *val)
 		return rc;
 	}
 
-	if (stat[1] & CHARGER_ERROR_STATUS_BAT_OV_BIT) {
+	if (smb2_charge_blocked(stat[1])) {
 		*val = POWER_SUPPLY_STATUS_NOT_CHARGING;
 		return 0;
 	}
@@ -601,16 +592,6 @@ static void smb_status_change_work(struct work_struct *work)
 static int smb_get_iio_chan(struct smb_chip *chip, struct iio_channel *chan,
 			     int *val)
 {
-	int rc;
-	union power_supply_propval status;
-
-	rc = power_supply_get_property(chip->chg_psy, POWER_SUPPLY_PROP_STATUS,
-				       &status);
-	if (rc < 0 || status.intval != POWER_SUPPLY_STATUS_CHARGING) {
-		*val = 0;
-		return 0;
-	}
-
 	if (IS_ERR(chan)) {
 		dev_err(chip->dev, "Failed to chan, err = %li", PTR_ERR(chan));
 		return PTR_ERR(chan);
@@ -621,6 +602,16 @@ static int smb_get_iio_chan(struct smb_chip *chip, struct iio_channel *chan,
 
 static int smb_get_prop_health(struct smb_chip *chip, int *val)
 {
+	static const int health[] = {
+		[SMB2_HEALTH_GOOD] = POWER_SUPPLY_HEALTH_GOOD,
+		[SMB2_HEALTH_OVERVOLTAGE] = POWER_SUPPLY_HEALTH_OVERVOLTAGE,
+		[SMB2_HEALTH_COLD] = POWER_SUPPLY_HEALTH_COLD,
+		[SMB2_HEALTH_OVERHEAT] = POWER_SUPPLY_HEALTH_OVERHEAT,
+		[SMB2_HEALTH_COOL] = POWER_SUPPLY_HEALTH_COOL,
+		[SMB2_HEALTH_WARM] = POWER_SUPPLY_HEALTH_WARM,
+		[SMB2_HEALTH_TIMER_EXPIRED] = POWER_SUPPLY_HEALTH_SAFETY_TIMER_EXPIRE,
+		[SMB2_HEALTH_FAILURE] = POWER_SUPPLY_HEALTH_UNSPEC_FAILURE,
+	};
 	int rc;
 	unsigned int stat;
 
@@ -631,26 +622,8 @@ static int smb_get_prop_health(struct smb_chip *chip, int *val)
 		return rc;
 	}
 
-	switch (stat) {
-	case CHARGER_ERROR_STATUS_BAT_OV_BIT:
-		*val = POWER_SUPPLY_HEALTH_OVERVOLTAGE;
-		return 0;
-	case BAT_TEMP_STATUS_TOO_COLD_BIT:
-		*val = POWER_SUPPLY_HEALTH_COLD;
-		return 0;
-	case BAT_TEMP_STATUS_TOO_HOT_BIT:
-		*val = POWER_SUPPLY_HEALTH_OVERHEAT;
-		return 0;
-	case BAT_TEMP_STATUS_COLD_SOFT_LIMIT_BIT:
-		*val = POWER_SUPPLY_HEALTH_COOL;
-		return 0;
-	case BAT_TEMP_STATUS_HOT_SOFT_LIMIT_BIT:
-		*val = POWER_SUPPLY_HEALTH_WARM;
-		return 0;
-	default:
-		*val = POWER_SUPPLY_HEALTH_GOOD;
-		return 0;
-	}
+	*val = health[smb2_health_from_status(stat)];
+	return 0;
 }
 
 static int smb_get_property(struct power_supply *psy,
@@ -718,16 +691,19 @@ static irqreturn_t smb_handle_batt_overvoltage(int irq, void *data)
 {
 	struct smb_chip *chip = data;
 	unsigned int status;
+	int ret;
 
-	regmap_read(chip->regmap, chip->base + BATTERY_CHARGER_STATUS_2,
-		    &status);
+	ret = regmap_read(chip->regmap, chip->base + BATTERY_CHARGER_STATUS_2,
+			  &status);
 
-	if (status & CHARGER_ERROR_STATUS_BAT_OV_BIT) {
+	if (ret) {
+		dev_err_ratelimited(chip->dev, "OV status unavailable: %d\n", ret);
+	} else if (status & CHARGER_ERROR_STATUS_BAT_OV_BIT) {
 		/* The hardware stops charging automatically */
 		dev_err(chip->dev, "battery overvoltage detected\n");
-		power_supply_changed(chip->chg_psy);
 	}
 
+	power_supply_changed(chip->chg_psy);
 	return IRQ_HANDLED;
 }
 
@@ -1016,7 +992,9 @@ static int smb_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to init status change work\n");
 
-	rc = (chip->batt_info->voltage_max_design_uv - 3487500) / 7500 + 1;
+	rc = smb2_float_voltage_code(chip->batt_info->voltage_max_design_uv);
+	if (rc < 0)
+		return dev_err_probe(chip->dev, rc, "Battery float ceiling out of range\n");
 	rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
 				FLOAT_VOLTAGE_SETTING_MASK, rc);
 	if (rc < 0)

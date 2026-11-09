@@ -53,3 +53,26 @@ Charger/TCPM negotiated voltage/current coordination, source-input suspension,
 JEITA/thermal/parallel charging, gauge profiles, startup/suspend/fault behavior,
 measurement and the actual crDroid 13.1 health/USB product remain separate work.
 Do not enable the new Type-C/PD nodes based on this current bound alone.
+
+## Float voltage and honest status reporting
+
+The native float encoder previously added one after division, unlike the pinned
+Qualcomm/Xiaomi parameter encoder. For the dipper 4400000 uV battery design
+ceiling this programmed code 122 (4402500 uV), above the requested ceiling.
+The shared encoder now validates the qualified register range and rounds down:
+code 121 (4395000 uV). Missing/negative and out-of-range battery design values
+are rejected, not wrapped into the byte register. This does not validate the
+actual battery/profile or the physical float voltage.
+
+Health decoding now treats STATUS_2 as flags rather than matching the whole byte.
+For example an input-limited bit cannot mask a simultaneous overvoltage or hot
+condition. Timer expiry and missing termination are faults, not GOOD or an
+invented battery-absence reading; conflicting thermal comparator flags are an
+unspecified fault. The charger STATUS getter also respects hard blocking flags.
+All 256 status bytes are exercised by the real shared decoder under sanitizers;
+the eight bit assignments are checked against all three pinned hardware sources.
+
+USBIN IIO voltage/current reads no longer return a synthetic zero merely because
+charging stopped or a separate status read failed. They return the ADC result
+or its error. The OV IRQ path checks register-read success before inspecting the
+status word, and notifies power_supply even when the read is unavailable.
