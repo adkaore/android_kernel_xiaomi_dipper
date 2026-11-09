@@ -1,9 +1,16 @@
-# Target audit — crDroid 13 / Android 17
+# Target audit — crDroid 13.1 / Android 17
 
 Checked 2026-11-09. Source commits, inspected files and SHA-256 hashes are in
 crdroid13-target-audit.json. Nothing here is a completed Android build, VINTF
 check or hardware validation. crDroid 11.17 remains a **hardware/behavior
 comparison source**, not the target userspace specification.
+
+The exact requested release is **13.1**. The inspected platform vendor commit
+15b1b035ba60e0a92138adc905d8a187cacde654 sets CR_VERSION := 13.1 in
+config/version.mk and Android product version 17.0. The manifest/project branch
+remains 17.0, not a guessed 13.1 Git branch. This is the same platform vendor
+revision observed in the initial audit, now checked locally. A release version
+does not pin every moving manifest project or supply a dipper product definition.
 
 ## Available target sources
 
@@ -56,7 +63,7 @@ integrated requirement yet. work/nfc-nci-clock is an isolated generic-driver
 reference topic; its earlier architectural wording based on the 15.0 device
 configuration is superseded by this target audit. No nq-nci driver port was
 started, no NFC module was added to the phone's core fragment, and no NFC node
-was added/enabled there. The kernel target remains crDroid 13, not crDroid 11.
+was added/enabled there. The kernel target remains crDroid 13.1, not crDroid 11.
 
 ## Evidence needed before choosing the NFC implementation
 
@@ -76,4 +83,4 @@ native kernel APIs do not certify a target Android health/vibrator/camera HAL.
 For example the FG frontend reports real direct telemetry but does not program
 profiles or expose learned counters; the target health service may require
 additional properties and policy. Those gaps remain explicit. Build success and
-legacy behavioral correspondence must never be relabeled crDroid 13 compatibility.
+legacy behavioral correspondence must never be relabeled crDroid 13.1 compatibility.

@@ -1,11 +1,13 @@
 {
   "checked_date": "2026-11-09",
   "target": {
-    "rom": "crDroid 13",
+    "rom": "crDroid 13.1",
     "android": 17,
     "manifest_branch": "17.0",
     "manifest_repository": "https://github.com/crdroidandroid/android",
-    "manifest_commit": "823087de2860e9fb1f1cd7ce8493693ace73e7ad"
+    "manifest_commit": "823087de2860e9fb1f1cd7ce8493693ace73e7ad",
+    "platform_vendor_commit": "15b1b035ba60e0a92138adc905d8a187cacde654",
+    "release_version_evidence": "config/version.mk: CR_VERSION := 13.1; Android product major/minor 17.0"
   },
   "legacy_role": "crDroid 11.17 / Android 15: hardware and behavior comparison only; not target HAL requirements",
   "sources": [
@@ -56,6 +58,12 @@
       "commit": "a10a565d478b24e483d495cb2736f77f72756c56",
       "file": "compatibility_matrices/compatibility_matrix.202604.xml",
       "sha256": "7520169c1cba424847daa97f3301a8b7bb25aba9556437f37d5eb36a9196ccc2"
+    },
+    {
+      "repository": "https://github.com/crdroidandroid/android_vendor_crdroid.git",
+      "commit": "15b1b035ba60e0a92138adc905d8a187cacde654",
+      "file": "config/version.mk",
+      "sha256": "a0b88f3b604e55e4fd51e73f826f8d10bfd64d57d95da5eb393f55f3a00b0339"
     }
   ],
   "target_device_selection_confirmed": false,
