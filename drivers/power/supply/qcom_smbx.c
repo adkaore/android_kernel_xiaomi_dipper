@@ -1245,3 +1245,7 @@ module_platform_driver(qcom_spmi_smb);
 MODULE_AUTHOR("Casey Connolly <casey.connolly@linaro.org>");
 MODULE_DESCRIPTION("Qualcomm SMB2 Charger Driver");
 MODULE_LICENSE("GPL");
+
+#if IS_ENABLED(CONFIG_CHARGER_QCOM_SMB2_KUNIT_TEST)
+#include "qcom_smbx_test.c"
+#endif

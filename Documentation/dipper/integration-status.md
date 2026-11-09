@@ -57,6 +57,8 @@ in hardware-comparison.md. This does not change the target HAL uncertainty.
   input-handoff.md; no physical or target-HAL compatibility is inferred.
 - ARM64 QEMU/KUnit tests execute real Type-C input/boost callbacks through
   kernel frameworks with injected provider failures and stop/retry cases.
+  A second suite tests native SMB2 regmap policy with delayed/missing suspend
+  ACKs, bus errors, low-current preservation, readiness and stop gates.
   Booting this test kernel exposed a separate uninitialized optional ACK
   allocator-hook result; it was fixed without disabling stack hardening.
   See kernel-api-tests.md; no PMIC/electrical or Android emulation is claimed.
@@ -141,7 +143,7 @@ cover one million touch packets, exhaustive haptics and FG encoders, Type-C
 CC/PD/PDO guards and SMB2 current/voltage/status/APSD helpers.
 
 latest-checked-kunit.json separately records the actual clean source revision,
-kernel/config/log hashes and fourteen ARM64 callback cases. Kernel execution
+kernel/config/log hashes and the exact ARM64 callback cases. Kernel execution
 is stronger evidence than source assertions but is still not PMIC emulation.
 The unchanged legacy manifest was reproduced in the earlier variant audit;
 that result is historical, not a new hardware test.

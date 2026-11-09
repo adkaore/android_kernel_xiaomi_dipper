@@ -13,13 +13,14 @@ spec.loader.exec_module(results)
 
 class KUnitResultsTests(unittest.TestCase):
     def setUp(self):
-        counts = dict(tests=14, passed=14, failed=0, crashed=0, skipped=0, errors=0)
-        self.result = dict(arch='arm64', misc=counts, test_cases=[], sub_groups=[
-            dict(name=results.SUITE, misc=copy.copy(counts), sub_groups=[],
-                 test_cases=[dict(name=name, status='PASS') for name in sorted(results.CASES)])])
+        groups = [dict(name=suite, misc=results.counts(len(cases)), sub_groups=[],
+                       test_cases=[dict(name=name, status='PASS') for name in sorted(cases)])
+                  for suite, cases in results.SUITES.items()]
+        self.result = dict(arch='arm64', misc=results.counts(31),
+                           test_cases=[], sub_groups=groups)
 
     def test_accept_complete_run(self):
-        self.assertEqual(len(results.checked_cases(self.result)), 14)
+        self.assertEqual(sum(map(len, results.checked_cases(self.result).values())), 31)
 
     def test_zero_tests_and_error_do_not_pass(self):
         for change in [dict(tests=0, passed=0), dict(errors=1), dict(skipped=1),
@@ -43,6 +44,15 @@ class KUnitResultsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             results.checked_cases(result)
         self.result['sub_groups'][0]['name'] = 'unrelated'
+        with self.assertRaises(ValueError):
+            results.checked_cases(self.result)
+
+    def test_missing_or_duplicate_suite_does_not_pass(self):
+        result = copy.deepcopy(self.result)
+        result['sub_groups'].pop()
+        with self.assertRaises(ValueError):
+            results.checked_cases(result)
+        self.result['sub_groups'][1] = copy.deepcopy(self.result['sub_groups'][0])
         with self.assertRaises(ValueError):
             results.checked_cases(self.result)
 

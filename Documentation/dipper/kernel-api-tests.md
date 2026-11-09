@@ -1,8 +1,9 @@
 # ARM64 kernel API regression tests
 
 Target remains crDroid 13.1 / Android 17. These tests do not boot Android or
-emulate a Xiaomi PMIC. They run the actual static PMI8998 Type-C handoff and
-current-limit callbacks in an ARM64 Linux kernel under QEMU's `virt` machine.
+emulate a Xiaomi PMIC. They run the actual static PMI8998 Type-C handoff,
+current-limit and SMB2 register-policy callbacks in an ARM64 Linux kernel
+under QEMU's `virt` machine.
 On the development x86 WSL host QEMU uses TCG. No phone or physical device
 passthrough is involved. This is a separate, minimal test configuration, not
 the production GKI fragment or a phone boot image.
@@ -12,7 +13,10 @@ the production GKI fragment or a phone boot image.
 Install QEMU's aarch64 system emulator and provision the pinned Google compiler
 first. The runner does not install packages or require root:
 
-    TOOLCHAINS_DIR=/home/adkaore/android/toolchains tools/dipper/test-typec-kunit.sh /home/adkaore/android/out/pmi8998-kunit-arm64
+    TOOLCHAINS_DIR=/home/adkaore/android/toolchains tools/dipper/test-pmi8998-kunit.sh /home/adkaore/android/out/pmi8998-kunit-arm64
+
+The former `test-typec-kunit.sh` entry point is retained as a wrapper; it now
+executes both suites too.
 
 Output must be external to the source tree. The runner rejects an incomplete,
 zero-test, skipped, duplicate, crashed or wrong-suite result. It also rejects
@@ -23,7 +27,7 @@ kernel, config, raw boot log and harness results. The harness's `git_branch`
 placeholder is NOT used as source provenance. Run from a clean commit when
 publishing results; the source must not change during a run.
 
-## Fourteen cases, real framework calls
+## Fourteen Type-C cases, real framework calls
 
 The test file is privately included by the driver under a default-off Kconfig
 option; the normal modular GKI driver does not include the tests. No production
@@ -41,11 +45,33 @@ the callback still goes through the real `power_supply_set_property()` path.
 - Current bounds, non-5-V rejection, multiplication overflow boundary, reset,
   supplier error propagation and the current callback's stop gate.
 
-Lockdep, atomic-sleep checking, stack-pattern initialization and RANDSTRUCT stay
-enabled. This is not all possible concurrency scheduling, a full TCPM role-swap
-simulation, an SMB2 regmap ACK test or an electrical/VBUS/PD validation. In
-particular the synthetic input setter confirms isolation immediately; it does
-not prove the physical input suspended. Board Type-C and boost remain disabled.
+In this suite the synthetic input setter confirms isolation immediately; it
+does not prove the physical input suspended.
+
+## Seventeen SMB2 cases, real regmap and driver methods
+
+A second default-off suite is privately included in the native SMB2 driver.
+It uses a real, uncached regmap with a bounded synthetic register bus. All
+accesses must include the expected charger base; unexpected addresses fail the
+test. The real suspend poll runs with immediate, delayed, missing and failed
+status reads; the test does not replace it with a copied loop or shortened
+timeout. No successful command write is mistaken for an ACK in the timeout
+case. These are simulated register responses, NOT measurements of a PMIC.
+
+Other cases check command RMW read/write errors, preservation of unrelated
+bits, resume without a suspend poll, unmanaged-owner rejection, invalid ONLINE
+values, signed/board-bounded current writes and never raising low/zero limits.
+Readiness and stop gates, both charging-disable steps on failure, health read
+errors and sysfs policy are checked too. The valid/invalid public getter/setter
+paths used here run through power_supply; successful input/current programming
+is tested through the real internal methods under their required mutex. This
+does not exercise successful property-change notification work or all of probe.
+
+Both suites keep lockdep, atomic-sleep checking, stack-pattern initialization
+and RANDSTRUCT enabled. They are separate tests, not a complete connected
+TCPM/SMB2/PD/IRQ simulation, nor all possible concurrency scheduling. Hardware
+acknowledgement semantics, electrical/VBUS/PD operation and wake timing remain
+unvalidated. Board Type-C and boost remain disabled.
 
 ## Generic ACK allocator regression found by booting tests
 
