@@ -42,6 +42,9 @@ static int qcom_pmic_typec_probe(struct platform_device *pdev)
 	const struct pmic_typec_resources *res;
 	struct regmap *regmap;
 	struct auxiliary_device *bridge_dev;
+	bool port_prepared = false, pdphy_prepared = false;
+	bool port_started = false, pdphy_started = false;
+	bool registered = false;
 	u32 base;
 	int ret;
 
@@ -95,38 +98,50 @@ static int qcom_pmic_typec_probe(struct platform_device *pdev)
 	bridge_dev = devm_drm_dp_hpd_bridge_alloc(tcpm->dev, to_of_node(tcpm->tcpc.fwnode));
 	if (IS_ERR(bridge_dev)) {
 		ret = PTR_ERR(bridge_dev);
-		goto fwnode_remove;
+		goto cleanup;
+	}
+
+	if (tcpm->port_prepare) {
+		port_prepared = true;
+		ret = tcpm->port_prepare(tcpm);
+		if (ret)
+			goto cleanup;
+	}
+	if (tcpm->pdphy_prepare) {
+		pdphy_prepared = true;
+		ret = tcpm->pdphy_prepare(tcpm);
+		if (ret)
+			goto cleanup;
 	}
 
 	tcpm->tcpm_port = tcpm_register_port(tcpm->dev, &tcpm->tcpc);
 	if (IS_ERR(tcpm->tcpm_port)) {
 		ret = PTR_ERR(tcpm->tcpm_port);
-		goto fwnode_remove;
+		goto cleanup;
 	}
-
+	registered = true;
 	ret = tcpm->port_start(tcpm, tcpm->tcpm_port);
 	if (ret)
-		goto port_unregister;
-
+		goto cleanup;
+	port_started = true;
 	ret = tcpm->pdphy_start(tcpm, tcpm->tcpm_port);
 	if (ret)
-		goto port_stop;
-
+		goto cleanup;
+	pdphy_started = true;
 	ret = devm_drm_dp_hpd_bridge_add(tcpm->dev, bridge_dev);
 	if (ret)
-		goto pdphy_stop;
-
+		goto cleanup;
 	return 0;
 
-pdphy_stop:
-	tcpm->pdphy_stop(tcpm);
-port_stop:
-	tcpm->port_stop(tcpm);
-port_unregister:
-	tcpm_unregister_port(tcpm->tcpm_port);
-fwnode_remove:
+cleanup:
+	/* Block/drain all producers before unregistering their TCPM consumer. */
+	if (pdphy_prepared || pdphy_started)
+		tcpm->pdphy_stop(tcpm);
+	if (port_prepared || port_started)
+		tcpm->port_stop(tcpm);
+	if (registered)
+		tcpm_unregister_port(tcpm->tcpm_port);
 	fwnode_handle_put(tcpm->tcpc.fwnode);
-
 	return ret;
 }
 
@@ -151,7 +166,7 @@ static const struct pmic_typec_resources pmi632_typec_res = {
 };
 
 static const struct pmic_typec_resources pmi8998_typec_res = {
-	/* PDPHY block is register-identical to PM8150B. */
+	/* Message/control offsets match the downstream PMI8998 PD PHY. */
 	.pdphy_res = &pm8150b_pdphy_res,
 	.port_res  = &pmi8998_port_res,
 };

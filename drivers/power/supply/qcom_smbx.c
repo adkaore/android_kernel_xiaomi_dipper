@@ -884,9 +884,20 @@ static const struct smb_init_register smb_init_seq[] = {
 
 static int smb_init_hw(struct smb_chip *chip)
 {
+	bool typec_managed = false;
 	int rc, i;
 
+	/* An enabled sibling owns CC/VCONN regardless of driver probe order. */
+	for_each_available_child_of_node_scoped(chip->dev->parent->of_node, child) {
+		if (of_device_is_compatible(child, "qcom,pmi8998-typec"))
+			typec_managed = true;
+	}
+
 	for (i = 0; i < ARRAY_SIZE(smb_init_seq); i++) {
+		if (typec_managed &&
+		    (smb_init_seq[i].addr == TYPE_C_INTRPT_ENB_SOFTWARE_CTRL ||
+		     smb_init_seq[i].addr == TYPE_C_CFG))
+			continue;
 		dev_dbg(chip->dev, "%d: Writing 0x%02x to 0x%02x\n", i,
 			smb_init_seq[i].val, smb_init_seq[i].addr);
 		rc = regmap_update_bits(chip->regmap,

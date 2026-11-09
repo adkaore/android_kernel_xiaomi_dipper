@@ -1160,6 +1160,7 @@ config REGULATOR_QCOM_SPMI
 config REGULATOR_QCOM_USB_VBUS
 	tristate "Qualcomm USB Vbus regulator driver"
 	depends on SPMI || COMPILE_TEST
+	depends on MFD_SPMI_PMIC
 	help
 	  If you say yes to this option, support will be included for the
 	  regulator used to enable the VBUS output.

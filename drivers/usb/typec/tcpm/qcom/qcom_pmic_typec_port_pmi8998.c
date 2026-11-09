@@ -6,9 +6,8 @@
  * PMI8998 Type-C port handler. The Type-C detection block lives inside
  * the SMB2 USBIN region at SPMI offset 0x1300 and reports state through
  * a single consolidated "type-c-change" interrupt rather than the
- * granular IRQs that PM8150B exposes. Register layout and bit
- * semantics were cross-checked on live PMI8998 hardware during Mi 8
- * and OnePlus 6T bring-up.
+ * granular IRQs that PM8150B exposes. Based on Max Furman's port;
+ * this integration has only been checked offline, not on a phone.
  */
 
 #include <linux/delay.h>
@@ -21,77 +20,52 @@
 #include <linux/regmap.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
+#include <linux/spmi.h>
 #include <linux/usb/tcpm.h>
+
+#include <soc/qcom/qcom-spmi-pmic.h>
 
 #include "qcom_pmic_typec.h"
 #include "qcom_pmic_typec_port.h"
+#include "qcom_pmic_typec_port_pmi8998.h"
 
-/* Register offsets relative to the USBIN block base (0x1300) */
-#define TYPE_C_STATUS_1_REG			0x0B
-#define UFP_TYPEC_MASK					GENMASK(7, 5)
-#define UFP_TYPEC_RDSTD_BIT				BIT(7)
-#define UFP_TYPEC_RD1P5_BIT				BIT(6)
-#define UFP_TYPEC_RD3P0_BIT				BIT(5)
-
-#define TYPE_C_STATUS_2_REG			0x0C
-#define DFP_TYPEC_MASK					GENMASK(3, 0)
-#define DFP_RD_OPEN_BIT					BIT(3)
-#define DFP_RD_RA_VCONN_BIT				BIT(2)
-#define DFP_RD_RD_BIT					BIT(1)
-#define DFP_RA_RA_BIT					BIT(0)
-
-#define TYPE_C_STATUS_4_REG			0x0E
-#define UFP_DFP_MODE_STATUS_BIT				BIT(7)
-#define TYPEC_VBUS_STATUS_BIT				BIT(6)
-#define TYPEC_DEBOUNCE_DONE_STATUS_BIT			BIT(4)
-#define TYPEC_VCONN_OVERCURR_STATUS_BIT			BIT(2)
-#define CC_ORIENTATION_BIT				BIT(1)
-#define CC_ATTACHED_BIT					BIT(0)
-
+/* Offsets and bits checked against the pinned PMI8998 smb-reg.h. */
+#define TYPE_C_STATUS_1_REG			0x0b
+#define TYPE_C_STATUS_4_REG			0x0e
 #define TYPE_C_CFG_REG				0x58
-#define TYPE_C_OR_U_USB_BIT				BIT(0)
-
+#define TYPE_C_OR_U_USB_BIT			BIT(0)
+#define VCONN_OC_CFG_BIT				BIT(1)
+#define FACTORY_MODE_DETECTION_EN_BIT		BIT(5)
 #define TYPE_C_CFG_2_REG			0x59
-#define TYPE_C_DFP_CURRSRC_MODE_BIT			BIT(7)
-#define DFP_CC_1P4V_OR_1P6V_BIT				BIT(6)
+#define DFP_CC_1P4V_OR_1P6V_BIT			BIT(6)
 #define EN_TRY_SOURCE_MODE_BIT			BIT(3)
 #define TYPE_C_UFP_MODE_BIT			BIT(1)
-#define EN_80UA_180UA_CUR_SOURCE_BIT			BIT(0)
-
+#define EN_80UA_180UA_CUR_SOURCE_BIT		BIT(0)
 #define TYPE_C_INTRPT_ENB_REG			0x67
-#define TYPEC_CCSTATE_CHANGE_INT_EN_BIT		BIT(0)
-
+/* Attach, detach, VBUS assert/deassert, CC state, debounce and VBUS error. */
+#define TYPE_C_IRQ_MASK				(GENMASK(7, 5) | GENMASK(3, 0))
 #define TYPE_C_INTRPT_ENB_SW_CTRL_REG		0x68
-#define VCONN_EN_ORIENTATION_BIT			BIT(6)
-#define VCONN_EN_SRC_BIT				BIT(4)
-#define VCONN_EN_VALUE_BIT				BIT(3)
-#define UFP_EN_CMD_BIT					BIT(2)
-#define DFP_EN_CMD_BIT					BIT(1)
-#define TYPEC_DISABLE_CMD_BIT				BIT(0)
-#define TYPEC_POWER_ROLE_CMD_MASK			GENMASK(2, 0)
+#define VCONN_EN_ORIENTATION_BIT		BIT(6)
+#define TYPEC_VCONN_OVERCURR_INT_EN_BIT	BIT(5)
+#define VCONN_EN_SRC_BIT			BIT(4)
+#define VCONN_EN_VALUE_BIT			BIT(3)
+#define UFP_EN_CMD_BIT				BIT(2)
+#define DFP_EN_CMD_BIT				BIT(1)
+#define TYPEC_DISABLE_CMD_BIT			BIT(0)
+#define TYPEC_POWER_ROLE_CMD_MASK		GENMASK(2, 0)
 
 struct pmi8998_typec_port {
-	struct device		*dev;
-	struct tcpm_port	*tcpm_port;
-	struct regmap		*regmap;
-	u32			base;
-	int			irq;
-
-	struct regulator	*vdd_vbus;
-	bool			vbus_enabled;
-	struct mutex		vbus_lock;	/* serialises VBUS state */
-
-	/*
-	 * Edge-detect snapshots, written from the IRQ thread only. The
-	 * PMI8998 fires a single rollup interrupt for every Type-C state
-	 * change; we compare against the previous snapshot to decide
-	 * which tcpm_*_change() upcall(s) to make. No software debounce
-	 * is needed because the hardware filters bounces and only raises
-	 * the rollup once TYPEC_DEBOUNCE_DONE_STATUS_BIT is set.
-	 */
-	u8			last_status4;
-	u8			last_status1;
-	u8			last_status2;
+	struct device *dev;
+	struct tcpm_port *tcpm_port;
+	struct regmap *regmap;
+	u32 base;
+	int irq;
+	struct regulator *vdd_vbus;
+	/* TCPM callbacks, IRQ, lifecycle, VBUS accounting and register RMWs. */
+	struct mutex lock;
+	bool vbus_enabled;
+	bool irq_enabled;
+	bool stopping;
 };
 
 static int pmi8998_typec_port_get_cc(struct tcpc_dev *tcpc,
@@ -100,76 +74,37 @@ static int pmi8998_typec_port_get_cc(struct tcpc_dev *tcpc,
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmi8998_typec_port *port = tcpm->port_priv;
-	enum typec_cc_status cc = TYPEC_CC_OPEN;
-	unsigned int status4, val;
-	int ret;
+	unsigned int check;
+	u8 status[4];
+	int ret, tries;
 
 	*cc1 = TYPEC_CC_OPEN;
 	*cc2 = TYPEC_CC_OPEN;
-
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
-			  &status4);
-	if (ret)
-		return ret;
-
-	if (!(status4 & CC_ATTACHED_BIT))
-		return 0;
-
-	if (status4 & UFP_DFP_MODE_STATUS_BIT) {
-		/*
-		 * We are advertising DFP. Partner is the sink; STATUS_2
-		 * lower nibble carries its Rd pattern.
-		 */
-		ret = regmap_read(port->regmap,
-				  port->base + TYPE_C_STATUS_2_REG, &val);
-		if (ret)
-			return ret;
-
-		switch (val & DFP_TYPEC_MASK) {
-		case DFP_RA_RA_BIT:
-			cc = TYPEC_CC_RA;
-			*cc1 = TYPEC_CC_RA;
-			*cc2 = TYPEC_CC_RA;
-			break;
-		case DFP_RD_RD_BIT:
-			cc = TYPEC_CC_RD;
-			break;
-		case DFP_RD_RA_VCONN_BIT:
-			cc = TYPEC_CC_RD;
-			*cc1 = TYPEC_CC_RA;
-			*cc2 = TYPEC_CC_RA;
-			break;
-		case DFP_RD_OPEN_BIT:
-		default:
-			cc = TYPEC_CC_RD;
-			break;
-		}
-	} else {
-		/*
-		 * We are advertising UFP. Partner is the source; STATUS_1
-		 * upper nibble carries its Rp value.
-		 */
-		ret = regmap_read(port->regmap,
-				  port->base + TYPE_C_STATUS_1_REG, &val);
-		if (ret)
-			return ret;
-
-		if (val & UFP_TYPEC_RDSTD_BIT)
-			cc = TYPEC_CC_RP_DEF;
-		else if (val & UFP_TYPEC_RD1P5_BIT)
-			cc = TYPEC_CC_RP_1_5;
-		else if (val & UFP_TYPEC_RD3P0_BIT)
-			cc = TYPEC_CC_RP_3_0;
-		else
-			cc = TYPEC_CC_RP_DEF;
+	mutex_lock(&port->lock);
+	if (port->stopping) {
+		ret = -ESHUTDOWN;
+		goto out;
 	}
-
-	if (status4 & CC_ORIENTATION_BIT)
-		*cc2 = cc;
-	else
-		*cc1 = cc;
-
-	return 0;
+	/* No atomic snapshot exists: bound retries across orientation/role changes. */
+	for (tries = 0; tries < 3; tries++) {
+		ret = regmap_bulk_read(port->regmap,
+				       port->base + TYPE_C_STATUS_1_REG,
+				       status, sizeof(status));
+		if (ret)
+			goto out;
+		ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
+				  &check);
+		if (ret)
+			goto out;
+		if (check == status[3]) {
+			ret = pmi8998_decode_cc(status[0], status[1], status[3], cc1, cc2);
+			goto out;
+		}
+	}
+	ret = -EAGAIN;
+out:
+	mutex_unlock(&port->lock);
+	return ret;
 }
 
 static int pmi8998_typec_port_set_cc(struct tcpc_dev *tcpc,
@@ -183,15 +118,7 @@ static int pmi8998_typec_port_set_cc(struct tcpc_dev *tcpc,
 
 	switch (cc) {
 	case TYPEC_CC_OPEN:
-		/*
-		 * TCPM calls set_cc(TYPEC_CC_OPEN) during PORT_RESET on
-		 * init. Writing TYPEC_DISABLE_CMD_BIT here latches the
-		 * chip into a state where CC sense never recovers (even
-		 * after start_toggling clears all role bits). Leave the
-		 * power-role bits at 0 instead — equivalent to DRP idle
-		 * with no Rp/Rd advertised, which TCPM expects for OPEN.
-		 */
-		power_role = 0;
+		power_role = TYPEC_DISABLE_CMD_BIT;
 		break;
 	case TYPEC_CC_RD:
 		power_role = UFP_EN_CMD_BIT;
@@ -219,17 +146,35 @@ static int pmi8998_typec_port_set_cc(struct tcpc_dev *tcpc,
 		return -EINVAL;
 	}
 
+	mutex_lock(&port->lock);
+	if (port->stopping && cc != TYPEC_CC_OPEN) {
+		ret = -ESHUTDOWN;
+		goto out;
+	}
 	if (cfg2_mask) {
+		int required_ua = cc == TYPEC_CC_RP_3_0 ? 3000000 :
+				  cc == TYPEC_CC_RP_1_5 ? 1500000 : 500000;
+
+		ret = regulator_get_current_limit(port->vdd_vbus);
+		if (ret < 0)
+			goto out;
+		if (ret < required_ua) {
+			ret = -EINVAL;
+			goto out;
+		}
 		ret = regmap_update_bits(port->regmap,
 					 port->base + TYPE_C_CFG_2_REG,
 					 cfg2_mask, cfg2_val);
 		if (ret)
-			return ret;
+			goto out;
 	}
 
-	return regmap_update_bits(port->regmap,
-				  port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				  TYPEC_POWER_ROLE_CMD_MASK, power_role);
+	ret = regmap_update_bits(port->regmap,
+				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
+				 TYPEC_POWER_ROLE_CMD_MASK, power_role);
+out:
+	mutex_unlock(&port->lock);
+	return ret;
 }
 
 static int pmi8998_typec_port_get_vbus(struct tcpc_dev *tcpc)
@@ -237,22 +182,22 @@ static int pmi8998_typec_port_get_vbus(struct tcpc_dev *tcpc)
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmi8998_typec_port *port = tcpm->port_priv;
 	unsigned int status4;
-	int present, ret;
+	int ret;
 
-	mutex_lock(&port->vbus_lock);
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
-			  &status4);
-	/*
-	 * The hardware VBUS bit only reflects the USBIN-side rail (i.e.
-	 * VBUS arriving from a source partner). When we are the source
-	 * and our boost regulator drives VBUS out, the bit stays zero,
-	 * so the software flag is the authoritative answer in that case.
-	 */
-	present = port->vbus_enabled ||
-		  (!ret && !!(status4 & TYPEC_VBUS_STATUS_BIT));
-	mutex_unlock(&port->vbus_lock);
-
-	return present;
+	mutex_lock(&port->lock);
+	if (port->vbus_enabled) {
+		ret = 1;
+	} else {
+		ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
+				  &status4);
+		if (!ret)
+			ret = !!(status4 & PMI8998_VBUS_PRESENT);
+		else
+			dev_err_ratelimited(port->dev, "VBUS status unavailable: %d\n", ret);
+	}
+	mutex_unlock(&port->lock);
+	/* TCPM treats errors as true; never turn an I/O error into vSafe0V. */
+	return ret;
 }
 
 static int pmi8998_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on,
@@ -262,28 +207,25 @@ static int pmi8998_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on,
 	struct pmi8998_typec_port *port = tcpm->port_priv;
 	int ret = 0;
 
-	mutex_lock(&port->vbus_lock);
+	mutex_lock(&port->lock);
+	if (port->stopping && on) {
+		ret = -ESHUTDOWN;
+		goto out;
+	}
 	if (port->vbus_enabled == on)
-		goto done;
+		goto out;
 
-	if (on)
-		ret = regulator_enable(port->vdd_vbus);
-	else
-		ret = regulator_disable(port->vdd_vbus);
+	ret = on ? regulator_enable(port->vdd_vbus) :
+		   regulator_disable(port->vdd_vbus);
 	if (ret)
-		goto done;
-
+		goto out;
 	port->vbus_enabled = on;
-	/*
-	 * PMI8998 has no equivalent of PM8150B's TYPEC_SM_STATUS register
-	 * to poll for vSafe5V/vSafe0V. The qcom-usb-vbus-regulator driver
-	 * blocks until the boost converter completes its soft-start; the
-	 * delay below covers downstream PHY settle.
-	 */
+	/* Settling delay is not a voltage measurement or a vSafe0V proof. */
 	usleep_range(20000, 25000);
-	tcpm_vbus_change(tcpm->tcpm_port);
-done:
-	mutex_unlock(&port->vbus_lock);
+	if (port->tcpm_port && !port->stopping)
+		tcpm_vbus_change(port->tcpm_port);
+out:
+	mutex_unlock(&port->lock);
 	return ret;
 }
 
@@ -298,29 +240,35 @@ static int pmi8998_typec_port_set_vconn(struct tcpc_dev *tcpc, bool on)
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmi8998_typec_port *port = tcpm->port_priv;
-	unsigned int status4, mask, value;
+	unsigned int status4, value = VCONN_EN_SRC_BIT;
 	int ret;
 
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
-			  &status4);
-	if (ret)
-		return ret;
-
-	/* VCONN goes on the CC line opposite to orientation. */
-	if (on) {
-		mask = VCONN_EN_ORIENTATION_BIT | VCONN_EN_VALUE_BIT |
-		       VCONN_EN_SRC_BIT;
-		value = VCONN_EN_VALUE_BIT | VCONN_EN_SRC_BIT;
-		if (!(status4 & CC_ORIENTATION_BIT))
-			value |= VCONN_EN_ORIENTATION_BIT;
-	} else {
-		mask = VCONN_EN_VALUE_BIT;
-		value = 0;
+	mutex_lock(&port->lock);
+	if (port->stopping && on) {
+		ret = -ESHUTDOWN;
+		goto out;
 	}
-
-	return regmap_update_bits(port->regmap,
-				  port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				  mask, value);
+	if (on) {
+		ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
+				  &status4);
+		if (ret)
+			goto out;
+		if (!(status4 & PMI8998_CC_ATTACHED) ||
+		    (status4 & PMI8998_VCONN_OC)) {
+			ret = -EIO;
+			goto out;
+		}
+		value |= VCONN_EN_VALUE_BIT;
+		if (!(status4 & PMI8998_CC_ORIENTATION))
+			value |= VCONN_EN_ORIENTATION_BIT;
+	}
+	ret = regmap_update_bits(port->regmap,
+				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
+				 VCONN_EN_SRC_BIT | VCONN_EN_VALUE_BIT |
+				 VCONN_EN_ORIENTATION_BIT, value);
+out:
+	mutex_unlock(&port->lock);
+	return ret;
 }
 
 static int pmi8998_typec_port_start_toggling(struct tcpc_dev *tcpc,
@@ -329,209 +277,167 @@ static int pmi8998_typec_port_start_toggling(struct tcpc_dev *tcpc,
 {
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmi8998_typec_port *port = tcpm->port_priv;
-	u8 role_bits;
-	u8 cfg2_val = 0;
+	u8 role;
 	int ret;
 
 	switch (port_type) {
 	case TYPEC_PORT_SRC:
-		role_bits = DFP_EN_CMD_BIT;
+		role = DFP_EN_CMD_BIT;
 		break;
 	case TYPEC_PORT_SNK:
-		role_bits = UFP_EN_CMD_BIT;
+		role = UFP_EN_CMD_BIT;
 		break;
 	case TYPEC_PORT_DRP:
-		role_bits = 0;
-		/*
-		 * Downstream qpnp-smb2 does not enable Try.SRC for the
-		 * sdm845 platform; dipper hardware sees CC contact only
-		 * when both EN_TRY_SOURCE_MODE and TYPE_C_UFP_MODE in
-		 * CFG_2 are clear.
-		 */
-		cfg2_val = 0;
+		role = 0;
 		break;
 	default:
 		return -EINVAL;
 	}
-
+	ret = pmi8998_typec_port_set_cc(tcpc, cc);
+	if (ret)
+		return ret;
+	mutex_lock(&port->lock);
+	if (port->stopping) {
+		ret = -ESHUTDOWN;
+		goto out;
+	}
 	ret = regmap_update_bits(port->regmap, port->base + TYPE_C_CFG_2_REG,
-				 EN_TRY_SOURCE_MODE_BIT |
-				 TYPE_C_UFP_MODE_BIT,
-				 cfg2_val);
+				 EN_TRY_SOURCE_MODE_BIT | TYPE_C_UFP_MODE_BIT, 0);
 	if (ret)
-		return ret;
-
-	/* Disable first to force a fresh detection cycle. */
+		goto out;
 	ret = regmap_update_bits(port->regmap,
 				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				 TYPEC_POWER_ROLE_CMD_MASK,
-				 TYPEC_DISABLE_CMD_BIT);
-	if (ret)
-		return ret;
-
-	/* Wait for the chip FSM to enter idle state. */
-	msleep(200);
-
-	ret = regmap_update_bits(port->regmap,
-				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				 TYPEC_POWER_ROLE_CMD_MASK, role_bits);
-
-	/* Wait for the FSM to leave idle and begin sensing. */
-	msleep(120);
+				 TYPEC_POWER_ROLE_CMD_MASK, role);
+out:
+	mutex_unlock(&port->lock);
 	return ret;
 }
 
 static irqreturn_t pmi8998_typec_isr(int irq, void *dev_id)
 {
 	struct pmi8998_typec_port *port = dev_id;
-	unsigned int status4, status1, status2;
-	bool vbus_changed, cc_changed;
+	unsigned int status4;
 	int ret;
 
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
-			  &status4);
-	if (ret)
-		return IRQ_HANDLED;
-
-	vbus_changed = (status4 ^ port->last_status4) & TYPEC_VBUS_STATUS_BIT;
-	cc_changed   = (status4 ^ port->last_status4) &
-		       (CC_ATTACHED_BIT | CC_ORIENTATION_BIT |
-			UFP_DFP_MODE_STATUS_BIT);
-	port->last_status4 = status4;
-
-	if (vbus_changed)
-		tcpm_vbus_change(port->tcpm_port);
-
-	/*
-	 * STATUS_1/STATUS_2 carry transient values while detached (DRP
-	 * search), so only re-read them and diff while attached.
-	 */
-	if (status4 & CC_ATTACHED_BIT) {
-		ret = regmap_read(port->regmap,
-				  port->base + TYPE_C_STATUS_1_REG, &status1);
+	mutex_lock(&port->lock);
+	if (port->stopping)
+		goto out;
+	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG, &status4);
+	if (ret) {
+		dev_err_ratelimited(port->dev, "Type-C status read failed: %d\n", ret);
+	} else if (status4 & PMI8998_VCONN_OC) {
+		ret = regmap_update_bits(port->regmap,
+					 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
+					 VCONN_EN_VALUE_BIT, 0);
 		if (ret)
-			status1 = port->last_status1;
-		ret = regmap_read(port->regmap,
-				  port->base + TYPE_C_STATUS_2_REG, &status2);
-		if (ret)
-			status2 = port->last_status2;
-
-		if (status1 != port->last_status1 ||
-		    status2 != port->last_status2)
-			cc_changed = true;
-
-		port->last_status1 = status1;
-		port->last_status2 = status2;
+			dev_err_ratelimited(port->dev, "VCONN shutdown failed: %d\n", ret);
 	}
-
-	if (cc_changed)
-		tcpm_cc_change(port->tcpm_port);
-
+	/* Queue current-state reads, including debounce completion and read errors. */
+	tcpm_vbus_change(port->tcpm_port);
+	tcpm_cc_change(port->tcpm_port);
+out:
+	mutex_unlock(&port->lock);
 	return IRQ_HANDLED;
+}
+
+/* Best effort at every shutdown step; retain the first error for the caller. */
+static int pmi8998_typec_quiesce(struct pmi8998_typec_port *port)
+{
+	int ret, error;
+
+	error = regmap_write(port->regmap, port->base + TYPE_C_INTRPT_ENB_REG, 0);
+	ret = regmap_update_bits(port->regmap,
+				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
+				 TYPEC_POWER_ROLE_CMD_MASK | VCONN_EN_VALUE_BIT |
+				 VCONN_EN_SRC_BIT | TYPEC_VCONN_OVERCURR_INT_EN_BIT,
+				 TYPEC_DISABLE_CMD_BIT | VCONN_EN_SRC_BIT);
+	if (!error)
+		error = ret;
+	if (port->vbus_enabled) {
+		ret = regulator_disable(port->vdd_vbus);
+		if (!ret)
+			port->vbus_enabled = false;
+		if (!error)
+			error = ret;
+	}
+	return error;
+}
+
+/* Before tcpm_register_port(): its synchronous init already invokes callbacks. */
+static int pmi8998_typec_port_prepare(struct pmic_typec *tcpm)
+{
+	struct pmi8998_typec_port *port = tcpm->port_priv;
+	int ret, cleanup;
+
+	mutex_lock(&port->lock);
+	ret = pmi8998_typec_quiesce(port);
+	if (ret)
+		goto failed;
+	msleep(200);
+	ret = regmap_update_bits(port->regmap, port->base + TYPE_C_CFG_REG,
+				 TYPE_C_OR_U_USB_BIT | FACTORY_MODE_DETECTION_EN_BIT |
+				 VCONN_OC_CFG_BIT, 0);
+	if (ret)
+		goto failed;
+	usleep_range(10000, 11000);
+	/* Leave CC OPEN until TCPM selects an actual role. */
+	mutex_unlock(&port->lock);
+	return 0;
+failed:
+	cleanup = pmi8998_typec_quiesce(port);
+	if (cleanup)
+		dev_err(port->dev, "Type-C prepare rollback failed: %d\n", cleanup);
+	mutex_unlock(&port->lock);
+	return ret;
 }
 
 static int pmi8998_typec_port_start(struct pmic_typec *tcpm,
 				    struct tcpm_port *tcpm_port)
 {
 	struct pmi8998_typec_port *port = tcpm->port_priv;
-	unsigned int val;
 	int ret;
 
-	/*
-	 * Skip the TYPEC_DISABLE_CMD_BIT write that downstream uses to
-	 * idle the FSM before reconfiguring. On dipper, leaving the chip
-	 * in its bootloader DRP state and only flipping POWER_ROLE in
-	 * start_toggling is enough for CC sensing to work; explicitly
-	 * disabling here latches the chip into a state where STATUS_1
-	 * never reports Rp even after start_toggling clears DISABLE.
-	 */
-
-	/*
-	 * Leave TYPE_C_CFG_2.DFP_CURRSRC_MODE in its hardware-default
-	 * state (chip-managed Rp/Rd current source). Downstream qpnp-smb2
-	 * does not switch it to software mode either; setting it without
-	 * driving the current-source bits ourselves keeps CC sensing
-	 * disabled and the chip never reports ATTACHED.
-	 */
-
-	/* Transition PMI8998 from bootloader micro-USB mode into
-	 * Type-C mode before enabling toggling. */
-	ret = regmap_update_bits(port->regmap,
-				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				 TYPEC_POWER_ROLE_CMD_MASK,
-				 TYPEC_DISABLE_CMD_BIT);
-	if (ret)
-		return ret;
-	msleep(200);
-
-	ret = regmap_update_bits(port->regmap,
-				 port->base + TYPE_C_CFG_REG,
-				 TYPE_C_OR_U_USB_BIT, 0);
-	if (ret)
-		return ret;
-	usleep_range(10000, 11000);
-
-	ret = regmap_update_bits(port->regmap,
-				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-				 TYPEC_DISABLE_CMD_BIT, 0);
-	if (ret)
-		return ret;
-	msleep(120);
-
-	/*
-	 * Enable all Type-C rollup interrupt sources. Downstream
-	 * qpnp-smb2 enables only the CC-state-change bit, but the
-	 * downstream charger driver also runs its own DFP-attach
-	 * detection path that we do not have here. Enabling 0xff lets
-	 * a single ISR observe both CC changes and DFP attach events,
-	 * which the XOR edge detector then sorts out cleanly.
-	 */
-	ret = regmap_write(port->regmap,
-			   port->base + TYPE_C_INTRPT_ENB_REG, 0xff);
-	if (ret)
-		return ret;
-
-	/* Snapshot initial state for the IRQ edge detector. */
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_4_REG,
-			  &val);
-	if (ret)
-		return ret;
-	port->last_status4 = val;
-
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_1_REG,
-			  &val);
-	if (ret)
-		return ret;
-	port->last_status1 = val;
-
-	ret = regmap_read(port->regmap, port->base + TYPE_C_STATUS_2_REG,
-			  &val);
-	if (ret)
-		return ret;
-	port->last_status2 = val;
-
+	mutex_lock(&port->lock);
 	port->tcpm_port = tcpm_port;
+	ret = regmap_update_bits(port->regmap,
+				 port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
+				 TYPEC_VCONN_OVERCURR_INT_EN_BIT,
+				 TYPEC_VCONN_OVERCURR_INT_EN_BIT);
+	if (!ret)
+		ret = regmap_write(port->regmap, port->base + TYPE_C_INTRPT_ENB_REG,
+				   TYPE_C_IRQ_MASK);
+	if (!ret)
+		port->irq_enabled = true;
+	mutex_unlock(&port->lock);
+	if (ret)
+		return ret;
 	enable_irq(port->irq);
-
+	/* Do not lose a cable already present before unmasking the rollup. */
+	tcpm_vbus_change(tcpm_port);
+	tcpm_cc_change(tcpm_port);
 	return 0;
 }
 
 static void pmi8998_typec_port_stop(struct pmic_typec *tcpm)
 {
 	struct pmi8998_typec_port *port = tcpm->port_priv;
+	bool irq_enabled;
+	int ret;
 
-	disable_irq(port->irq);
-
-	regmap_update_bits(port->regmap,
-			   port->base + TYPE_C_INTRPT_ENB_SW_CTRL_REG,
-			   TYPEC_POWER_ROLE_CMD_MASK, TYPEC_DISABLE_CMD_BIT);
-
-	mutex_lock(&port->vbus_lock);
-	if (port->vbus_enabled) {
-		regulator_disable(port->vdd_vbus);
-		port->vbus_enabled = false;
-	}
-	mutex_unlock(&port->vbus_lock);
+	mutex_lock(&port->lock);
+	port->stopping = true;
+	irq_enabled = port->irq_enabled;
+	port->irq_enabled = false;
+	mutex_unlock(&port->lock);
+	/* IRQ thread takes lock too: synchronize outside it. */
+	if (irq_enabled)
+		disable_irq(port->irq);
+	mutex_lock(&port->lock);
+	port->tcpm_port = NULL;
+	ret = pmi8998_typec_quiesce(port);
+	mutex_unlock(&port->lock);
+	if (ret)
+		dev_err(port->dev, "Type-C shutdown failed: %d\n", ret);
 }
 
 static int pmi8998_typec_port_probe(struct platform_device *pdev,
@@ -542,13 +448,21 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 {
 	struct device *dev = &pdev->dev;
 	struct pmi8998_typec_port *port;
+	const struct qcom_spmi_pmic *pmic;
 	int ret;
+
+	pmic = qcom_pmic_get(dev);
+	if (IS_ERR(pmic))
+		return PTR_ERR(pmic);
+	if (pmic->subtype != PMI8998_SUBTYPE || base != 0x1300 ||
+	    (to_spmi_device(dev->parent)->usid & 1))
+		return -ENODEV;
 
 	port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
 	if (!port)
 		return -ENOMEM;
 
-	mutex_init(&port->vbus_lock);
+	mutex_init(&port->lock);
 
 	port->vdd_vbus = devm_regulator_get(dev, "vdd-vbus");
 	if (IS_ERR(port->vdd_vbus))
@@ -579,6 +493,7 @@ static int pmi8998_typec_port_probe(struct platform_device *pdev,
 	tcpm->tcpc.set_vconn = pmi8998_typec_port_set_vconn;
 	tcpm->tcpc.start_toggling = pmi8998_typec_port_start_toggling;
 
+	tcpm->port_prepare = pmi8998_typec_port_prepare;
 	tcpm->port_start = pmi8998_typec_port_start;
 	tcpm->port_stop = pmi8998_typec_port_stop;
 

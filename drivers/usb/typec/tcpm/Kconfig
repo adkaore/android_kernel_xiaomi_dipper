@@ -79,6 +79,7 @@ config TYPEC_WCOVE
 config TYPEC_QCOM_PMIC
 	tristate "Qualcomm PMIC USB Type-C Port Controller Manager driver"
 	depends on ARCH_QCOM || COMPILE_TEST
+	depends on MFD_SPMI_PMIC
 	depends on DRM || DRM=n
 	select DRM_AUX_HPD_BRIDGE if DRM_BRIDGE && OF
 	help

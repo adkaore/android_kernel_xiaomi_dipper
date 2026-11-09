@@ -15,10 +15,13 @@ struct pmic_typec {
 
 	int (*pdphy_start)(struct pmic_typec *tcpm,
 			   struct tcpm_port *tcpm_port);
+	int (*pdphy_prepare)(struct pmic_typec *tcpm);
 	void (*pdphy_stop)(struct pmic_typec *tcpm);
 
 	int (*port_start)(struct pmic_typec *tcpm,
 			  struct tcpm_port *tcpm_port);
+	/* Optional setup before TCPM's synchronous init invokes callbacks. */
+	int (*port_prepare)(struct pmic_typec *tcpm);
 	void (*port_stop)(struct pmic_typec *tcpm);
 };
 
