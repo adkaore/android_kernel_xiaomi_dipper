@@ -52,6 +52,10 @@ properties:
   vdd-pdphy-supply:
     description: PD PHY analog supply.
 
+  power-supplies:
+    maxItems: 1
+    description: Same-PMIC SMB2 charger controlling USB input suspend and current.
+
   connector:
     type: object
     $ref: /schemas/connector/usb-connector.yaml#
@@ -68,6 +72,7 @@ required:
   - interrupt-names
   - vdd-vbus-supply
   - vdd-pdphy-supply
+  - power-supplies
 
 additionalProperties: false
 
@@ -93,5 +98,6 @@ examples:
                               "msg-tx-discarded", "msg-rx-discarded";
             vdd-vbus-supply = <&vbus>;
             vdd-pdphy-supply = <&vreg_l24>;
+            power-supplies = <&charger>;
         };
     };
