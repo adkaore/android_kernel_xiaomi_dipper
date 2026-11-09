@@ -25,7 +25,7 @@ No phone was accessed, rebooted, flashed or otherwise changed.
   stays disabled. Custom pattern/auto-mode parity remains open; see haptics.md.
 - Explicit fragment requests are checked after Kconfig; dependencies cannot
   silently drop a requested driver. Rust, CFI, SELinux and BTF remain enabled.
-- Combined build produced Image, 14 final DTB targets and 145 current-build modules
+- Combined build produced Image, 14 final DTB targets and 147 current-build modules
   on a clean Git tree. The matching helper base and two plugins are hashed too.
   Historical result records identify their own source revisions.
 
@@ -97,12 +97,14 @@ identity missing from internet sources; it is not itself a hardware driver test.
 ## Latest end-to-end check
 
 latest-checked-build.json identifies the checked source revision, configuration,
-Image/DTB/plugin hashes and 145 module paths. At source revision
-`e9b708836d85909622cdee3e08315f1a15ba162e` the final verifier completed with
+Image/DTB/plugin hashes and 147 module paths. At source revision
+`4d59f3dcddd4be7ee399434335e42d532407bb89` the final verifier completed with
 zero applicable schema diagnostics for all 14 final trees and the helper base,
-230 source/compiled-DT tests and one million ASan/UBSan decoder cases. It also
-rechecked all 94 explicit fragment requests after schema generation. The pinned
-legacy DTS audit was rerun and reproduced the tracked manifest exactly.
+236 source/compiled-DT tests and one million ASan/UBSan decoder cases. It also
+rechecked all 96 explicit fragment requests after schema generation. Haptics register encoders also passed ASan/UBSan
+coverage of all supported periods and all trim bytes, voltage ceilings and
+debounce cases. The unchanged legacy manifest was reproduced in the earlier
+variant audit; that result is historical, not a new hardware test.
 No Android/vendor files were changed, and no phone command has been executed.
 
 The work is published on topic branches. It does NOT mean that every independent
